@@ -4,11 +4,11 @@ import {
   DrawerItemList,
 } from "@react-navigation/drawer";
 import { View, Text, TouchableOpacity } from "react-native";
-
-//constants
-import colors from "../constants/colors";
+import { useSelector } from "react-redux";
 
 const MyDrawerContainer = (props) => {
+  const colors = useSelector((state) => state.colors);
+
   const handlePress = () => {
     props.navigation.navigate("Selection Screen");
   };
@@ -17,7 +17,6 @@ const MyDrawerContainer = (props) => {
     <DrawerContentScrollView
       contentContainerStyle={{
         height: "100%",
-        backgroundColor: colors.secondary,
       }}
       scrollEnabled={false}
       {...props}
@@ -40,7 +39,7 @@ const MyDrawerContainer = (props) => {
             style={{
               fontSize: 20,
               textAlign: "center",
-              color: colors.textColors.headerText,
+              color: "white",
             }}
           >
             Switch

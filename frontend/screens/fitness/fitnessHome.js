@@ -1,13 +1,12 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Text } from "react-native";
-
-//constants
-import colors from "../../constants/colors";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
 
 const FitnessHome = (props) => {
+  const colors = useSelector((state) => state.colors);
   return (
     <ScrollViewContainer
       content={

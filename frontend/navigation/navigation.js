@@ -1,7 +1,8 @@
-import React, { useCallBack } from "react";
+import React from "react";
+import { Text } from "react-native";
 import { StatusBar } from "react-native";
+import { useSelector } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 
@@ -11,12 +12,10 @@ import SelectionScreen from "../screens/selectionScreen";
 
 //grocery screens
 import GroceryHome from "../screens/grocery/groceryHome";
+import GroceryTest from "../screens/grocery/groceryTest";
 
 //fitness screens
 import FitnessHome from "../screens/fitness/fitnessHome";
-
-//constants
-import colors from "../constants/colors";
 
 //components
 import MyDrawerContainer from "../components/drawerContainer";
@@ -25,7 +24,7 @@ import MyDrawerContainer from "../components/drawerContainer";
 const GroceryDrawer = createDrawerNavigator();
 
 const GroceryDrawerNavigator = () => {
-  console.log("Reload");
+  const colors = useSelector((state) => state.colors);
   return (
     <GroceryDrawer.Navigator
       screenOptions={{
@@ -35,6 +34,10 @@ const GroceryDrawerNavigator = () => {
         headerTintColor: colors.textColors.headerText,
         headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
         headerShadowVisible: false,
+        drawerStyle: { backgroundColor: colors.primary },
+        drawerActiveBackgroundColor: colors.primary,
+        drawerActiveTintColor: "white",
+        drawerInactiveTintColor: "white",
       }}
       drawerContent={(props) => <MyDrawerContainer {...props} />}
       useLegacyImplementation={true}
@@ -42,7 +45,40 @@ const GroceryDrawerNavigator = () => {
       <GroceryDrawer.Screen
         name="Grocery Home"
         component={GroceryHome}
-        options={{ headerTitle: "Home" }}
+        options={{
+          headerTitle: "Home",
+          drawerLabel: ({ focused, color }) => (
+            <Text
+              style={{
+                fontWeight: focused ? "bold" : "normal",
+                textDecorationLine: focused ? "underline" : "none",
+                color,
+                fontSize: 20,
+              }}
+            >
+              Home
+            </Text>
+          ),
+        }}
+      />
+      <GroceryDrawer.Screen
+        name="Grocery Test"
+        component={GroceryTest}
+        options={{
+          headerTitle: "Test",
+          drawerLabel: ({ focused, color }) => (
+            <Text
+              style={{
+                fontWeight: focused ? "bold" : "normal",
+                textDecorationLine: focused ? "underline" : "none",
+                color,
+                fontSize: 20,
+              }}
+            >
+              Test
+            </Text>
+          ),
+        }}
       />
     </GroceryDrawer.Navigator>
   );
@@ -52,7 +88,7 @@ const GroceryDrawerNavigator = () => {
 const FitnessDrawer = createDrawerNavigator();
 
 const FitnessDrawerNavigator = () => {
-  console.log("Reload");
+  const colors = useSelector((state) => state.colors);
   return (
     <FitnessDrawer.Navigator
       screenOptions={{
@@ -62,6 +98,10 @@ const FitnessDrawerNavigator = () => {
         headerTintColor: colors.textColors.headerText,
         headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
         headerShadowVisible: false,
+        drawerStyle: { backgroundColor: colors.primary },
+        drawerActiveBackgroundColor: colors.primary,
+        drawerActiveTintColor: colors.textColors.headerText,
+        drawerInactiveTintColor: colors.textColors.headerText,
       }}
       drawerContent={(props) => <MyDrawerContainer {...props} />}
       useLegacyImplementation={true}
@@ -69,7 +109,21 @@ const FitnessDrawerNavigator = () => {
       <FitnessDrawer.Screen
         name="Fitness Home"
         component={FitnessHome}
-        options={{ headerTitle: "Home" }}
+        options={{
+          headerTitle: "Home",
+          drawerLabel: ({ focused, color }) => (
+            <Text
+              style={{
+                fontWeight: focused ? "bold" : "normal",
+                textDecorationLine: focused ? "underline" : "none",
+                color,
+                fontSize: 20,
+              }}
+            >
+              Home
+            </Text>
+          ),
+        }}
       />
     </FitnessDrawer.Navigator>
   );
@@ -79,6 +133,7 @@ const FitnessDrawerNavigator = () => {
 const Stack = createNativeStackNavigator();
 
 const StackNavigator = () => {
+  const colors = useSelector((state) => state.colors);
   return (
     <NavigationContainer>
       <StatusBar

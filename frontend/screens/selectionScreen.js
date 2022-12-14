@@ -1,13 +1,14 @@
 import React from "react";
-import { View, Text, Image } from "react-native";
-
-//constants
-import colors from "../constants/colors";
+import { View, Image } from "react-native";
+import { useDispatch } from "react-redux";
+import { switchMode } from "../store/actions/switchMode";
 
 //components
 import Card from "../components/card";
 
 const SelectionScreen = (props) => {
+  const dispatch = useDispatch();
+
   return (
     <View
       style={{
@@ -26,7 +27,10 @@ const SelectionScreen = (props) => {
           borderWidth: 0,
         }}
         isTouchable={true}
-        onPress={() => props.navigation.navigate("Grocery App")}
+        onPress={() => {
+          dispatch(switchMode("Grocery"));
+          props.navigation.navigate("Grocery App");
+        }}
         content={
           <View
             style={{
@@ -51,7 +55,10 @@ const SelectionScreen = (props) => {
           borderWidth: 0,
         }}
         isTouchable={true}
-        onPress={() => props.navigation.navigate("Fitness App")}
+        onPress={() => {
+          dispatch(switchMode("Fitness"));
+          props.navigation.navigate("Fitness App");
+        }}
         content={
           <View
             style={{

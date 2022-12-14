@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView } from "react-native";
-
-//constants
-import colors from "../constants/colors";
+import { useSelector } from "react-redux";
 
 const ScrollViewContainer = (props) => {
+  const colors = useSelector((state) => state.colors);
+
   const [shadowVisible, setShadowVisible] = useState(false);
 
   const handleSroll = (e) => {

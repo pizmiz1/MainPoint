@@ -1,9 +1,6 @@
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
 
-// constants
-import colors from "../constants/colors";
-
 const Card = (props) => {
   if (props.isTouchable) {
     return (
