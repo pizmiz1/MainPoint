@@ -1,4 +1,6 @@
 import { SWITCH_MODE } from "../actions/switchMode";
+import { UPDATE_BENCH } from "../actions/updateBench";
+import { UPDATE_SQUAT } from "../actions/updateSquat";
 
 const initialState = {
   mode: undefined,
@@ -9,6 +11,8 @@ const initialState = {
       headerText: "black",
     },
   },
+  maxBench: 0,
+  maxSquat: 0,
 };
 
 const rootReducer = (state, action) => {
@@ -45,6 +49,18 @@ const rootReducer = (state, action) => {
           },
         };
       }
+    }
+    case UPDATE_BENCH: {
+      return {
+        ...state,
+        maxBench: action.maxBench,
+      };
+    }
+    case UPDATE_SQUAT: {
+      return {
+        ...state,
+        maxSquat: action.maxSquat,
+      };
     }
     default:
       return state;

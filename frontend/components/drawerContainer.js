@@ -5,11 +5,13 @@ import {
 } from "@react-navigation/drawer";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useSelector } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MyDrawerContainer = (props) => {
   const colors = useSelector((state) => state.colors);
 
   const handlePress = () => {
+    AsyncStorage.removeItem("Mode");
     props.navigation.navigate("Selection Screen");
   };
 

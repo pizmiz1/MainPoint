@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import moment from "moment/moment";
 
 //shared screens
 import SplashScreen from "../screens/splashScreen";
@@ -15,7 +16,10 @@ import GroceryHome from "../screens/grocery/groceryHome";
 import GroceryTest from "../screens/grocery/groceryTest";
 
 //fitness screens
-import FitnessHome from "../screens/fitness/fitnessHome";
+import FitnessDay from "../screens/fitness/fitnessDay";
+import FitnessWeek from "../screens/fitness/fitnessWeek";
+import FitnessEdit from "../screens/fitness/fitnessEdit";
+import FitnessMaxes from "../screens/fitness/fitnessMaxes";
 
 //components
 import MyDrawerContainer from "../components/drawerContainer";
@@ -88,6 +92,24 @@ const GroceryDrawerNavigator = () => {
 const FitnessDrawer = createDrawerNavigator();
 
 const FitnessDrawerNavigator = () => {
+  let weekDisp;
+  const dayDisp = moment().format("dddd");
+  if (dayDisp === "Tuesday") {
+    weekDisp = moment().subtract(1, "days").format("MMM Do");
+  } else if (dayDisp === "Wednesday") {
+    weekDisp = moment().subtract(2, "days").format("MMM Do");
+  } else if (dayDisp === "Thrusday") {
+    weekDisp = moment().subtract(3, "days").format("MMM Do");
+  } else if (dayDisp === "Friday") {
+    weekDisp = moment().subtract(4, "days").format("MMM Do");
+  } else if (dayDisp === "Saturday") {
+    weekDisp = moment().subtract(5, "days").format("MMM Do");
+  } else if (dayDisp === "Sunday") {
+    weekDisp = moment().subtract(6, "days").format("MMM Do");
+  } else {
+    weekDisp = moment().format("MMM Do");
+  }
+
   const colors = useSelector((state) => state.colors);
   return (
     <FitnessDrawer.Navigator
@@ -107,10 +129,10 @@ const FitnessDrawerNavigator = () => {
       useLegacyImplementation={true}
     >
       <FitnessDrawer.Screen
-        name="Fitness Home"
-        component={FitnessHome}
+        name="Fitness Day"
+        component={FitnessDay}
         options={{
-          headerTitle: "Home",
+          headerTitle: dayDisp,
           drawerLabel: ({ focused, color }) => (
             <Text
               style={{
@@ -120,9 +142,57 @@ const FitnessDrawerNavigator = () => {
                 fontSize: 20,
               }}
             >
-              Home
+              Program
             </Text>
           ),
+        }}
+      />
+      <FitnessDrawer.Screen
+        name="Fitness Edit"
+        component={FitnessEdit}
+        options={{
+          headerTitle: "",
+          drawerLabel: ({ focused, color }) => (
+            <Text
+              style={{
+                fontWeight: focused ? "bold" : "normal",
+                textDecorationLine: focused ? "underline" : "none",
+                color,
+                fontSize: 20,
+              }}
+            >
+              Edit
+            </Text>
+          ),
+        }}
+      />
+      <FitnessDrawer.Screen
+        name="Fitness Maxes"
+        component={FitnessMaxes}
+        options={{
+          headerTitle: "Maxes",
+          drawerLabel: ({ focused, color }) => (
+            <Text
+              style={{
+                fontWeight: focused ? "bold" : "normal",
+                textDecorationLine: focused ? "underline" : "none",
+                color,
+                fontSize: 20,
+              }}
+            >
+              Maxes
+            </Text>
+          ),
+        }}
+      />
+      <FitnessDrawer.Screen
+        name="Fitness Week"
+        component={FitnessWeek}
+        options={{
+          headerTitle: weekDisp,
+          drawerItemStyle: {
+            display: "none",
+          },
         }}
       />
     </FitnessDrawer.Navigator>

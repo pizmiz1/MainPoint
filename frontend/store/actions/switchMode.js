@@ -6,10 +6,10 @@ export const switchMode = (mode) => (dispatch) => {
     type: SWITCH_MODE,
     mode: mode,
   });
-  //   AsyncStorage.setItem(
-  //     "Mode",
-  //     JSON.stringify({
-  //       mode: mode,
-  //     })
-  //   );
+  AsyncStorage.setItem(
+    "Mode",
+    JSON.stringify({
+      mode: mode,
+    })
+  );
 };

@@ -1,9 +1,32 @@
 import React, { useRef, useEffect } from "react";
 import { View, Animated, Image } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch } from "react-redux";
+import { switchMode } from "../store/actions/switchMode";
 
 const SplashScreen = (props) => {
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    props.navigation.navigate("Selection Screen");
+    const load = async () => {
+      const mode = await AsyncStorage.getItem("Mode");
+      if (!mode) {
+        props.navigation.navigate("Selection Screen");
+      } else {
+        const transformedMode = JSON.parse(mode);
+        if (transformedMode.mode === "Fitness") {
+          dispatch(switchMode("Fitness"));
+          props.navigation.navigate("Fitness App");
+        } else if (transformedMode.mode === "Grocery") {
+          dispatch(switchMode("Grocery"));
+          props.navigation.navigate("Grocery App");
+        } else {
+          props.navigation.navigate("Selection Screen");
+        }
+      }
+    };
+
+    load();
   }, []);
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
