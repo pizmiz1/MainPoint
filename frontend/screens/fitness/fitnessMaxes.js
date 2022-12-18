@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   View,
@@ -11,9 +11,13 @@ import {
 import { Entypo } from "@expo/vector-icons";
 import { updateBench } from "../../store/actions/updateBench";
 import { updateSquat } from "../../store/actions/updateSquat";
+import { db } from "../../firebaseConfig";
+import { updateDoc, doc } from "firebase/firestore";
 
 const FitnessMaxes = (props) => {
   const colors = useSelector((state) => state.colors);
+  const globalBench = useSelector((state) => state.maxBench);
+  const globalSquat = useSelector((state) => state.maxSquat);
 
   const [bench, onBenchChange] = useState(null);
   const [squat, onChangeSquat] = useState(null);
@@ -21,6 +25,11 @@ const FitnessMaxes = (props) => {
   const [squatUpdating, setSquatUpdating] = useState(false);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    onBenchChange(globalBench);
+    onChangeSquat(globalSquat);
+  }, []);
 
   return (
     <TouchableWithoutFeedback
@@ -54,10 +63,10 @@ const FitnessMaxes = (props) => {
             onChangeText={onBenchChange}
             onEndEditing={async () => {
               setBenchUpdating(true);
-              const worked = await dispatch(updateBench(bench));
-              if (worked) {
-                setBenchUpdating(false);
-              }
+              await dispatch(updateBench(bench));
+              const MaxesDB = await doc(db, "Maxes", "Maxes");
+              await updateDoc(MaxesDB, { Bench: bench });
+              setBenchUpdating(false);
             }}
             value={bench}
             placeholder="999"
@@ -101,10 +110,10 @@ const FitnessMaxes = (props) => {
             onChangeText={onChangeSquat}
             onEndEditing={async () => {
               setSquatUpdating(true);
-              const worked = await dispatch(updateSquat(squat));
-              if (worked) {
-                setSquatUpdating(false);
-              }
+              await dispatch(updateSquat(squat));
+              const MaxesDB = await doc(db, "Maxes", "Maxes");
+              await updateDoc(MaxesDB, { Squat: squat });
+              setSquatUpdating(false);
             }}
             value={squat}
             placeholder="999"

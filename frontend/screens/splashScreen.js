@@ -3,12 +3,20 @@ import { View, Animated, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch } from "react-redux";
 import { switchMode } from "../store/actions/switchMode";
+import { db } from "../firebaseConfig";
+import { collection, getDocs } from "firebase/firestore";
+import { updateBench } from "../store/actions/updateBench";
+import { updateSquat } from "../store/actions/updateSquat";
 
 const SplashScreen = (props) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
     const load = async () => {
+      const MaxesDB = await getDocs(collection(db, "Maxes"));
+      dispatch(updateBench(MaxesDB.docs.at(0).data().Bench));
+      dispatch(updateSquat(MaxesDB.docs.at(0).data().Squat));
+
       const mode = await AsyncStorage.getItem("Mode");
       if (!mode) {
         props.navigation.navigate("Selection Screen");
