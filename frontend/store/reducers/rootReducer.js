@@ -127,7 +127,6 @@ const rootReducer = (state, action) => {
       };
     }
     case UPDATE_EXCERSIZES: {
-      console.log(action.day, action.excersizes);
       switch (action.day) {
         case 0: {
           return { ...state, mondayExcersizes: action.excersizes };
