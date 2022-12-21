@@ -3,6 +3,7 @@ import React from "react";
 import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import thunk from "redux-thunk";
+import { NotifierWrapper } from "react-native-notifier";
 
 //files
 import MyNavigator from "./navigation/navigation";
@@ -12,9 +13,11 @@ const store = createStore(rootReducer, applyMiddleware(thunk));
 
 const App = () => {
   return (
-    <Provider store={store}>
-      <MyNavigator />
-    </Provider>
+    <NotifierWrapper>
+      <Provider store={store}>
+        <MyNavigator />
+      </Provider>
+    </NotifierWrapper>
   );
 };
 

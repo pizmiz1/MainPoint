@@ -1,6 +1,7 @@
 import { SWITCH_MODE } from "../actions/switchMode";
 import { UPDATE_BENCH } from "../actions/updateBench";
 import { UPDATE_SQUAT } from "../actions/updateSquat";
+import { UPDATE_EXCERSIZES } from "../actions/updateExcersizes";
 
 const initialState = {
   mode: undefined,
@@ -13,6 +14,69 @@ const initialState = {
   },
   maxBench: 0,
   maxSquat: 0,
+  mondayExcersizes: [
+    {
+      id: "Example",
+      excersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  tuesdayExcersizes: [
+    {
+      id: "Example",
+      excersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  wednesdayExcersizes: [
+    {
+      id: "Example",
+      excersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  thursdayExcersizes: [
+    {
+      id: "Example",
+      excersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  fridayExcersizes: [
+    {
+      id: "Example",
+      excersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  saturdayExcersizes: [
+    {
+      id: "Example",
+      excersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  sundayExcersizes: [
+    {
+      id: "Example",
+      excersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
 };
 
 const rootReducer = (state, action) => {
@@ -61,6 +125,34 @@ const rootReducer = (state, action) => {
         ...state,
         maxSquat: action.maxSquat,
       };
+    }
+    case UPDATE_EXCERSIZES: {
+      console.log(action.day, action.excersizes);
+      switch (action.day) {
+        case 0: {
+          return { ...state, mondayExcersizes: action.excersizes };
+        }
+        case 1: {
+          return { ...state, tuesdayExcersizes: action.excersizes };
+        }
+        case 2: {
+          return { ...state, wednesdayExcersizes: action.excersizes };
+        }
+        case 3: {
+          return { ...state, thursdayExcersizes: action.excersizes };
+        }
+        case 4: {
+          return { ...state, fridayExcersizes: action.excersizes };
+        }
+        case 5: {
+          return { ...state, saturdayExcersizes: action.excersizes };
+        }
+        case 6: {
+          return { ...state, sundayExcersizes: action.excersizes };
+        }
+        default:
+          return state;
+      }
     }
     default:
       return state;

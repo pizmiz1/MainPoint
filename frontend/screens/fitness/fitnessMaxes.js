@@ -62,11 +62,13 @@ const FitnessMaxes = (props) => {
             }}
             onChangeText={onBenchChange}
             onEndEditing={async () => {
-              setBenchUpdating(true);
-              await dispatch(updateBench(bench));
-              const MaxesDB = await doc(db, "Maxes", "Maxes");
-              await updateDoc(MaxesDB, { Bench: bench });
-              setBenchUpdating(false);
+              if (bench !== "") {
+                setBenchUpdating(true);
+                await dispatch(updateBench(bench));
+                const MaxesDB = await doc(db, "Maxes", "Maxes");
+                await updateDoc(MaxesDB, { Bench: bench });
+                setBenchUpdating(false);
+              }
             }}
             value={bench}
             placeholder="999"
@@ -109,11 +111,13 @@ const FitnessMaxes = (props) => {
             }}
             onChangeText={onChangeSquat}
             onEndEditing={async () => {
-              setSquatUpdating(true);
-              await dispatch(updateSquat(squat));
-              const MaxesDB = await doc(db, "Maxes", "Maxes");
-              await updateDoc(MaxesDB, { Squat: squat });
-              setSquatUpdating(false);
+              if (squat !== "") {
+                setSquatUpdating(true);
+                await dispatch(updateSquat(squat));
+                const MaxesDB = await doc(db, "Maxes", "Maxes");
+                await updateDoc(MaxesDB, { Squat: squat });
+                setSquatUpdating(false);
+              }
             }}
             value={squat}
             placeholder="999"
