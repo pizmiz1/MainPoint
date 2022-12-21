@@ -1,2 +1,2 @@
-# OnePoint - Grocery and Fitness In One
+# OnePoint - Grocery and Fitness in one
 By Ethan Britton! :)
