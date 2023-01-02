@@ -25,7 +25,7 @@ const BottomNavigationTab = (props) => {
   return (
     <View
       style={{
-        flex: 0.12,
+        flex: 0.5,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-evenly",

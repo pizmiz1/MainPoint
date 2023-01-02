@@ -2,6 +2,7 @@ import { SWITCH_MODE } from "../actions/switchMode";
 import { UPDATE_BENCH } from "../actions/updateBench";
 import { UPDATE_SQUAT } from "../actions/updateSquat";
 import { UPDATE_OHP } from "../actions/updateOHP";
+import { UPDATE_POWER } from "../actions/updatePower";
 import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
 import uuid from "react-native-uuid";
 
@@ -17,6 +18,7 @@ const initialState = {
   maxBench: 0,
   maxSquat: 0,
   maxOHP: 0,
+  power: true,
   mondayExersizes: [
     {
       id: uuid.v4(),
@@ -196,6 +198,12 @@ const rootReducer = (state, action) => {
       return {
         ...state,
         maxOHP: action.maxOHP,
+      };
+    }
+    case UPDATE_POWER: {
+      return {
+        ...state,
+        power: action.power,
       };
     }
     case UPDATE_EXERSIZES: {
