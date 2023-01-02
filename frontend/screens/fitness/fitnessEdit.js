@@ -3,6 +3,7 @@ import React, {
   useRef,
   forwardRef,
   useImperativeHandle,
+  useEffect,
 } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -15,7 +16,7 @@ import {
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import uuid from "react-native-uuid";
-import { updateExcersizes } from "../../store/actions/updateExcersizes";
+import { updateExersizes } from "../../store/actions/updateExersizes";
 import { Notifier, Easing, NotifierComponents } from "react-native-notifier";
 
 //components
@@ -23,15 +24,20 @@ import ScrollViewContainer from "../../components/scrollViewContainer";
 
 const FitnessEdit = (props) => {
   const colors = useSelector((state) => state.colors);
+  const mondayExersizes = useSelector((state) => state.mondayExersizes);
+  const tuesdayExersizes = useSelector((state) => state.tuesdayExersizes);
+  const wednesdayExersizes = useSelector((state) => state.wednesdayExersizes);
+  const thursdayExersizes = useSelector((state) => state.thursdayExersizes);
+  const fridayExersizes = useSelector((state) => state.fridayExersizes);
+  const saturdayExersizes = useSelector((state) => state.saturdayExersizes);
+  const sundayExersizes = useSelector((state) => state.sundayExersizes);
 
-  const submitLoading = useRef();
-
-  const [reloadTrigger, setReloadTrigger] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   const dispatch = useDispatch();
 
   const submitPress = async () => {
-    submitLoading.current = true;
+    setSubmitLoading(true);
     const worked0 = await compRef0.current.submit();
     const worked1 = await compRef1.current.submit();
     const worked2 = await compRef2.current.submit();
@@ -66,8 +72,7 @@ const FitnessEdit = (props) => {
         },
       });
     }
-    submitLoading.current = false;
-    //setReloadTrigger(!reloadTrigger);
+    setSubmitLoading(false);
   };
 
   const compRef0 = useRef();
@@ -81,64 +86,89 @@ const FitnessEdit = (props) => {
   const DayComponent = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
       async submit() {
-        const worked = await dispatch(updateExcersizes(props.day, excersizes));
+        let passedDay;
+        if (props.day === "Monday") {
+          passedDay = 0;
+        } else if (props.day === "Tuesday") {
+          passedDay = 1;
+        } else if (props.day === "Wednesday") {
+          passedDay = 2;
+        } else if (props.day === "Thursday") {
+          passedDay = 3;
+        } else if (props.day === "Friday") {
+          passedDay = 4;
+        } else if (props.day === "Saturday") {
+          passedDay = 5;
+        } else if (props.day === "Sunday") {
+          passedDay = 6;
+        }
+
+        const worked = await dispatch(updateExersizes(passedDay, exersizes));
         return worked;
       },
     }));
 
     const [selected, setSelected] = useState(false);
-    const [excersizes, setExcersizes] = useState([
+    const [exersizes, setExersizes] = useState([
       {
         id: uuid.v4(),
-        excersize: "",
+        exersize: "",
         sets: "",
         reps: "",
         weight: "",
       },
     ]);
 
-    const handleExcersizeChange = (index, val) => {
-      let data = [...excersizes];
-      data[index].excersize = val;
-      setExcersizes(data);
+    useEffect(() => {
+      if (props.exersizes !== undefined) {
+        setExersizes(props.exersizes);
+      }
+    }, []);
+
+    const handleExersizeChange = (index, val) => {
+      let data = [...exersizes];
+      data[index].exersize = val;
+      setExersizes(data);
     };
 
     const handleSetsChange = (index, val) => {
-      let data = [...excersizes];
+      let data = [...exersizes];
       data[index].sets = val;
-      setExcersizes(data);
+      setExersizes(data);
     };
 
     const handleRepsChange = (index, val) => {
-      let data = [...excersizes];
+      let data = [...exersizes];
       data[index].reps = val;
-      setExcersizes(data);
+      setExersizes(data);
     };
 
     const handleWeightChange = (index, val) => {
-      let data = [...excersizes];
+      let data = [...exersizes];
       data[index].weight = val;
-      setExcersizes(data);
+      setExersizes(data);
     };
 
-    const addExcersize = () => {
-      let newExcersize = {
+    const addExersize = () => {
+      let newExersize = {
         id: uuid.v4(),
-        excersize: "",
+        exersize: "",
         sets: "",
         reps: "",
         weight: "",
       };
-      setExcersizes([...excersizes, newExcersize]);
+      setExersizes([...exersizes, newExersize]);
     };
 
-    const removeExcersize = (index) => {
-      let data = [...excersizes];
+    const removeExersize = (index) => {
+      let data = [...exersizes];
       data.splice(index, 1);
-      setExcersizes(data);
+      setExersizes(data);
     };
 
-    return (
+    return submitLoading ? (
+      <View />
+    ) : (
       <View>
         <TouchableOpacity
           onPress={() => {
@@ -188,7 +218,7 @@ const FitnessEdit = (props) => {
         </TouchableOpacity>
         {selected ? (
           <View>
-            {excersizes.map((item, index) => {
+            {exersizes.map((item, index) => {
               return (
                 <View
                   style={{
@@ -199,7 +229,8 @@ const FitnessEdit = (props) => {
                   key={index}
                 >
                   <Text style={{ color: "white", fontSize: 30 }}>
-                    {index + 1}.{" "}
+                    {" "}
+                    {index + 1}.
                   </Text>
                   <View
                     style={{
@@ -210,11 +241,11 @@ const FitnessEdit = (props) => {
                     }}
                   >
                     <TextInput
-                      value={item.excersize}
-                      placeholder="Excersize"
-                      onChangeText={(val) => handleExcersizeChange(index, val)}
+                      value={item.exersize}
+                      placeholder="exersize"
+                      onChangeText={(val) => handleExersizeChange(index, val)}
                       style={{
-                        margin: 5,
+                        //margin: 5,
                         borderWidth: 1,
                         padding: 5,
                         borderColor: "white",
@@ -222,7 +253,6 @@ const FitnessEdit = (props) => {
                         color: "white",
                         fontSize: 15,
                         width: "40%",
-                        marginRight: 5,
                       }}
                       textAlign="center"
                     />
@@ -238,8 +268,7 @@ const FitnessEdit = (props) => {
                         borderRadius: 10,
                         color: "white",
                         fontSize: 15,
-                        width: "10%",
-                        marginRight: 5,
+                        width: "12%",
                       }}
                       textAlign="center"
                       keyboardType="number-pad"
@@ -249,15 +278,14 @@ const FitnessEdit = (props) => {
                       placeholder="Reps"
                       onChangeText={(val) => handleRepsChange(index, val)}
                       style={{
-                        margin: 5,
+                        //margin: 5,
                         borderWidth: 1,
                         padding: 5,
                         borderColor: "white",
                         borderRadius: 10,
                         color: "white",
                         fontSize: 15,
-                        width: "10%",
-                        marginRight: 5,
+                        width: "13%",
                       }}
                       textAlign="center"
                       keyboardType="number-pad"
@@ -274,15 +302,15 @@ const FitnessEdit = (props) => {
                         borderRadius: 10,
                         color: "white",
                         fontSize: 15,
-                        width: "15%",
-                        marginRight: 20,
+                        width: "17%",
+                        marginRight: 5,
                       }}
                       textAlign="center"
                       keyboardType="numbers-and-punctuation"
                     />
                     <TouchableOpacity
                       onPress={() => {
-                        removeExcersize(index);
+                        removeExersize(index);
                       }}
                       style={{ marginRight: 10 }}
                     >
@@ -293,7 +321,7 @@ const FitnessEdit = (props) => {
               );
             })}
             <TouchableOpacity
-              onPress={addExcersize}
+              onPress={addExersize}
               style={{ marginLeft: 5, marginTop: 10 }}
             >
               <AntDesign name="pluscircleo" size={30} color="green" />
@@ -310,32 +338,64 @@ const FitnessEdit = (props) => {
       <ScrollViewContainer
         content={
           <View>
-            <DayComponent day="Monday" ref={compRef0} />
-            <DayComponent day="Tuesday" ref={compRef1} />
-            <DayComponent day="Wednesday" ref={compRef2} />
-            <DayComponent day="Thursday" ref={compRef3} />
-            <DayComponent day="Friday" ref={compRef4} />
-            <DayComponent day="Saturday" ref={compRef5} />
-            <DayComponent day="Sunday" ref={compRef6} />
-            <TouchableOpacity
-              onPress={submitPress}
-              style={{
-                borderWidth: 1,
-                borderColor: "grey",
-                padding: 5,
-                borderRadius: 20,
-                width: "50%",
-                alignSelf: "center",
-                backgroundColor: "green",
-              }}
-              disabled={submitLoading.current}
-            >
-              <Text
-                style={{ color: "white", fontSize: 30, textAlign: "center" }}
+            <DayComponent
+              day="Monday"
+              ref={compRef0}
+              exersizes={mondayExersizes}
+            />
+            <DayComponent
+              day="Tuesday"
+              ref={compRef1}
+              exersizes={tuesdayExersizes}
+            />
+            <DayComponent
+              day="Wednesday"
+              ref={compRef2}
+              exersizes={wednesdayExersizes}
+            />
+            <DayComponent
+              day="Thursday"
+              ref={compRef3}
+              exersizes={thursdayExersizes}
+            />
+            <DayComponent
+              day="Friday"
+              ref={compRef4}
+              exersizes={fridayExersizes}
+            />
+            <DayComponent
+              day="Saturday"
+              ref={compRef5}
+              exersizes={saturdayExersizes}
+            />
+            <DayComponent
+              day="Sunday"
+              ref={compRef6}
+              exersizes={sundayExersizes}
+            />
+            {submitLoading ? (
+              <ActivityIndicator size="large" />
+            ) : (
+              <TouchableOpacity
+                onPress={submitPress}
+                style={{
+                  borderWidth: 1,
+                  borderColor: "grey",
+                  padding: 5,
+                  borderRadius: 20,
+                  width: "50%",
+                  alignSelf: "center",
+                  backgroundColor: colors.primary,
+                  marginBottom: 20,
+                }}
               >
-                SUBMIT
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{ color: "white", fontSize: 30, textAlign: "center" }}
+                >
+                  Submit
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         }
         nav={props.navigation}

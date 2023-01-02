@@ -1,7 +1,8 @@
 import { SWITCH_MODE } from "../actions/switchMode";
 import { UPDATE_BENCH } from "../actions/updateBench";
 import { UPDATE_SQUAT } from "../actions/updateSquat";
-import { UPDATE_EXCERSIZES } from "../actions/updateExcersizes";
+import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
+import uuid from "react-native-uuid";
 
 const initialState = {
   mode: undefined,
@@ -14,64 +15,64 @@ const initialState = {
   },
   maxBench: 0,
   maxSquat: 0,
-  mondayExcersizes: [
+  mondayExersizes: [
     {
-      id: "Example",
-      excersize: "",
+      id: uuid.v4(),
+      exersize: "",
       sets: "",
       reps: "",
       weight: "",
     },
   ],
-  tuesdayExcersizes: [
+  tuesdayExersizes: [
     {
-      id: "Example",
-      excersize: "",
+      id: uuid.v4(),
+      exersize: "",
       sets: "",
       reps: "",
       weight: "",
     },
   ],
-  wednesdayExcersizes: [
+  wednesdayExersizes: [
     {
-      id: "Example",
-      excersize: "",
+      id: uuid.v4(),
+      exersize: "",
       sets: "",
       reps: "",
       weight: "",
     },
   ],
-  thursdayExcersizes: [
+  thursdayExersizes: [
     {
-      id: "Example",
-      excersize: "",
+      id: uuid.v4(),
+      exersize: "",
       sets: "",
       reps: "",
       weight: "",
     },
   ],
-  fridayExcersizes: [
+  fridayExersizes: [
     {
-      id: "Example",
-      excersize: "",
+      id: uuid.v4(),
+      exersize: "",
       sets: "",
       reps: "",
       weight: "",
     },
   ],
-  saturdayExcersizes: [
+  saturdayExersizes: [
     {
-      id: "Example",
-      excersize: "",
+      id: uuid.v4(),
+      exersize: "",
       sets: "",
       reps: "",
       weight: "",
     },
   ],
-  sundayExcersizes: [
+  sundayExersizes: [
     {
-      id: "Example",
-      excersize: "",
+      id: uuid.v4(),
+      exersize: "",
       sets: "",
       reps: "",
       weight: "",
@@ -126,28 +127,28 @@ const rootReducer = (state, action) => {
         maxSquat: action.maxSquat,
       };
     }
-    case UPDATE_EXCERSIZES: {
+    case UPDATE_EXERSIZES: {
       switch (action.day) {
         case 0: {
-          return { ...state, mondayExcersizes: action.excersizes };
+          return { ...state, mondayExersizes: action.exersizes };
         }
         case 1: {
-          return { ...state, tuesdayExcersizes: action.excersizes };
+          return { ...state, tuesdayExersizes: action.exersizes };
         }
         case 2: {
-          return { ...state, wednesdayExcersizes: action.excersizes };
+          return { ...state, wednesdayExersizes: action.exersizes };
         }
         case 3: {
-          return { ...state, thursdayExcersizes: action.excersizes };
+          return { ...state, thursdayExersizes: action.exersizes };
         }
         case 4: {
-          return { ...state, fridayExcersizes: action.excersizes };
+          return { ...state, fridayExersizes: action.exersizes };
         }
         case 5: {
-          return { ...state, saturdayExcersizes: action.excersizes };
+          return { ...state, saturdayExersizes: action.exersizes };
         }
         case 6: {
-          return { ...state, sundayExcersizes: action.excersizes };
+          return { ...state, sundayExersizes: action.exersizes };
         }
         default:
           return state;

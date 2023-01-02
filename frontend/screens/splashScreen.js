@@ -7,15 +7,23 @@ import { db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import { updateBench } from "../store/actions/updateBench";
 import { updateSquat } from "../store/actions/updateSquat";
+import { getExersize } from "../store/actions/getExersize";
 
 const SplashScreen = (props) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
     const load = async () => {
-      const MaxesDB = await getDocs(collection(db, "Maxes"));
-      dispatch(updateBench(MaxesDB.docs.at(0).data().Bench));
-      dispatch(updateSquat(MaxesDB.docs.at(0).data().Squat));
+      const FitnessDB = await getDocs(collection(db, "Fitness"));
+      dispatch(updateBench(FitnessDB.docs.at(0).data().Bench));
+      dispatch(updateSquat(FitnessDB.docs.at(0).data().Squat));
+      const worked0 = await dispatch(getExersize("Monday"));
+      const worked1 = await dispatch(getExersize("Tuesday"));
+      const worked2 = await dispatch(getExersize("Wednesday"));
+      const worked3 = await dispatch(getExersize("Thursday"));
+      const worked4 = await dispatch(getExersize("Friday"));
+      const worked5 = await dispatch(getExersize("Saturday"));
+      const worked6 = await dispatch(getExersize("Sunday"));
 
       const mode = await AsyncStorage.getItem("Mode");
       if (!mode) {

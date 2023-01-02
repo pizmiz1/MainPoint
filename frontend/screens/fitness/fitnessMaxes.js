@@ -65,8 +65,8 @@ const FitnessMaxes = (props) => {
               if (bench !== "") {
                 setBenchUpdating(true);
                 await dispatch(updateBench(bench));
-                const MaxesDB = await doc(db, "Maxes", "Maxes");
-                await updateDoc(MaxesDB, { Bench: bench });
+                const MaxesDoc = await doc(db, "Fitness", "Maxes");
+                await updateDoc(MaxesDoc, { Bench: bench });
                 setBenchUpdating(false);
               }
             }}
@@ -114,8 +114,8 @@ const FitnessMaxes = (props) => {
               if (squat !== "") {
                 setSquatUpdating(true);
                 await dispatch(updateSquat(squat));
-                const MaxesDB = await doc(db, "Maxes", "Maxes");
-                await updateDoc(MaxesDB, { Squat: squat });
+                const MaxesDoc = await doc(db, "Fitness", "Maxes");
+                await updateDoc(MaxesDoc, { Squat: squat });
                 setSquatUpdating(false);
               }
             }}
