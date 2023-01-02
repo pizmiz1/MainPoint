@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-  useEffect,
-} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   View,
@@ -14,16 +8,17 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
 import uuid from "react-native-uuid";
 import { updateExersizes } from "../../store/actions/updateExersizes";
 import { Notifier, Easing, NotifierComponents } from "react-native-notifier";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
 
 const FitnessEdit = (props) => {
   const colors = useSelector((state) => state.colors);
+
   const mondayExersizes = useSelector((state) => state.mondayExersizes);
   const tuesdayExersizes = useSelector((state) => state.tuesdayExersizes);
   const wednesdayExersizes = useSelector((state) => state.wednesdayExersizes);
@@ -31,84 +26,22 @@ const FitnessEdit = (props) => {
   const fridayExersizes = useSelector((state) => state.fridayExersizes);
   const saturdayExersizes = useSelector((state) => state.saturdayExersizes);
   const sundayExersizes = useSelector((state) => state.sundayExersizes);
+  const mondayExersizesB = useSelector((state) => state.mondayExersizesB);
+  const tuesdayExersizesB = useSelector((state) => state.tuesdayExersizesB);
+  const wednesdayExersizesB = useSelector((state) => state.wednesdayExersizesB);
+  const thursdayExersizesB = useSelector((state) => state.thursdayExersizesB);
+  const fridayExersizesB = useSelector((state) => state.fridayExersizesB);
+  const saturdayExersizesB = useSelector((state) => state.saturdayExersizesB);
+  const sundayExersizesB = useSelector((state) => state.sundayExersizesB);
 
-  const [submitLoading, setSubmitLoading] = useState(false);
+  const [power, setPower] = useState(true);
 
   const dispatch = useDispatch();
 
-  const submitPress = async () => {
-    setSubmitLoading(true);
-    const worked0 = await compRef0.current.submit();
-    const worked1 = await compRef1.current.submit();
-    const worked2 = await compRef2.current.submit();
-    const worked3 = await compRef3.current.submit();
-    const worked4 = await compRef4.current.submit();
-    const worked5 = await compRef5.current.submit();
-    const worked6 = await compRef6.current.submit();
-    if (
-      worked0 &&
-      worked1 &&
-      worked2 &&
-      worked3 &&
-      worked4 &&
-      worked5 &&
-      worked6
-    ) {
-      Notifier.showNotification({
-        title: "Success!",
-        description: "Your program was updated successfully.",
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "success",
-        },
-      });
-    } else {
-      Notifier.showNotification({
-        title: "Failure",
-        description: "Your program failed to update.",
-        Component: NotifierComponents.Alert,
-        componentProps: {
-          alertType: "error",
-        },
-      });
-    }
-    setSubmitLoading(false);
-  };
-
-  const compRef0 = useRef();
-  const compRef1 = useRef();
-  const compRef2 = useRef();
-  const compRef3 = useRef();
-  const compRef4 = useRef();
-  const compRef5 = useRef();
-  const compRef6 = useRef();
-
-  const DayComponent = forwardRef((props, ref) => {
-    useImperativeHandle(ref, () => ({
-      async submit() {
-        let passedDay;
-        if (props.day === "Monday") {
-          passedDay = 0;
-        } else if (props.day === "Tuesday") {
-          passedDay = 1;
-        } else if (props.day === "Wednesday") {
-          passedDay = 2;
-        } else if (props.day === "Thursday") {
-          passedDay = 3;
-        } else if (props.day === "Friday") {
-          passedDay = 4;
-        } else if (props.day === "Saturday") {
-          passedDay = 5;
-        } else if (props.day === "Sunday") {
-          passedDay = 6;
-        }
-
-        const worked = await dispatch(updateExersizes(passedDay, exersizes));
-        return worked;
-      },
-    }));
-
+  const DayComponent = (props) => {
     const [selected, setSelected] = useState(false);
+    const [submitLoading, setSubmitLoading] = useState(false);
+    const [mainLiftIndexs, setMainLiftIndexs] = useState([]);
     const [exersizes, setExersizes] = useState([
       {
         id: uuid.v4(),
@@ -124,6 +57,49 @@ const FitnessEdit = (props) => {
         setExersizes(props.exersizes);
       }
     }, []);
+
+    const submit = async () => {
+      setSubmitLoading(true);
+      let passedDay;
+      if (props.day === "Monday") {
+        passedDay = 0;
+      } else if (props.day === "Tuesday") {
+        passedDay = 1;
+      } else if (props.day === "Wednesday") {
+        passedDay = 2;
+      } else if (props.day === "Thursday") {
+        passedDay = 3;
+      } else if (props.day === "Friday") {
+        passedDay = 4;
+      } else if (props.day === "Saturday") {
+        passedDay = 5;
+      } else if (props.day === "Sunday") {
+        passedDay = 6;
+      }
+      const worked = await dispatch(
+        updateExersizes(passedDay, power, exersizes)
+      );
+      if (worked) {
+        Notifier.showNotification({
+          title: "Success!",
+          description: "Your program was updated successfully.",
+          Component: NotifierComponents.Alert,
+          componentProps: {
+            alertType: "success",
+          },
+        });
+      } else {
+        Notifier.showNotification({
+          title: "Failure",
+          description: "Your program failed to update.",
+          Component: NotifierComponents.Alert,
+          componentProps: {
+            alertType: "error",
+          },
+        });
+      }
+      setSubmitLoading(false);
+    };
 
     const handleExersizeChange = (index, val) => {
       let data = [...exersizes];
@@ -166,9 +142,7 @@ const FitnessEdit = (props) => {
       setExersizes(data);
     };
 
-    return submitLoading ? (
-      <View />
-    ) : (
+    return (
       <View>
         <TouchableOpacity
           onPress={() => {
@@ -219,6 +193,25 @@ const FitnessEdit = (props) => {
         {selected ? (
           <View>
             {exersizes.map((item, index) => {
+              if (!mainLiftIndexs.includes(index)) {
+                if (
+                  item.exersize === "Squat" ||
+                  item.exersize === "Bench" ||
+                  item.exersize === "Overhead Press"
+                ) {
+                  setMainLiftIndexs(mainLiftIndexs.concat([index]));
+                }
+              } else {
+                if (
+                  item.exersize !== "Squat" &&
+                  item.exersize !== "Bench" &&
+                  item.exersize !== "Overhead Press"
+                ) {
+                  setMainLiftIndexs(
+                    mainLiftIndexs.filter((currIndex) => index !== currIndex)
+                  );
+                }
+              }
               return (
                 <View
                   style={{
@@ -228,7 +221,15 @@ const FitnessEdit = (props) => {
                   }}
                   key={index}
                 >
-                  <Text style={{ color: "white", fontSize: 30 }}>
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 30,
+                      fontWeight: mainLiftIndexs.includes(index)
+                        ? "bold"
+                        : "normal",
+                    }}
+                  >
                     {" "}
                     {index + 1}.
                   </Text>
@@ -242,7 +243,7 @@ const FitnessEdit = (props) => {
                   >
                     <TextInput
                       value={item.exersize}
-                      placeholder="exersize"
+                      placeholder="Exersize"
                       onChangeText={(val) => handleExersizeChange(index, val)}
                       style={{
                         //margin: 5,
@@ -292,7 +293,9 @@ const FitnessEdit = (props) => {
                     />
                     <TextInput
                       value={item.weight}
-                      placeholder="Weight"
+                      placeholder={
+                        mainLiftIndexs.includes(index) ? "Percent" : "Weight"
+                      }
                       onChangeText={(val) => handleWeightChange(index, val)}
                       style={{
                         margin: 5,
@@ -306,13 +309,17 @@ const FitnessEdit = (props) => {
                         marginRight: 5,
                       }}
                       textAlign="center"
-                      keyboardType="numbers-and-punctuation"
+                      keyboardType={
+                        mainLiftIndexs.includes(index)
+                          ? "decimal-pad"
+                          : "number-pad"
+                      }
                     />
                     <TouchableOpacity
                       onPress={() => {
                         removeExersize(index);
                       }}
-                      style={{ marginRight: 10 }}
+                      style={{ marginRight: 5 }}
                     >
                       <AntDesign name="minuscircleo" size={20} color="red" />
                     </TouchableOpacity>
@@ -326,58 +333,11 @@ const FitnessEdit = (props) => {
             >
               <AntDesign name="pluscircleo" size={30} color="green" />
             </TouchableOpacity>
-          </View>
-        ) : undefined}
-        <View style={{ marginBottom: 30 }} />
-      </View>
-    );
-  });
-
-  return (
-    <View style={{ flex: 1 }}>
-      <ScrollViewContainer
-        content={
-          <View>
-            <DayComponent
-              day="Monday"
-              ref={compRef0}
-              exersizes={mondayExersizes}
-            />
-            <DayComponent
-              day="Tuesday"
-              ref={compRef1}
-              exersizes={tuesdayExersizes}
-            />
-            <DayComponent
-              day="Wednesday"
-              ref={compRef2}
-              exersizes={wednesdayExersizes}
-            />
-            <DayComponent
-              day="Thursday"
-              ref={compRef3}
-              exersizes={thursdayExersizes}
-            />
-            <DayComponent
-              day="Friday"
-              ref={compRef4}
-              exersizes={fridayExersizes}
-            />
-            <DayComponent
-              day="Saturday"
-              ref={compRef5}
-              exersizes={saturdayExersizes}
-            />
-            <DayComponent
-              day="Sunday"
-              ref={compRef6}
-              exersizes={sundayExersizes}
-            />
             {submitLoading ? (
               <ActivityIndicator size="large" />
             ) : (
               <TouchableOpacity
-                onPress={submitPress}
+                onPress={submit}
                 style={{
                   borderWidth: 1,
                   borderColor: "grey",
@@ -386,16 +346,118 @@ const FitnessEdit = (props) => {
                   width: "50%",
                   alignSelf: "center",
                   backgroundColor: colors.primary,
-                  marginBottom: 20,
                 }}
               >
                 <Text
-                  style={{ color: "white", fontSize: 30, textAlign: "center" }}
+                  style={{ color: "white", fontSize: 20, textAlign: "center" }}
                 >
                   Submit
                 </Text>
               </TouchableOpacity>
             )}
+          </View>
+        ) : undefined}
+        <View style={{ marginBottom: 30 }} />
+      </View>
+    );
+  };
+
+  return (
+    <View style={{ flex: 1 }}>
+      <View
+        style={{
+          flex: 0,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-evenly",
+          backgroundColor: colors.secondary,
+          borderBottomColor: colors.lightGrey,
+          borderBottomWidth: 1,
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity
+            style={{ alignItems: "center" }}
+            onPress={() => {
+              setPower(true);
+            }}
+          >
+            <MaterialCommunityIcons
+              name={power ? "arm-flex" : "arm-flex-outline"}
+              color={"white"}
+              size={30}
+            />
+            <View style={{ marginBottom: 5 }} />
+            <Text
+              style={{
+                fontSize: 15,
+                color: colors.textColors.headerText,
+                fontWeight: power ? "bold" : "normal",
+                textAlign: "center",
+              }}
+            >
+              Power
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity
+            style={{ alignItems: "center" }}
+            onPress={() => {
+              setPower(false);
+            }}
+          >
+            <AntDesign
+              name={!power ? "smile-circle" : "smileo"}
+              color={"white"}
+              size={20}
+            />
+            <View style={{ marginBottom: 5 }} />
+            <Text
+              style={{
+                fontSize: 15,
+                color: colors.textColors.headerText,
+                fontWeight: !power ? "bold" : "normal",
+                textAlign: "center",
+              }}
+            >
+              BB
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <ScrollViewContainer
+        content={
+          <View style={{ flex: 1, marginTop: 20 }}>
+            <DayComponent
+              day="Monday"
+              exersizes={power ? mondayExersizes : mondayExersizesB}
+            />
+            <DayComponent
+              day="Tuesday"
+              exersizes={power ? tuesdayExersizes : tuesdayExersizesB}
+            />
+            <DayComponent
+              day="Wednesday"
+              exersizes={power ? wednesdayExersizes : wednesdayExersizesB}
+            />
+            <DayComponent
+              day="Thursday"
+              exersizes={power ? thursdayExersizes : thursdayExersizesB}
+            />
+            <DayComponent
+              day="Friday"
+              exersizes={power ? fridayExersizes : fridayExersizesB}
+            />
+            <DayComponent
+              day="Saturday"
+              exersizes={power ? saturdayExersizes : saturdayExersizesB}
+            />
+            <DayComponent
+              day="Sunday"
+              exersizes={power ? sundayExersizes : sundayExersizesB}
+            />
+            <View style={{ marginBottom: 200 }} />
           </View>
         }
         nav={props.navigation}

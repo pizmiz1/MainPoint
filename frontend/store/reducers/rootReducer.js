@@ -1,6 +1,7 @@
 import { SWITCH_MODE } from "../actions/switchMode";
 import { UPDATE_BENCH } from "../actions/updateBench";
 import { UPDATE_SQUAT } from "../actions/updateSquat";
+import { UPDATE_OHP } from "../actions/updateOHP";
 import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
 import uuid from "react-native-uuid";
 
@@ -15,7 +16,17 @@ const initialState = {
   },
   maxBench: 0,
   maxSquat: 0,
+  maxOHP: 0,
   mondayExersizes: [
+    {
+      id: uuid.v4(),
+      exersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  mondayExersizesB: [
     {
       id: uuid.v4(),
       exersize: "",
@@ -33,7 +44,25 @@ const initialState = {
       weight: "",
     },
   ],
+  tuesdayExersizesB: [
+    {
+      id: uuid.v4(),
+      exersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
   wednesdayExersizes: [
+    {
+      id: uuid.v4(),
+      exersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  wednesdayExersizesB: [
     {
       id: uuid.v4(),
       exersize: "",
@@ -51,7 +80,25 @@ const initialState = {
       weight: "",
     },
   ],
+  thursdayExersizesB: [
+    {
+      id: uuid.v4(),
+      exersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
   fridayExersizes: [
+    {
+      id: uuid.v4(),
+      exersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  fridayExersizesB: [
     {
       id: uuid.v4(),
       exersize: "",
@@ -69,7 +116,25 @@ const initialState = {
       weight: "",
     },
   ],
+  saturdayExersizesB: [
+    {
+      id: uuid.v4(),
+      exersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
   sundayExersizes: [
+    {
+      id: uuid.v4(),
+      exersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  sundayExersizesB: [
     {
       id: uuid.v4(),
       exersize: "",
@@ -127,28 +192,62 @@ const rootReducer = (state, action) => {
         maxSquat: action.maxSquat,
       };
     }
+    case UPDATE_OHP: {
+      return {
+        ...state,
+        maxOHP: action.maxOHP,
+      };
+    }
     case UPDATE_EXERSIZES: {
       switch (action.day) {
         case 0: {
-          return { ...state, mondayExersizes: action.exersizes };
+          if (action.power) {
+            return { ...state, mondayExersizes: action.exersizes };
+          } else {
+            return { ...state, mondayExersizesB: action.exersizes };
+          }
         }
         case 1: {
-          return { ...state, tuesdayExersizes: action.exersizes };
+          if (action.power) {
+            return { ...state, tuesdayExersizes: action.exersizes };
+          } else {
+            return { ...state, tuesdayExersizesB: action.exersizes };
+          }
         }
         case 2: {
-          return { ...state, wednesdayExersizes: action.exersizes };
+          if (action.power) {
+            return { ...state, wednesdayExersizes: action.exersizes };
+          } else {
+            return { ...state, wednesdayExersizesB: action.exersizes };
+          }
         }
         case 3: {
-          return { ...state, thursdayExersizes: action.exersizes };
+          if (action.power) {
+            return { ...state, thursdayExersizes: action.exersizes };
+          } else {
+            return { ...state, thursdayExersizesB: action.exersizes };
+          }
         }
         case 4: {
-          return { ...state, fridayExersizes: action.exersizes };
+          if (action.power) {
+            return { ...state, fridayExersizes: action.exersizes };
+          } else {
+            return { ...state, fridayExersizesB: action.exersizes };
+          }
         }
         case 5: {
-          return { ...state, saturdayExersizes: action.exersizes };
+          if (action.power) {
+            return { ...state, saturdayExersizes: action.exersizes };
+          } else {
+            return { ...state, saturdayExersizesB: action.exersizes };
+          }
         }
         case 6: {
-          return { ...state, sundayExersizes: action.exersizes };
+          if (action.power) {
+            return { ...state, sundayExersizes: action.exersizes };
+          } else {
+            return { ...state, sundayExersizesB: action.exersizes };
+          }
         }
         default:
           return state;
