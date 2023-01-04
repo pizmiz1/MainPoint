@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "OnePoint",
-    "slug": "OnePoint",
+    "name": "MainPoint",
+    "slug": "MainPoint",
     "version": "0.1",
     "orientation": "portrait",
     "icon": "./assets/Logo/MainLogo.jpg",
@@ -9,14 +9,12 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "userInterfaceStyle": "automatic",
       "buildNumber": "1",
-      "bundleIdentifier": "com.Linedo.OnePoint"
+      "bundleIdentifier": "com.Linedo.MainPoint"
     },
     "android": {
       "adaptiveIcon": {
