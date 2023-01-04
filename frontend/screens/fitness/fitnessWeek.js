@@ -10,16 +10,20 @@ const FitnessWeek = (props) => {
   const colors = useSelector((state) => state.colors);
   return (
     <View style={{ flex: 1 }}>
-      <ScrollViewContainer
-        content={
-          <View>
-            <Text style={{ fontSize: 30, color: colors.textColors.headerText }}>
-              Fitness Week Screen!
-            </Text>
-          </View>
-        }
-        nav={props.navigation}
-      />
+      <View style={{ flex: 0.9 }}>
+        <ScrollViewContainer
+          content={
+            <View>
+              <Text
+                style={{ fontSize: 30, color: colors.textColors.headerText }}
+              >
+                Fitness Week Screen!
+              </Text>
+            </View>
+          }
+          nav={props.navigation}
+        />
+      </View>
       <BottomNavigationTab screenName="WEEK" {...props} />
     </View>
   );
