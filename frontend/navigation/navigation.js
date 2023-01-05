@@ -98,7 +98,7 @@ const FitnessDrawerNavigator = () => {
     weekDisp = moment().subtract(1, "days").format("MMM Do");
   } else if (dayDisp === "Wednesday") {
     weekDisp = moment().subtract(2, "days").format("MMM Do");
-  } else if (dayDisp === "Thrusday") {
+  } else if (dayDisp === "Thursday") {
     weekDisp = moment().subtract(3, "days").format("MMM Do");
   } else if (dayDisp === "Friday") {
     weekDisp = moment().subtract(4, "days").format("MMM Do");
@@ -189,7 +189,7 @@ const FitnessDrawerNavigator = () => {
         name="Fitness Week"
         component={FitnessWeek}
         options={{
-          headerTitle: weekDisp,
+          headerTitle: "Week of " + weekDisp,
           drawerItemStyle: {
             display: "none",
           },

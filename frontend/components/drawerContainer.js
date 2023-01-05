@@ -13,6 +13,7 @@ const MyDrawerContainer = (props) => {
   const handlePress = () => {
     AsyncStorage.removeItem("Mode");
     props.navigation.navigate("Selection Screen");
+    props.navigation.toggleDrawer();
   };
 
   return (

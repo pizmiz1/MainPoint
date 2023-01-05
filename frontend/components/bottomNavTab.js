@@ -30,8 +30,6 @@ const BottomNavigationTab = (props) => {
         alignItems: "center",
         justifyContent: "space-evenly",
         backgroundColor: colors.secondary,
-        borderTopColor: colors.lightGrey,
-        borderTopWidth: 1,
       }}
     >
       <View style={{ flex: 1 }}>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
@@ -12,7 +12,7 @@ import BottomNavigationTab from "../../components/bottomNavTab";
 
 const FitnessDay = (props) => {
   const [mainLiftIndexs, setMainLiftIndexs] = useState([]);
-  const [isRestDay, setIsRestDay] = useState(false);
+  const [selectedIndexs, setSelectedIndexs] = useState([]);
 
   const colors = useSelector((state) => state.colors);
   const power = useSelector((state) => state.power);
@@ -136,7 +136,7 @@ const FitnessDay = (props) => {
                 </View>
               </View>
             ) : (
-              <View>
+              <View style={{ marginTop: 20 }}>
                 <View
                   style={{
                     flex: 1,
@@ -147,176 +147,167 @@ const FitnessDay = (props) => {
                   <View
                     style={{
                       flex: 1,
-                      justifyContent: "flex-end",
+                      justifyContent: "flex-start",
                       alignItems: "center",
                       flexDirection: "row",
                       marginBottom: 10,
-                      borderBottomColor: colors.lightGrey,
-                      borderBottomWidth: 1,
                     }}
                   >
                     <Text
                       style={{
                         color: "white",
                         fontSize: 20,
-                        width: "30%",
                         textAlign: "left",
                         fontWeight: "bold",
                       }}
                     >
+                      {"              "}
                       Exersize
-                    </Text>
-                    <Text
-                      style={{
-                        color: "white",
-                        fontSize: 20,
-                        width: "15%",
-                        textAlign: "left",
-                        fontWeight: "bold",
-                      }}
-                    >
+                      {"       "}
                       Sets
-                    </Text>
-                    <Text
-                      style={{
-                        color: "white",
-                        fontSize: 20,
-                        width: "15%",
-                        textAlign: "left",
-                        fontWeight: "bold",
-                      }}
-                    >
+                      {"  "}
                       Reps
-                    </Text>
-                    <Text
-                      style={{
-                        color: "white",
-                        fontSize: 20,
-                        width: "20%",
-                        textAlign: "left",
-                        fontWeight: "bold",
-                      }}
-                    >
+                      {"  "}
                       Weight
                     </Text>
                   </View>
                 </View>
 
-                {exersizes.map((item, index) => {
-                  if (!mainLiftIndexs.includes(index)) {
-                    if (
-                      item.exersize === "Squat" ||
-                      item.exersize === "Bench" ||
-                      item.exersize === "Overhead Press"
-                    ) {
-                      setMainLiftIndexs(mainLiftIndexs.concat([index]));
+                <View
+                  style={{
+                    backgroundColor: colors.darkGrey,
+                    width: "90%",
+                    alignSelf: "center",
+                    flex: 1,
+                    padding: 5,
+                    borderRadius: 10,
+                  }}
+                >
+                  {exersizes.map((item, index) => {
+                    if (!mainLiftIndexs.includes(index)) {
+                      if (
+                        item.exersize === "Squat" ||
+                        item.exersize === "Bench" ||
+                        item.exersize === "Overhead Press"
+                      ) {
+                        setMainLiftIndexs(mainLiftIndexs.concat([index]));
+                      }
+                    } else {
+                      if (
+                        item.exersize !== "Squat" &&
+                        item.exersize !== "Bench" &&
+                        item.exersize !== "Overhead Press"
+                      ) {
+                        setMainLiftIndexs(
+                          mainLiftIndexs.filter(
+                            (currIndex) => index !== currIndex
+                          )
+                        );
+                      }
                     }
-                  } else {
-                    if (
-                      item.exersize !== "Squat" &&
-                      item.exersize !== "Bench" &&
-                      item.exersize !== "Overhead Press"
-                    ) {
-                      setMainLiftIndexs(
-                        mainLiftIndexs.filter(
-                          (currIndex) => index !== currIndex
-                        )
-                      );
-                    }
-                  }
-                  return (
-                    <View
-                      style={{
-                        flex: 1,
-                        flexDirection: "row",
-                        width: "100%",
-                        marginTop: 10,
-                      }}
-                      key={index}
-                    >
-                      <Text
-                        style={{
-                          color: "white",
-                          fontSize: 30,
-                          fontWeight: mainLiftIndexs.includes(index)
-                            ? "bold"
-                            : "normal",
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        style={{ flex: 1 }}
+                        onPress={() => {
+                          if (!selectedIndexs.includes(index)) {
+                            setSelectedIndexs(selectedIndexs.concat([index]));
+                          } else {
+                            setSelectedIndexs(
+                              selectedIndexs.filter(
+                                (currIndex) => currIndex !== index
+                              )
+                            );
+                          }
                         }}
                       >
-                        {" "}
-                        {index + 1}.
-                      </Text>
-                      <View
-                        style={{
-                          //flex: 1,
-                          justifyContent: "center",
-                          alignItems: "center",
-                          flexDirection: "row",
-                          borderWidth: 1,
-                          borderColor: "white",
-                          borderRadius: 20,
-                          width: "85%",
-                          marginLeft: 20,
-                          backgroundColor: mainLiftIndexs.includes(index)
-                            ? colors.primary
-                            : colors.secondary,
-                        }}
-                      >
-                        <Text
+                        <View
                           style={{
-                            margin: 5,
-                            padding: 5,
-                            color: "white",
-                            fontSize: 15,
-                            width: "40%",
-                            textAlign: "center",
+                            flex: 1,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "row",
+                            width: "100%",
+                            marginTop: 10,
+                            marginBottom: 10,
+                            backgroundColor: colors.darkGrey,
                           }}
                         >
-                          {item.exersize}
-                        </Text>
-                        <Text
-                          style={{
-                            margin: 5,
-                            padding: 5,
-                            color: "white",
-                            fontSize: 15,
-                            width: "12%",
-                            textAlign: "center",
-                          }}
-                        >
-                          {item.sets}
-                        </Text>
-                        <Text
-                          style={{
-                            margin: 5,
-                            padding: 5,
-                            color: "white",
-                            fontSize: 15,
-                            width: "13%",
-                            textAlign: "center",
-                          }}
-                        >
-                          {item.reps}
-                        </Text>
-                        <Text
-                          style={{
-                            margin: 5,
-                            padding: 5,
-                            color: "white",
-                            fontSize: 15,
-                            width: "17%",
-                            marginRight: 5,
-                            textAlign: "center",
-                          }}
-                        >
-                          {mainLiftIndexs.includes(index)
-                            ? convertMax(item.weight, item.exersize)
-                            : item.weight}
-                        </Text>
-                      </View>
-                    </View>
-                  );
-                })}
+                          <Text
+                            style={{
+                              margin: 5,
+                              padding: 5,
+                              color: mainLiftIndexs.includes(index)
+                                ? colors.primary
+                                : "white",
+                              fontSize: 15,
+                              width: "40%",
+                              textAlign: "center",
+                              fontWeight: mainLiftIndexs.includes(index)
+                                ? "bold"
+                                : "normal",
+                              opacity: selectedIndexs.includes(index) ? 0.2 : 1,
+                            }}
+                          >
+                            {item.exersize}
+                          </Text>
+                          <Text
+                            style={{
+                              margin: 5,
+                              padding: 5,
+                              color: "white",
+                              fontSize: 15,
+                              width: "12%",
+                              textAlign: "center",
+                              opacity: selectedIndexs.includes(index) ? 0.2 : 1,
+                            }}
+                          >
+                            {item.sets}
+                          </Text>
+                          <Text
+                            style={{
+                              margin: 5,
+                              padding: 5,
+                              color: "white",
+                              fontSize: 15,
+                              width: "13%",
+                              textAlign: "center",
+                              opacity: selectedIndexs.includes(index) ? 0.2 : 1,
+                            }}
+                          >
+                            {item.reps}
+                          </Text>
+                          <Text
+                            style={{
+                              margin: 5,
+                              padding: 5,
+                              color: "white",
+                              fontSize: 15,
+                              width: "17%",
+                              marginRight: 5,
+                              textAlign: "center",
+                              opacity: selectedIndexs.includes(index) ? 0.2 : 1,
+                            }}
+                          >
+                            {mainLiftIndexs.includes(index)
+                              ? convertMax(item.weight, item.exersize)
+                              : item.weight}
+                          </Text>
+                        </View>
+                        {exersizes.length === index + 1 ? undefined : (
+                          <View
+                            style={{
+                              borderColor: colors.lightGrey,
+                              borderWidth: 0.5,
+                              width: "95%",
+                              alignSelf: "flex-end",
+                            }}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
               </View>
             )
           }
