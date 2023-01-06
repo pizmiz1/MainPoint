@@ -183,9 +183,9 @@ const GroceryList = (props) => {
           "Produce",
           "Fish",
           "Meat",
-          "Grains",
-          "Condiments",
-          "Snacks",
+          "Grain",
+          "Condiment",
+          "Snack",
         ],
         cancelButtonIndex: 0,
         userInterfaceStyle: "light",
@@ -208,15 +208,15 @@ const GroceryList = (props) => {
             break;
           }
           case 4: {
-            newGrocery.category = "Grains";
+            newGrocery.category = "Grain";
             break;
           }
           case 5: {
-            newGrocery.category = "Condiments";
+            newGrocery.category = "Condiment";
             break;
           }
           case 6: {
-            newGrocery.category = "Snacks";
+            newGrocery.category = "Snack";
             break;
           }
         }
