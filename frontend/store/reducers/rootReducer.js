@@ -1,9 +1,15 @@
 import { SWITCH_MODE } from "../actions/switchMode";
+
+//Fitness
 import { UPDATE_BENCH } from "../actions/updateBench";
 import { UPDATE_SQUAT } from "../actions/updateSquat";
 import { UPDATE_OHP } from "../actions/updateOHP";
 import { UPDATE_POWER } from "../actions/updatePower";
 import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
+
+// Grocery
+import { UPDATE_GROCERIES } from "../actions/getGroceries";
+
 import uuid from "react-native-uuid";
 
 const initialState = {
@@ -19,6 +25,20 @@ const initialState = {
   maxSquat: 0,
   maxOHP: 0,
   power: true,
+  groceryList: [
+    {
+      id: uuid.v4(),
+      name: "Broccoli",
+      category: "Produce",
+    },
+  ],
+  allGroceries: [
+    {
+      id: uuid.v4(),
+      name: "Broccoli",
+      category: "Produce",
+    },
+  ],
   mondayExersizes: [
     {
       id: uuid.v4(),
@@ -163,7 +183,9 @@ const rootReducer = (state, action) => {
             textColors: {
               headerText: "black",
             },
-            lightGrey: "#E7E7E7",
+            lightGrey: "#f2f1f6",
+            darkGrey: "#e6e6e6",
+            darkerGrey: "#7d7a7a",
           },
         };
       } else if (action.mode === "Fitness") {
@@ -259,6 +281,13 @@ const rootReducer = (state, action) => {
         }
         default:
           return state;
+      }
+    }
+    case UPDATE_GROCERIES: {
+      if (action.all) {
+        return { ...state, allGroceries: action.groceries };
+      } else {
+        return { ...state, groceryList: action.groceries };
       }
     }
     default:

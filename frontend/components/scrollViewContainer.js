@@ -37,6 +37,7 @@ const ScrollViewContainer = (props) => {
     <ScrollView
       style={{
         backgroundColor: colors.secondary,
+        ...props.style,
       }}
       contentContainerStyle={{ flexGrow: 1 }}
       onScroll={handleSroll}

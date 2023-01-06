@@ -12,7 +12,7 @@ import SplashScreen from "../screens/splashScreen";
 import SelectionScreen from "../screens/selectionScreen";
 
 //grocery screens
-import GroceryHome from "../screens/grocery/groceryHome";
+import GroceryList from "../screens/grocery/groceryList";
 import GroceryTest from "../screens/grocery/groceryTest";
 
 //fitness screens
@@ -47,10 +47,10 @@ const GroceryDrawerNavigator = () => {
       useLegacyImplementation={true}
     >
       <GroceryDrawer.Screen
-        name="Grocery Home"
-        component={GroceryHome}
+        name="Grocery List"
+        component={GroceryList}
         options={{
-          headerTitle: "Home",
+          headerTitle: "List",
           drawerLabel: ({ focused, color }) => (
             <Text
               style={{
@@ -60,7 +60,7 @@ const GroceryDrawerNavigator = () => {
                 fontSize: 20,
               }}
             >
-              Home
+              List
             </Text>
           ),
         }}
