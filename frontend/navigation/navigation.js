@@ -13,7 +13,7 @@ import SelectionScreen from "../screens/selectionScreen";
 
 //grocery screens
 import GroceryList from "../screens/grocery/groceryList";
-import GroceryTest from "../screens/grocery/groceryTest";
+import GroceryMeals from "../screens/grocery/groceryMeals";
 
 //fitness screens
 import FitnessDay from "../screens/fitness/fitnessDay";
@@ -66,10 +66,10 @@ const GroceryDrawerNavigator = () => {
         }}
       />
       <GroceryDrawer.Screen
-        name="Grocery Test"
-        component={GroceryTest}
+        name="Grocery Meals"
+        component={GroceryMeals}
         options={{
-          headerTitle: "Test",
+          headerTitle: "Meals",
           drawerLabel: ({ focused, color }) => (
             <Text
               style={{
@@ -79,7 +79,7 @@ const GroceryDrawerNavigator = () => {
                 fontSize: 20,
               }}
             >
-              Test
+              Meals
             </Text>
           ),
         }}

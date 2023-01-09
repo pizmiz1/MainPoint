@@ -9,6 +9,7 @@ export const updateBench = (maxBench) => (dispatch) => {
       });
       resolve(true);
     } catch (err) {
+      resolve(false);
       console.log("Failed Updating Bench");
       console.log(err);
     }

@@ -93,6 +93,7 @@ export const getExersizes = () => (dispatch) => {
 
       resolve(true);
     } catch (err) {
+      resolve(false);
       console.log("Failed Getting Exersize");
       console.log(err);
     }

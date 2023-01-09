@@ -9,6 +9,7 @@ export const updateSquat = (maxSquat) => (dispatch) => {
       });
       resolve(true);
     } catch (err) {
+      resolve(false);
       console.log("Failed Updating Squat");
       console.log(err);
     }

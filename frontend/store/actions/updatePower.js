@@ -16,6 +16,7 @@ export const updatePower = (power) => (dispatch) => {
       );
       resolve(true);
     } catch (err) {
+      resolve(false);
       console.log("Failed Updating Power");
       console.log(err);
     }

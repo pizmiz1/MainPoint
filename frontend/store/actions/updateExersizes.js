@@ -86,6 +86,7 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
       });
       resolve(true);
     } catch (err) {
+      resolve(false);
       console.log("Failed Updating exersizes");
       console.log(err);
     }

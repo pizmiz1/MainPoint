@@ -8,10 +8,13 @@ import {
   TextInput,
   Keyboard,
   ActionSheetIOS,
+  Alert,
 } from "react-native";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import uuid from "react-native-uuid";
-import { Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
+import { updateGroceries } from "../../store/actions/updateGroceries";
+import { removeGrocery } from "../../store/actions/removeGrocery";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -25,13 +28,16 @@ const GroceryList = (props) => {
   const [fishList, setFishList] = useState([]);
   const [meatList, setMeatList] = useState([]);
   const [grainsList, setGrainsList] = useState([]);
+  const [dairyList, setDairyList] = useState([]);
   const [condimentsList, setCondimentsList] = useState([]);
   const [snacksList, setSnacksList] = useState([]);
+  const [nonFoodList, setNonFoodList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newGroceryName, updateNewGroceryName] = useState("");
   const [crossedGroceries, setCrossedGroceries] = useState([]);
+  const [editing, setEditing] = useState(false);
 
-  useEffect(() => {
+  const setArrays = () => {
     setProduceList(
       groceryList.filter((currGrocery) => currGrocery.Category === "Produce")
     );
@@ -44,13 +50,33 @@ const GroceryList = (props) => {
     setGrainsList(
       groceryList.filter((currGrocery) => currGrocery.Category === "Grain")
     );
+    setDairyList(
+      groceryList.filter((currGrocery) => currGrocery.Category === "Dairy")
+    );
     setCondimentsList(
       groceryList.filter((currGrocery) => currGrocery.Category === "Condiment")
     );
     setSnacksList(
       groceryList.filter((currGrocery) => currGrocery.Category === "Snack")
     );
-  }, []);
+    setNonFoodList(
+      groceryList.filter((currGrocery) => currGrocery.Category === "Non Food")
+    );
+  };
+
+  useEffect(() => {
+    setArrays();
+  }, [groceryList]);
+
+  const dispatch = useDispatch();
+
+  const removeGrocery = async (passedGrocery) => {
+    const index = groceryList.indexOf(passedGrocery);
+    if (index !== -1) {
+      groceryList.splice(index, 1);
+    }
+    setArrays();
+  };
 
   const CategoryComponent = (props) => {
     const [groceries, setGroceries] = useState([
@@ -86,11 +112,17 @@ const GroceryList = (props) => {
         case "Grains": {
           return "tan";
         }
+        case "Dairy": {
+          return "teal";
+        }
         case "Condiments": {
           return "#f5ce42";
         }
         case "Snacks": {
           return "#f27e1f";
+        }
+        case "Non Food": {
+          return "grey";
         }
         default: {
           return colors.primary;
@@ -136,21 +168,50 @@ const GroceryList = (props) => {
 
               return (
                 <View key={index}>
-                  <TouchableOpacity onPress={crossGroceryOff}>
-                    <Text
-                      style={{
-                        fontSize: 25,
-                        marginTop: 10,
-                        marginBottom: 10,
-                        textDecorationLine: crossedGroceries.includes(item.id)
-                          ? "line-through"
-                          : "none",
-                        opacity: crossedGroceries.includes(item.id) ? 0.2 : 1,
-                      }}
+                  <View style={{ flexDirection: "row", width: "100%" }}>
+                    <TouchableOpacity
+                      onPress={editing ? undefined : crossGroceryOff}
+                      style={{ flex: editing ? 0 : 1 }}
                     >
-                      {item.Name}
-                    </Text>
-                  </TouchableOpacity>
+                      <Text
+                        style={{
+                          fontSize: 25,
+                          marginTop: 10,
+                          marginBottom: 10,
+                          textDecorationLine: crossedGroceries.includes(item.id)
+                            ? "line-through"
+                            : "none",
+                          opacity: crossedGroceries.includes(item.id) ? 0.2 : 1,
+                        }}
+                      >
+                        {item.Name}
+                      </Text>
+                    </TouchableOpacity>
+                    {editing ? (
+                      <View
+                        style={{
+                          justifyContent: "center",
+                          alignItems: "flex-end",
+                          flex: 1,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => {
+                            props.remove(item);
+                          }}
+                          style={{
+                            marginRight: 10,
+                          }}
+                        >
+                          <AntDesign
+                            name="minuscircleo"
+                            size={20}
+                            color="red"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    ) : undefined}
+                  </View>
                   {groceries.length === index + 1 ? undefined : (
                     <View
                       style={{
@@ -173,58 +234,163 @@ const GroceryList = (props) => {
   const addGrocery = () => {
     let newGrocery = {
       id: uuid.v4(),
-      name: newGroceryName,
-      category: "",
+      Name: newGroceryName,
+      Category: "",
     };
-    ActionSheetIOS.showActionSheetWithOptions(
-      {
-        options: [
-          "Cancel",
-          "Produce",
-          "Fish",
-          "Meat",
-          "Grain",
-          "Condiment",
-          "Snack",
-        ],
-        cancelButtonIndex: 0,
-        userInterfaceStyle: "light",
-      },
-      (buttonIndex) => {
-        switch (buttonIndex) {
-          case 0: {
-            return;
+
+    const existingGrocery = allGroceries.find(
+      (currGrocery) => currGrocery.Name === newGroceryName
+    );
+
+    if (existingGrocery) {
+      const existingGroceryInList = groceryList.find(
+        (currGrocery) => currGrocery.Name === newGroceryName
+      );
+      if (existingGroceryInList) {
+        setModalVisible(false);
+        return;
+      }
+
+      newGrocery.Category = existingGrocery.Category;
+      groceryList.push(newGrocery);
+      updateNewGroceryName("");
+      setModalVisible(false);
+      switch (newGrocery.Category) {
+        case "Produce": {
+          setProduceList(produceList.concat([newGrocery]));
+          break;
+        }
+        case "Fish": {
+          setFishList(fishList.concat([newGrocery]));
+          break;
+        }
+        case "Meat": {
+          setMeatList(meatList.concat([newGrocery]));
+          break;
+        }
+        case "Grain": {
+          setGrainsList(grainsList.concat([newGrocery]));
+          break;
+        }
+        case "Dairy": {
+          setDairyList(dairyList.concat([newGrocery]));
+          break;
+        }
+        case "Condiment": {
+          setCondimentsList(condimentsList.concat([newGrocery]));
+          break;
+        }
+        case "Snack": {
+          setSnacksList(snacksList.concat([newGrocery]));
+          break;
+        }
+        case "Non Food": {
+          setNonFoodList(nonFoodList.concat([newGrocery]));
+          break;
+        }
+        default: {
+          return;
+        }
+      }
+    } else {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: [
+            "Cancel",
+            "Produce",
+            "Fish",
+            "Meat",
+            "Grain",
+            "Dairy",
+            "Condiment",
+            "Snack",
+            "Non Food",
+          ],
+          cancelButtonIndex: 0,
+          userInterfaceStyle: "light",
+        },
+        async (buttonIndex) => {
+          switch (buttonIndex) {
+            case 0: {
+              return;
+            }
+            case 1: {
+              newGrocery.Category = "Produce";
+              break;
+            }
+            case 2: {
+              newGrocery.Category = "Fish";
+              break;
+            }
+            case 3: {
+              newGrocery.Category = "Meat";
+              break;
+            }
+            case 4: {
+              newGrocery.Category = "Grain";
+              break;
+            }
+            case 5: {
+              newGrocery.Category = "Dairy";
+              break;
+            }
+            case 6: {
+              newGrocery.Category = "Condiment";
+              break;
+            }
+            case 7: {
+              newGrocery.Category = "Snack";
+              break;
+            }
+            case 8: {
+              newGrocery.Category = "Non Food";
+              break;
+            }
           }
-          case 1: {
-            newGrocery.category = "Produce";
-            break;
-          }
-          case 2: {
-            newGrocery.category = "Fish";
-            break;
-          }
-          case 3: {
-            newGrocery.category = "Meat";
-            break;
-          }
-          case 4: {
-            newGrocery.category = "Grain";
-            break;
-          }
-          case 5: {
-            newGrocery.category = "Condiment";
-            break;
-          }
-          case 6: {
-            newGrocery.category = "Snack";
-            break;
+          groceryList.push(newGrocery);
+          allGroceries.push(newGrocery);
+          updateNewGroceryName("");
+          setModalVisible(false);
+          switch (newGrocery.Category) {
+            case "Produce": {
+              setProduceList(produceList.concat([newGrocery]));
+              break;
+            }
+            case "Fish": {
+              setFishList(fishList.concat([newGrocery]));
+              break;
+            }
+            case "Meat": {
+              setMeatList(meatList.concat([newGrocery]));
+              break;
+            }
+            case "Grain": {
+              setGrainsList(grainsList.concat([newGrocery]));
+              break;
+            }
+            case "Dairy": {
+              setDairyList(dairyList.concat([newGrocery]));
+              break;
+            }
+            case "Condiment": {
+              setCondimentsList(condimentsList.concat([newGrocery]));
+              break;
+            }
+            case "Snack": {
+              setSnacksList(snacksList.concat([newGrocery]));
+              break;
+            }
+            case "Non Food": {
+              setNonFoodList(nonFoodList.concat([newGrocery]));
+              break;
+            }
+            default: {
+              return;
+            }
           }
         }
-
-        updateNewGroceryName("");
-        setModalVisible(false);
-      }
-    );
+      );
+    }
   };
 
   return (
@@ -278,6 +444,8 @@ const GroceryList = (props) => {
                 placeholderTextColor={colors.darkerGrey}
                 keyboardType="ascii-capable"
                 autoFocus={true}
+                returnKeyType="done"
+                onSubmitEditing={addGrocery}
               />
               <View
                 style={{
@@ -296,7 +464,7 @@ const GroceryList = (props) => {
                 </TouchableOpacity>
                 <TouchableOpacity onPress={addGrocery}>
                   <Text style={{ color: colors.primary, fontSize: 17 }}>
-                    Done
+                    Add
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -309,29 +477,72 @@ const GroceryList = (props) => {
         <ScrollViewContainer
           content={
             <View style={{ backgroundColor: colors.lightGrey }}>
+              {editing ? (
+                <TouchableOpacity
+                  style={{ flex: 1, alignItems: "center", marginTop: 10 }}
+                  onPress={() => {
+                    groceryList.splice(0, groceryList.length);
+                    setArrays();
+                  }}
+                >
+                  <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
+                </TouchableOpacity>
+              ) : undefined}
               {produceList.length !== 0 ? (
                 <CategoryComponent
                   catName={"Produce"}
                   groceries={produceList}
+                  remove={removeGrocery}
                 />
               ) : undefined}
               {fishList.length !== 0 ? (
-                <CategoryComponent catName={"Fish"} groceries={fishList} />
+                <CategoryComponent
+                  catName={"Fish"}
+                  groceries={fishList}
+                  remove={removeGrocery}
+                />
               ) : undefined}
               {meatList.length !== 0 ? (
-                <CategoryComponent catName={"Meat"} groceries={meatList} />
+                <CategoryComponent
+                  catName={"Meat"}
+                  groceries={meatList}
+                  remove={removeGrocery}
+                />
               ) : undefined}
               {grainsList.length !== 0 ? (
-                <CategoryComponent catName={"Grains"} groceries={grainsList} />
+                <CategoryComponent
+                  catName={"Grains"}
+                  groceries={grainsList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {dairyList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Dairy"}
+                  groceries={dairyList}
+                  remove={removeGrocery}
+                />
               ) : undefined}
               {condimentsList.length !== 0 ? (
                 <CategoryComponent
                   catName={"Condiments"}
                   groceries={condimentsList}
+                  remove={removeGrocery}
                 />
               ) : undefined}
               {snacksList.length !== 0 ? (
-                <CategoryComponent catName={"Snacks"} groceries={snacksList} />
+                <CategoryComponent
+                  catName={"Snacks"}
+                  groceries={snacksList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {nonFoodList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Non Food"}
+                  groceries={nonFoodList}
+                  remove={removeGrocery}
+                />
               ) : undefined}
             </View>
           }
@@ -339,25 +550,73 @@ const GroceryList = (props) => {
           nav={props.navigation}
         />
       </View>
-      <View style={{ flex: 0.1, flexDirection: "row", alignItems: "center" }}>
+      {editing ? (
         <View
           style={{
-            width: "85%",
-            justifyContent: "center",
+            flex: 0.1,
+            flexDirection: "row",
             alignItems: "center",
+            width: "90%",
           }}
         >
-          <Text style={{ marginLeft: 55 }}>2 Items</Text>
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisible(true);
+            }}
+            style={{
+              alignSelf: "center",
+              marginLeft: 15,
+            }}
+          >
+            <Ionicons name="add" size={30} color={colors.primary} />
+          </TouchableOpacity>
+          <View
+            style={{
+              width: "85%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ marginRight: 5 }}>{groceryList.length} Items</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              setEditing(false);
+              dispatch(updateGroceries(groceryList, allGroceries));
+            }}
+            style={{ alignSelf: "center" }}
+          >
+            <AntDesign name="check" size={24} color={colors.primary} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          onPress={() => {
-            setModalVisible(true);
+      ) : (
+        <View
+          style={{
+            flex: 0.1,
+            flexDirection: "row",
+            alignItems: "center",
+            width: "90%",
           }}
-          style={{ alignSelf: "center" }}
         >
-          <Entypo name="new-message" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+          <View
+            style={{
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ marginLeft: 35 }}>{groceryList.length} Items</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => {
+              setEditing(true);
+            }}
+            style={{ alignSelf: "center" }}
+          >
+            <Entypo name="new-message" size={24} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };

@@ -8,7 +8,9 @@ import { UPDATE_POWER } from "../actions/updatePower";
 import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
 
 // Grocery
-import { UPDATE_GROCERIES } from "../actions/getGroceries";
+import { GET_GROCERIES } from "../actions/getGroceries";
+import { UPDATE_GROCERIES } from "../actions/updateGroceries";
+import { REMOVE_GROCERY } from "../actions/removeGrocery";
 
 import uuid from "react-native-uuid";
 
@@ -283,12 +285,27 @@ const rootReducer = (state, action) => {
           return state;
       }
     }
-    case UPDATE_GROCERIES: {
+    case GET_GROCERIES: {
       if (action.all) {
         return { ...state, allGroceries: action.groceries };
       } else {
         return { ...state, groceryList: action.groceries };
       }
+    }
+    case UPDATE_GROCERIES: {
+      return {
+        ...state,
+        groceryList: action.groceryList,
+        allGroceries: action.allGroceries,
+      };
+    }
+    case REMOVE_GROCERY: {
+      return {
+        ...state,
+        groceryList: state.groceryList.filter(
+          (currGrocery) => currGrocery.Name !== action.grocery.Name
+        ),
+      };
     }
     default:
       return state;

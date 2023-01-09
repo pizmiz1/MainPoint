@@ -4,13 +4,15 @@ import { Text } from "react-native";
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
 
-const GroceryTest = (props) => {
+const GroceryMeals = (props) => {
   return (
     <ScrollViewContainer
-      content={<Text style={{ fontSize: 30 }}>Fuck You LMAO</Text>}
+      content={
+        <Text style={{ fontSize: 30 }}>Meal Page In Construction...</Text>
+      }
       nav={props.navigation}
     />
   );
 };
 
-export default GroceryTest;
+export default GroceryMeals;

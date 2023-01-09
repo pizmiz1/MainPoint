@@ -9,6 +9,7 @@ export const updateOHP = (maxOHP) => (dispatch) => {
       });
       resolve(true);
     } catch (err) {
+      resolve(false);
       console.log("Failed Updating OHP");
       console.log(err);
     }
