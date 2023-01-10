@@ -11,6 +11,7 @@ import { updateOHP } from "../store/actions/updateOHP";
 import { getExersizes } from "../store/actions/getExersizes";
 import { updatePower } from "../store/actions/updatePower";
 import { getGroceries } from "../store/actions/getGroceries";
+import { getMeals } from "../store/actions/getMeals";
 
 const SplashScreen = (props) => {
   const dispatch = useDispatch();
@@ -23,6 +24,7 @@ const SplashScreen = (props) => {
       dispatch(updateOHP(FitnessDB.docs.at(2).data().OHP));
       await dispatch(getExersizes());
       await dispatch(getGroceries());
+      await dispatch(getMeals());
 
       const power = await AsyncStorage.getItem("Power");
       if (power) {

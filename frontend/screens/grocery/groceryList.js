@@ -9,6 +9,7 @@ import {
   Keyboard,
   ActionSheetIOS,
   Alert,
+  LayoutAnimation,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import uuid from "react-native-uuid";
@@ -581,6 +582,13 @@ const GroceryList = (props) => {
           </View>
           <TouchableOpacity
             onPress={() => {
+              LayoutAnimation.configureNext(
+                LayoutAnimation.create(
+                  200,
+                  LayoutAnimation.Types.linear,
+                  LayoutAnimation.Properties.opacity
+                )
+              );
               setEditing(false);
               dispatch(updateGroceries(groceryList, allGroceries));
             }}

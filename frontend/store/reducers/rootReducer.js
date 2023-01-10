@@ -11,6 +11,7 @@ import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
 import { GET_GROCERIES } from "../actions/getGroceries";
 import { UPDATE_GROCERIES } from "../actions/updateGroceries";
 import { REMOVE_GROCERY } from "../actions/removeGrocery";
+import { GET_MEALS } from "../actions/getMeals";
 
 import uuid from "react-native-uuid";
 
@@ -39,6 +40,12 @@ const initialState = {
       id: uuid.v4(),
       name: "Broccoli",
       category: "Produce",
+    },
+  ],
+  meals: [
+    {
+      Name: "Test Meal",
+      Groceries: ["id1", "id2"],
     },
   ],
   mondayExersizes: [
@@ -305,6 +312,12 @@ const rootReducer = (state, action) => {
         groceryList: state.groceryList.filter(
           (currGrocery) => currGrocery.Name !== action.grocery.Name
         ),
+      };
+    }
+    case GET_MEALS: {
+      return {
+        ...state,
+        meals: action.meals,
       };
     }
     default:
