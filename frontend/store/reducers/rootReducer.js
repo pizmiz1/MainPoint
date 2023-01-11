@@ -9,9 +9,12 @@ import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
 
 // Grocery
 import { GET_GROCERIES } from "../actions/getGroceries";
-import { UPDATE_GROCERIES } from "../actions/updateGroceries";
+import { ADD_GROCERY } from "../actions/addGrocery";
 import { REMOVE_GROCERY } from "../actions/removeGrocery";
 import { GET_MEALS } from "../actions/getMeals";
+import { REMOVE_MEAL } from "../actions/removeMeal";
+import { ADD_MEAL } from "../actions/addMeal";
+import { UPDATE_MEAL } from "../actions/updateMeal";
 
 import uuid from "react-native-uuid";
 
@@ -299,11 +302,10 @@ const rootReducer = (state, action) => {
         return { ...state, groceryList: action.groceries };
       }
     }
-    case UPDATE_GROCERIES: {
+    case ADD_GROCERY: {
       return {
         ...state,
-        groceryList: action.groceryList,
-        allGroceries: action.allGroceries,
+        groceryList: state.groceryList.concat([action.grocery]),
       };
     }
     case REMOVE_GROCERY: {
@@ -318,6 +320,25 @@ const rootReducer = (state, action) => {
       return {
         ...state,
         meals: action.meals,
+      };
+    }
+    case REMOVE_MEAL: {
+      return {
+        ...state,
+        meals: state.meals.filter((item, index) => index !== action.mealIndex),
+      };
+    }
+    case ADD_MEAL: {
+      return {
+        ...state,
+        meals: state.meals.concat([action.meal]),
+      };
+    }
+    case UPDATE_MEAL: {
+      console.log(action.mealIndex);
+      return {
+        ...state,
+        meals: (state.meals[action.mealIndex] = action.meal),
       };
     }
     default:

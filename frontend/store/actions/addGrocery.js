@@ -1,16 +1,16 @@
-export const REMOVE_GROCERY = "REMOVE_GROCERY";
+export const ADD_GROCERY = "ADD_GROCERY";
 
-export const removeGroceryAction = (grocery) => (dispatch) => {
+export const addGroceryAction = (grocery) => (dispatch) => {
   return new Promise(async (resolve) => {
     try {
       dispatch({
-        type: REMOVE_GROCERY,
+        type: ADD_GROCERY,
         grocery: grocery,
       });
       resolve(true);
     } catch (err) {
       resolve(false);
-      console.log("Failed Removing Grocery");
+      console.log("Failed Adding Grocery");
       console.log(err);
     }
   });

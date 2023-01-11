@@ -9,8 +9,15 @@ import {
   Alert,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import { updateGroceries } from "./../../store/actions/updateGroceries";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
+import { removeMealAction } from "../../store/actions/removeMeal";
+import { addMealAction } from "../../store/actions/addMeal";
+import { addGroceryAction } from "../../store/actions/addGrocery";
+import { removeGroceryAction } from "../../store/actions/removeGrocery";
+import { updateMealAction } from "../../store/actions/updateMeal";
+import { db } from "../../firebaseConfig";
+import { updateDoc, doc } from "firebase/firestore";
+import uuid from "react-native-uuid";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -22,23 +29,112 @@ const GroceryMeals = (props) => {
   const colors = useSelector((state) => state.colors);
   const meals = useSelector((state) => state.meals);
   const allGroceries = useSelector((state) => state.allGroceries);
+  const groceryList = useSelector((state) => state.groceryList);
+
+  const dispatch = useDispatch();
+
+  const addMeal = () => {
+    let newMeal = {
+      Name: "",
+      Groceries: [uuid.v4()],
+    };
+    dispatch(addMealAction(newMeal));
+  };
 
   const MealSwitchComp = (props) => {
     const [isEnabled, setIsEnabled] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
     const [mealName, updateMealName] = useState(props.mealName);
-    const toggleSwitch = () => {
-      setIsEnabled(!isEnabled);
-    };
     const [groceries, setGroceries] = useState(
       allGroceries.filter((curr) => props.groceries.includes(curr.id))
     );
+
+    useEffect(() => {
+      const test = async () => {
+        const GroceryListDoc = await doc(db, "Grocery", "GroceryList");
+        await updateDoc(GroceryListDoc, { Groceries: groceryList });
+      };
+      test();
+    }, []);
+
+    const toggleSwitch = async () => {
+      if (!isEnabled) {
+        let groceryNames = groceries.map((curr) => curr.Name);
+        let groceryListNames = groceryList.map((curr) => curr.Name);
+        for (const currGroceryName of groceryNames) {
+          const foundGrocery = groceryListNames.find(
+            (currGrocery) => currGrocery === currGroceryName
+          );
+          if (!foundGrocery) {
+            const grocery = allGroceries.find(
+              (currAll) => currAll.Name === currGroceryName
+            );
+            if (grocery) {
+              await dispatch(addGroceryAction(grocery));
+            }
+          }
+        }
+      } else {
+        let groceryNames = groceries.map((curr) => curr.Name);
+        let groceryListNames = groceryList.map((curr) => curr.Name);
+        for (const currGroceryName of groceryNames) {
+          const foundGrocery = groceryListNames.find(
+            (currGrocery) => currGrocery === currGroceryName
+          );
+          if (foundGrocery) {
+            const grocery = allGroceries.find(
+              (currAll) => currAll.Name === currGroceryName
+            );
+            if (grocery) {
+              await dispatch(removeGroceryAction(grocery));
+            }
+          }
+        }
+      }
+      setIsEnabled(!isEnabled);
+    };
+
+    const addGrocery = () => {
+      let newGrocery = {
+        id: uuid.v4(),
+        Name: "",
+        Category: "",
+      };
+      setGroceries([...groceries, newGrocery]);
+    };
+
+    const removeGrocery = (index) => {
+      let data = [...groceries];
+      data.splice(index, 1);
+      setGroceries(data);
+    };
 
     const handleNameChange = (index, val) => {
       let data = JSON.parse(JSON.stringify(groceries));
       data[index].Name = val;
       setGroceries(data);
     };
+
+    useEffect(() => {
+      let mealExists = false;
+      let groceryNames = groceries.map((curr) => curr.Name);
+      let groceryListNames = groceryList.map((curr) => curr.Name);
+      mealExists = groceryNames.every((curr) => {
+        const foundGrocery = groceryListNames.find(
+          (currGrocery) => currGrocery === curr
+        );
+        if (foundGrocery) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+      if (mealExists) {
+        setIsEnabled(true);
+      } else {
+        setIsEnabled(false);
+      }
+    }, [groceryList, groceries]);
 
     return (
       <View
@@ -105,9 +201,12 @@ const GroceryMeals = (props) => {
                   <TouchableOpacity
                     onPress={() => {
                       if (props.index !== -1) {
-                        meals.splice(props.index, 1);
+                        dispatch(removeMealAction(props.index));
                       }
-                      setRefreshTrigger(!refreshTrigger);
+                      // if (props.index !== -1) {
+                      //   dispatch(removeMealAction(props.index));
+                      // }
+                      // setRefreshTrigger(!refreshTrigger);
                     }}
                   >
                     <AntDesign name="minuscircleo" size={20} color="red" />
@@ -119,6 +218,9 @@ const GroceryMeals = (props) => {
                     let validMeal = false;
                     let groceryNames = groceries.map((curr) => curr.Name);
                     let allGroceryNames = allGroceries.map((curr) => curr.Name);
+
+                    // NEED TO MAP IDS HERE
+                    // AND UPDATE MEAL IS NOT WORKING XD
                     validMeal = await groceryNames.every((curr) => {
                       const foundGrocery = allGroceryNames.find(
                         (currGrocery) => currGrocery === curr
@@ -132,10 +234,11 @@ const GroceryMeals = (props) => {
 
                     if (validMeal === true) {
                       let groceryIds = groceries.map((curr) => curr.id);
-                      meals[props.index] = {
+                      const updatedMeal = {
                         Name: mealName,
                         Groceries: groceryIds,
                       };
+                      dispatch(updateMealAction(updatedMeal, props.index));
 
                       LayoutAnimation.configureNext(
                         LayoutAnimation.create(
@@ -167,14 +270,24 @@ const GroceryMeals = (props) => {
             />
             {groceries.map((item, index) => {
               return (
-                <View style={{ width: "30%" }} key={index}>
+                <View style={{ width: "35%" }} key={index}>
                   <View style={{ marginTop: 15 }}>
-                    <TextInput
-                      value={item.Name}
-                      placeholder="Grocery"
-                      placeholderTextColor={colors.darkerGrey}
-                      onChangeText={(val) => handleNameChange(index, val)}
-                    />
+                    <View style={{ flexDirection: "row" }}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          removeGrocery(index);
+                        }}
+                      >
+                        <AntDesign name="minuscircleo" size={20} color="red" />
+                      </TouchableOpacity>
+                      <TextInput
+                        value={item.Name}
+                        placeholder="Grocery"
+                        placeholderTextColor={colors.darkerGrey}
+                        onChangeText={(val) => handleNameChange(index, val)}
+                        style={{ marginLeft: 10 }}
+                      />
+                    </View>
                     <View
                       style={{
                         //flex: 1,
@@ -186,6 +299,12 @@ const GroceryMeals = (props) => {
                 </View>
               );
             })}
+            <TouchableOpacity
+              onPress={addGrocery}
+              style={{ marginLeft: 0, marginTop: 15 }}
+            >
+              <AntDesign name="pluscircleo" size={20} color="green" />
+            </TouchableOpacity>
           </View>
         ) : undefined}
       </View>
@@ -211,6 +330,7 @@ const GroceryMeals = (props) => {
               })}
               {editing ? (
                 <TouchableOpacity
+                  onPress={addMeal}
                   style={{ flex: 1, alignItems: "center", marginTop: 30 }}
                 >
                   <Text style={{ fontSize: 30, color: "green" }}>Add</Text>
@@ -241,7 +361,10 @@ const GroceryMeals = (props) => {
         </View>
         {editing ? (
           <TouchableOpacity
-            onPress={() => {
+            onPress={async () => {
+              console.log(meals);
+              const MealsDoc = doc(db, "Grocery", "Meals");
+              await updateDoc(MealsDoc, { Meals: meals });
               setEditing(false);
             }}
             style={{ alignSelf: "center" }}

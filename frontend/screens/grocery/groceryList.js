@@ -14,8 +14,10 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import uuid from "react-native-uuid";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
-import { updateGroceries } from "../../store/actions/updateGroceries";
-import { removeGrocery } from "../../store/actions/removeGrocery";
+import { removeGroceryAction } from "../../store/actions/removeGrocery";
+import { addGroceryAction } from "../../store/actions/addGrocery";
+import { db } from "../../firebaseConfig";
+import { updateDoc, doc } from "firebase/firestore";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -72,11 +74,7 @@ const GroceryList = (props) => {
   const dispatch = useDispatch();
 
   const removeGrocery = async (passedGrocery) => {
-    const index = groceryList.indexOf(passedGrocery);
-    if (index !== -1) {
-      groceryList.splice(index, 1);
-    }
-    setArrays();
+    await dispatch(removeGroceryAction(passedGrocery));
   };
 
   const CategoryComponent = (props) => {
@@ -253,46 +251,10 @@ const GroceryList = (props) => {
       }
 
       newGrocery.Category = existingGrocery.Category;
-      groceryList.push(newGrocery);
+      newGrocery.id = existingGrocery.id;
       updateNewGroceryName("");
       setModalVisible(false);
-      switch (newGrocery.Category) {
-        case "Produce": {
-          setProduceList(produceList.concat([newGrocery]));
-          break;
-        }
-        case "Fish": {
-          setFishList(fishList.concat([newGrocery]));
-          break;
-        }
-        case "Meat": {
-          setMeatList(meatList.concat([newGrocery]));
-          break;
-        }
-        case "Grain": {
-          setGrainsList(grainsList.concat([newGrocery]));
-          break;
-        }
-        case "Dairy": {
-          setDairyList(dairyList.concat([newGrocery]));
-          break;
-        }
-        case "Condiment": {
-          setCondimentsList(condimentsList.concat([newGrocery]));
-          break;
-        }
-        case "Snack": {
-          setSnacksList(snacksList.concat([newGrocery]));
-          break;
-        }
-        case "Non Food": {
-          setNonFoodList(nonFoodList.concat([newGrocery]));
-          break;
-        }
-        default: {
-          return;
-        }
-      }
+      dispatch(addGroceryAction(newGrocery));
     } else {
       ActionSheetIOS.showActionSheetWithOptions(
         {
@@ -348,47 +310,10 @@ const GroceryList = (props) => {
               break;
             }
           }
-          groceryList.push(newGrocery);
           allGroceries.push(newGrocery);
           updateNewGroceryName("");
           setModalVisible(false);
-          switch (newGrocery.Category) {
-            case "Produce": {
-              setProduceList(produceList.concat([newGrocery]));
-              break;
-            }
-            case "Fish": {
-              setFishList(fishList.concat([newGrocery]));
-              break;
-            }
-            case "Meat": {
-              setMeatList(meatList.concat([newGrocery]));
-              break;
-            }
-            case "Grain": {
-              setGrainsList(grainsList.concat([newGrocery]));
-              break;
-            }
-            case "Dairy": {
-              setDairyList(dairyList.concat([newGrocery]));
-              break;
-            }
-            case "Condiment": {
-              setCondimentsList(condimentsList.concat([newGrocery]));
-              break;
-            }
-            case "Snack": {
-              setSnacksList(snacksList.concat([newGrocery]));
-              break;
-            }
-            case "Non Food": {
-              setNonFoodList(nonFoodList.concat([newGrocery]));
-              break;
-            }
-            default: {
-              return;
-            }
-          }
+          dispatch(addGroceryAction(newGrocery));
         }
       );
     }
@@ -397,10 +322,7 @@ const GroceryList = (props) => {
   return (
     <View style={{ flex: 1 }}>
       <Modal animationType="fade" visible={modalVisible} transparent={true}>
-        <TouchableWithoutFeedback
-          //onPress={() => setModalVisible(false)}
-          onPressOut={() => Keyboard.dismiss()}
-        >
+        <TouchableWithoutFeedback onPressOut={() => Keyboard.dismiss()}>
           <View
             style={{
               flex: 1,
@@ -433,7 +355,6 @@ const GroceryList = (props) => {
                 placeholder="Name"
                 onChangeText={updateNewGroceryName}
                 style={{
-                  //margin: 5,
                   borderBottomWidth: 1,
                   padding: 5,
                   borderBottomColor: colors.darkGrey,
@@ -581,7 +502,7 @@ const GroceryList = (props) => {
             <Text style={{ marginRight: 5 }}>{groceryList.length} Items</Text>
           </View>
           <TouchableOpacity
-            onPress={() => {
+            onPress={async () => {
               LayoutAnimation.configureNext(
                 LayoutAnimation.create(
                   200,
@@ -590,7 +511,17 @@ const GroceryList = (props) => {
                 )
               );
               setEditing(false);
-              dispatch(updateGroceries(groceryList, allGroceries));
+              const GroceryListDoc = await doc(db, "Grocery", "GroceryList");
+              await updateDoc(GroceryListDoc, { Groceries: groceryList });
+
+              const AllGroceryListDoc = await doc(
+                db,
+                "Grocery",
+                "AllGroceries"
+              );
+              await updateDoc(AllGroceryListDoc, {
+                AllGroceries: allGroceries,
+              });
             }}
             style={{ alignSelf: "center" }}
           >
