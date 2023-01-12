@@ -335,10 +335,18 @@ const rootReducer = (state, action) => {
       };
     }
     case UPDATE_MEAL: {
-      console.log(action.mealIndex);
       return {
         ...state,
-        meals: (state.meals[action.mealIndex] = action.meal),
+        meals: state.meals.map((meal, index) => {
+          if (index === action.mealIndex) {
+            return {
+              ...meal,
+              Name: action.meal.Name,
+              Groceries: action.meal.Groceries,
+            };
+          }
+          return meal;
+        }),
       };
     }
     default:

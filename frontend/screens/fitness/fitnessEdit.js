@@ -484,8 +484,6 @@ const FitnessEdit = (props) => {
           alignItems: "center",
           justifyContent: "space-evenly",
           backgroundColor: colors.secondary,
-          borderBottomColor: colors.lightGrey,
-          borderBottomWidth: 1,
         }}
       >
         <View style={{ flex: 1 }}>

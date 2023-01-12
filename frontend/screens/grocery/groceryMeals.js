@@ -24,7 +24,6 @@ import ScrollViewContainer from "../../components/scrollViewContainer";
 
 const GroceryMeals = (props) => {
   const [editing, setEditing] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(false);
 
   const colors = useSelector((state) => state.colors);
   const meals = useSelector((state) => state.meals);
@@ -112,6 +111,10 @@ const GroceryMeals = (props) => {
     const handleNameChange = (index, val) => {
       let data = JSON.parse(JSON.stringify(groceries));
       data[index].Name = val;
+      const foundGrocery = allGroceries.find((curr) => curr.Name === val);
+      if (foundGrocery) {
+        data[index].id = foundGrocery.id;
+      }
       setGroceries(data);
     };
 
@@ -151,7 +154,7 @@ const GroceryMeals = (props) => {
         <View
           style={{
             flexDirection: "row",
-            justifyContent: "space-between",
+            //justifyContent: "space-between",
           }}
         >
           {showDetails ? (
@@ -160,13 +163,14 @@ const GroceryMeals = (props) => {
               placeholder="Meal Name"
               placeholderTextColor={colors.darkGrey}
               onChangeText={updateMealName}
-              style={{ flex: 1, fontSize: 25 }}
+              style={{ fontSize: 25, width: "90%" }}
             />
           ) : (
             <Text
               style={{
                 alignSelf: "center",
                 fontSize: 25,
+                width: "90%",
               }}
             >
               {mealName}
@@ -203,10 +207,6 @@ const GroceryMeals = (props) => {
                       if (props.index !== -1) {
                         dispatch(removeMealAction(props.index));
                       }
-                      // if (props.index !== -1) {
-                      //   dispatch(removeMealAction(props.index));
-                      // }
-                      // setRefreshTrigger(!refreshTrigger);
                     }}
                   >
                     <AntDesign name="minuscircleo" size={20} color="red" />
@@ -219,8 +219,6 @@ const GroceryMeals = (props) => {
                     let groceryNames = groceries.map((curr) => curr.Name);
                     let allGroceryNames = allGroceries.map((curr) => curr.Name);
 
-                    // NEED TO MAP IDS HERE
-                    // AND UPDATE MEAL IS NOT WORKING XD
                     validMeal = await groceryNames.every((curr) => {
                       const foundGrocery = allGroceryNames.find(
                         (currGrocery) => currGrocery === curr
@@ -336,6 +334,7 @@ const GroceryMeals = (props) => {
                   <Text style={{ fontSize: 30, color: "green" }}>Add</Text>
                 </TouchableOpacity>
               ) : undefined}
+              <View style={{ marginTop: 150 }} />
             </View>
           }
           nav={props.navigation}
@@ -362,7 +361,6 @@ const GroceryMeals = (props) => {
         {editing ? (
           <TouchableOpacity
             onPress={async () => {
-              console.log(meals);
               const MealsDoc = doc(db, "Grocery", "Meals");
               await updateDoc(MealsDoc, { Meals: meals });
               setEditing(false);

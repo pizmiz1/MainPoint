@@ -398,7 +398,9 @@ const GroceryList = (props) => {
       <View style={{ flex: 0.9 }}>
         <ScrollViewContainer
           content={
-            <View style={{ backgroundColor: colors.lightGrey }}>
+            <View
+              style={{ backgroundColor: colors.lightGrey, marginBottom: 20 }}
+            >
               {editing ? (
                 <TouchableOpacity
                   style={{ flex: 1, alignItems: "center", marginTop: 10 }}

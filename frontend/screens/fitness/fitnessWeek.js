@@ -84,7 +84,7 @@ const FitnessWeek = (props) => {
   };
 
   const DayComponent = (props) => {
-    const [selected, setSelected] = useState(false);
+    const [selected, setSelected] = useState(true);
     const [mainLiftIndexs, setMainLiftIndexs] = useState([]);
     const [isRestDay, setIsRestDay] = useState(false);
     const [exersizes, setExersizes] = useState([]);
@@ -97,10 +97,6 @@ const FitnessWeek = (props) => {
       }
       if (props.exersizes.at(0).exersize === "Rest") {
         setIsRestDay(true);
-      }
-
-      if (currDay === props.day) {
-        setSelected(true);
       }
     }, []);
 
@@ -352,72 +348,70 @@ const FitnessWeek = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
+      <View
+        style={{
+          flex: 0,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-evenly",
+          backgroundColor: colors.secondary,
+        }}
+      >
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity
+            style={{ alignItems: "center" }}
+            onPress={() => {
+              dispatch(updatePower(true));
+            }}
+          >
+            <MaterialCommunityIcons
+              name={power ? "arm-flex" : "arm-flex-outline"}
+              color={"white"}
+              size={30}
+            />
+            <View style={{ marginBottom: 5 }} />
+            <Text
+              style={{
+                fontSize: 15,
+                color: colors.textColors.headerText,
+                fontWeight: power ? "bold" : "normal",
+                textAlign: "center",
+              }}
+            >
+              Power
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity
+            style={{ alignItems: "center" }}
+            onPress={() => {
+              dispatch(updatePower(false));
+            }}
+          >
+            <AntDesign
+              name={!power ? "smile-circle" : "smileo"}
+              color={"white"}
+              size={20}
+            />
+            <View style={{ marginBottom: 5 }} />
+            <Text
+              style={{
+                fontSize: 15,
+                color: colors.textColors.headerText,
+                fontWeight: !power ? "bold" : "normal",
+                textAlign: "center",
+              }}
+            >
+              BB
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       <View style={{ flex: 0.9 }}>
         <ScrollViewContainer
           content={
             <View>
-              <View
-                style={{
-                  flex: 0,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-evenly",
-                  backgroundColor: colors.secondary,
-                  borderBottomColor: colors.lightGrey,
-                  borderBottomWidth: 1,
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <TouchableOpacity
-                    style={{ alignItems: "center" }}
-                    onPress={() => {
-                      dispatch(updatePower(true));
-                    }}
-                  >
-                    <MaterialCommunityIcons
-                      name={power ? "arm-flex" : "arm-flex-outline"}
-                      color={"white"}
-                      size={30}
-                    />
-                    <View style={{ marginBottom: 5 }} />
-                    <Text
-                      style={{
-                        fontSize: 15,
-                        color: colors.textColors.headerText,
-                        fontWeight: power ? "bold" : "normal",
-                        textAlign: "center",
-                      }}
-                    >
-                      Power
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <TouchableOpacity
-                    style={{ alignItems: "center" }}
-                    onPress={() => {
-                      dispatch(updatePower(false));
-                    }}
-                  >
-                    <AntDesign
-                      name={!power ? "smile-circle" : "smileo"}
-                      color={"white"}
-                      size={20}
-                    />
-                    <View style={{ marginBottom: 5 }} />
-                    <Text
-                      style={{
-                        fontSize: 15,
-                        color: colors.textColors.headerText,
-                        fontWeight: !power ? "bold" : "normal",
-                        textAlign: "center",
-                      }}
-                    >
-                      BB
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
               <View style={{ marginTop: 20 }} />
               <DayComponent day="Monday" exersizes={mondayExersizes} />
               <DayComponent day="Tuesday" exersizes={tuesdayExersizes} />
