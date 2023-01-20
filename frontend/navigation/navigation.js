@@ -9,7 +9,6 @@ import moment from "moment/moment";
 
 //shared screens
 import SplashScreen from "../screens/splashScreen";
-import SelectionScreen from "../screens/selectionScreen";
 
 //grocery screens
 import GroceryList from "../screens/grocery/groceryList";
@@ -25,73 +24,12 @@ import FitnessMaxes from "../screens/fitness/fitnessMaxes";
 import MyDrawerContainer from "../components/drawerContainer";
 
 //Grocery Nav
-const GroceryDrawer = createDrawerNavigator();
+const MyDrawer = createDrawerNavigator();
 
-const GroceryDrawerNavigator = () => {
+const MyDrawerNav = () => {
   const colors = useSelector((state) => state.colors);
-  return (
-    <GroceryDrawer.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.secondary,
-        },
-        headerTintColor: colors.textColors.headerText,
-        headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
-        headerShadowVisible: false,
-        drawerStyle: { backgroundColor: colors.primary },
-        drawerActiveBackgroundColor: colors.primary,
-        drawerActiveTintColor: "white",
-        drawerInactiveTintColor: "white",
-      }}
-      drawerContent={(props) => <MyDrawerContainer {...props} />}
-      useLegacyImplementation={true}
-    >
-      <GroceryDrawer.Screen
-        name="Grocery List"
-        component={GroceryList}
-        options={{
-          headerTitle: "List",
-          drawerLabel: ({ focused, color }) => (
-            <Text
-              style={{
-                fontWeight: focused ? "bold" : "normal",
-                textDecorationLine: focused ? "underline" : "none",
-                color,
-                fontSize: 20,
-              }}
-            >
-              List
-            </Text>
-          ),
-        }}
-      />
-      <GroceryDrawer.Screen
-        name="Grocery Meals"
-        component={GroceryMeals}
-        options={{
-          headerTitle: "Meals",
-          drawerLabel: ({ focused, color }) => (
-            <Text
-              style={{
-                fontWeight: focused ? "bold" : "normal",
-                textDecorationLine: focused ? "underline" : "none",
-                color,
-                fontSize: 20,
-              }}
-            >
-              Meals
-            </Text>
-          ),
-        }}
-      />
-    </GroceryDrawer.Navigator>
-  );
-};
+  const mode = useSelector((state) => state.mode);
 
-//Fitness Nav
-const FitnessDrawer = createDrawerNavigator();
-
-const FitnessDrawerNavigator = () => {
   let weekDisp;
   const dayDisp = moment().format("dddd");
   if (dayDisp === "Tuesday") {
@@ -110,93 +48,152 @@ const FitnessDrawerNavigator = () => {
     weekDisp = moment().format("MMM Do");
   }
 
-  const colors = useSelector((state) => state.colors);
-  return (
-    <FitnessDrawer.Navigator
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.secondary,
-        },
-        headerTintColor: colors.textColors.headerText,
-        headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
-        headerShadowVisible: false,
-        drawerStyle: { backgroundColor: colors.primary },
-        drawerActiveBackgroundColor: colors.primary,
-        drawerActiveTintColor: colors.textColors.headerText,
-        drawerInactiveTintColor: colors.textColors.headerText,
-      }}
-      drawerContent={(props) => <MyDrawerContainer {...props} />}
-      useLegacyImplementation={true}
-    >
-      <FitnessDrawer.Screen
-        name="Fitness Day"
-        component={FitnessDay}
-        options={{
-          headerTitle: dayDisp,
-          drawerLabel: ({ focused, color }) => (
-            <Text
-              style={{
-                fontWeight: focused ? "bold" : "normal",
-                textDecorationLine: focused ? "underline" : "none",
-                color,
-                fontSize: 20,
-              }}
-            >
-              Program
-            </Text>
-          ),
-        }}
-      />
-      <FitnessDrawer.Screen
-        name="Fitness Edit"
-        component={FitnessEdit}
-        options={{
-          headerTitle: "",
-          drawerLabel: ({ focused, color }) => (
-            <Text
-              style={{
-                fontWeight: focused ? "bold" : "normal",
-                textDecorationLine: focused ? "underline" : "none",
-                color,
-                fontSize: 20,
-              }}
-            >
-              Edit
-            </Text>
-          ),
-        }}
-      />
-      <FitnessDrawer.Screen
-        name="Fitness Maxes"
-        component={FitnessMaxes}
-        options={{
-          headerTitle: "Maxes",
-          drawerLabel: ({ focused, color }) => (
-            <Text
-              style={{
-                fontWeight: focused ? "bold" : "normal",
-                textDecorationLine: focused ? "underline" : "none",
-                color,
-                fontSize: 20,
-              }}
-            >
-              Maxes
-            </Text>
-          ),
-        }}
-      />
-      <FitnessDrawer.Screen
-        name="Fitness Week"
-        component={FitnessWeek}
-        options={{
-          headerTitle: "Week of " + weekDisp,
-          drawerItemStyle: {
-            display: "none",
+  if (mode === "Fitness") {
+    return (
+      <MyDrawer.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: colors.secondary,
           },
+          headerTintColor: colors.textColors.headerText,
+          headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
+          headerShadowVisible: false,
+          drawerStyle: { backgroundColor: colors.primary },
+          drawerActiveBackgroundColor: colors.primary,
+          drawerActiveTintColor: colors.textColors.headerText,
+          drawerInactiveTintColor: colors.textColors.headerText,
         }}
-      />
-    </FitnessDrawer.Navigator>
-  );
+        drawerContent={(props) => <MyDrawerContainer {...props} />}
+        useLegacyImplementation={true}
+      >
+        <MyDrawer.Screen
+          name="Fitness Day"
+          component={FitnessDay}
+          options={{
+            headerTitle: dayDisp,
+            drawerLabel: ({ focused, color }) => (
+              <Text
+                style={{
+                  fontWeight: focused ? "bold" : "normal",
+                  textDecorationLine: focused ? "underline" : "none",
+                  color,
+                  fontSize: 20,
+                }}
+              >
+                Program
+              </Text>
+            ),
+          }}
+        />
+        <MyDrawer.Screen
+          name="Fitness Edit"
+          component={FitnessEdit}
+          options={{
+            headerTitle: "",
+            drawerLabel: ({ focused, color }) => (
+              <Text
+                style={{
+                  fontWeight: focused ? "bold" : "normal",
+                  textDecorationLine: focused ? "underline" : "none",
+                  color,
+                  fontSize: 20,
+                }}
+              >
+                Edit
+              </Text>
+            ),
+          }}
+        />
+        <MyDrawer.Screen
+          name="Fitness Maxes"
+          component={FitnessMaxes}
+          options={{
+            headerTitle: "Maxes",
+            drawerLabel: ({ focused, color }) => (
+              <Text
+                style={{
+                  fontWeight: focused ? "bold" : "normal",
+                  textDecorationLine: focused ? "underline" : "none",
+                  color,
+                  fontSize: 20,
+                }}
+              >
+                Maxes
+              </Text>
+            ),
+          }}
+        />
+        <MyDrawer.Screen
+          name="Fitness Week"
+          component={FitnessWeek}
+          options={{
+            headerTitle: "Week of " + weekDisp,
+            drawerItemStyle: {
+              display: "none",
+            },
+          }}
+        />
+      </MyDrawer.Navigator>
+    );
+  } else {
+    return (
+      <MyDrawer.Navigator
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: colors.secondary,
+          },
+          headerTintColor: colors.textColors.headerText,
+          headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
+          headerShadowVisible: false,
+          drawerStyle: { backgroundColor: colors.primary },
+          drawerActiveBackgroundColor: colors.primary,
+          drawerActiveTintColor: "white",
+          drawerInactiveTintColor: "white",
+        }}
+        drawerContent={(props) => <MyDrawerContainer {...props} />}
+        useLegacyImplementation={true}
+      >
+        <MyDrawer.Screen
+          name="Grocery List"
+          component={GroceryList}
+          options={{
+            headerTitle: "List",
+            drawerLabel: ({ focused, color }) => (
+              <Text
+                style={{
+                  fontWeight: focused ? "bold" : "normal",
+                  textDecorationLine: focused ? "underline" : "none",
+                  color,
+                  fontSize: 20,
+                }}
+              >
+                List
+              </Text>
+            ),
+          }}
+        />
+        <MyDrawer.Screen
+          name="Grocery Meals"
+          component={GroceryMeals}
+          options={{
+            headerTitle: "Meals",
+            drawerLabel: ({ focused, color }) => (
+              <Text
+                style={{
+                  fontWeight: focused ? "bold" : "normal",
+                  textDecorationLine: focused ? "underline" : "none",
+                  color,
+                  fontSize: 20,
+                }}
+              >
+                Meals
+              </Text>
+            ),
+          }}
+        />
+      </MyDrawer.Navigator>
+    );
+  }
 };
 
 //Root Nav
@@ -223,13 +220,7 @@ const StackNavigator = () => {
           component={SplashScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="Selection Screen"
-          component={SelectionScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="Grocery App" component={GroceryDrawerNavigator} />
-        <Stack.Screen name="Fitness App" component={FitnessDrawerNavigator} />
+        <Stack.Screen name="App" component={MyDrawerNav} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -4,15 +4,23 @@ import {
   DrawerItemList,
 } from "@react-navigation/drawer";
 import { View, Text, TouchableOpacity } from "react-native";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { switchMode } from "../store/actions/switchMode";
 
 const MyDrawerContainer = (props) => {
   const colors = useSelector((state) => state.colors);
 
+  const dispatch = useDispatch();
+
+  const mode = useSelector((state) => state.mode);
+
   const handlePress = () => {
-    AsyncStorage.removeItem("Mode");
-    props.navigation.navigate("Selection Screen");
+    if (mode === "Fitness") {
+      dispatch(switchMode("Grocery"));
+    } else {
+      dispatch(switchMode("Fitness"));
+    }
     props.navigation.toggleDrawer();
   };
 

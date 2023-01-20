@@ -19,9 +19,9 @@ const SplashScreen = (props) => {
   useEffect(() => {
     const load = async () => {
       const FitnessDB = await getDocs(collection(db, "Fitness"));
-      dispatch(updateBench(FitnessDB.docs.at(2).data().Bench));
-      dispatch(updateSquat(FitnessDB.docs.at(2).data().Squat));
-      dispatch(updateOHP(FitnessDB.docs.at(2).data().OHP));
+      await dispatch(updateBench(FitnessDB.docs.at(2).data().Bench));
+      await dispatch(updateSquat(FitnessDB.docs.at(2).data().Squat));
+      await dispatch(updateOHP(FitnessDB.docs.at(2).data().OHP));
       await dispatch(getExersizes());
       await dispatch(getGroceries());
       await dispatch(getMeals());
@@ -34,19 +34,16 @@ const SplashScreen = (props) => {
 
       const mode = await AsyncStorage.getItem("Mode");
       if (!mode) {
-        props.navigation.navigate("Selection Screen");
+        dispatch(switchMode("Grocery"));
       } else {
         const transformedMode = JSON.parse(mode);
         if (transformedMode.mode === "Fitness") {
           dispatch(switchMode("Fitness"));
-          props.navigation.navigate("Fitness App");
-        } else if (transformedMode.mode === "Grocery") {
-          dispatch(switchMode("Grocery"));
-          props.navigation.navigate("Grocery App");
         } else {
-          props.navigation.navigate("Selection Screen");
+          dispatch(switchMode("Grocery"));
         }
       }
+      props.navigation.navigate("App");
     };
 
     load();
