@@ -6,16 +6,18 @@ import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 const BottomNavigationTab = (props) => {
   const colors = useSelector((state) => state.colors);
 
-  const [dayIcon, setDayIcon] = useState("skull-crossbones");
+  const [dayIcon, setDayIcon] = useState("ios-sunny-outline");
   const [weekIcon, setWeekIcon] = useState("list-outline");
 
   useEffect(() => {
     switch (props.screenName) {
       case "DAY":
-        setDayIcon("crosshairs");
+        setDayIcon("ios-sunny");
+        setWeekIcon("list-outline");
         break;
       case "WEEK":
         setWeekIcon("list-sharp");
+        setDayIcon("ios-sunny-outline");
         break;
       default:
         break;
@@ -39,13 +41,13 @@ const BottomNavigationTab = (props) => {
             props.navigation.jumpTo("Fitness Day");
           }}
         >
-          <FontAwesome5 name={dayIcon} color={"white"} size={20} />
+          <Ionicons name={dayIcon} color={"white"} size={20} />
           <View style={{ marginBottom: 5 }} />
           <Text
             style={{
               fontSize: 15,
               color: colors.textColors.headerText,
-              fontWeight: dayIcon === "crosshairs" ? "bold" : "normal",
+              fontWeight: dayIcon === "ios-sunny" ? "bold" : "normal",
               textAlign: "center",
             }}
           >

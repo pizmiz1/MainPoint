@@ -1,10 +1,22 @@
 export const UPDATE_EXERSIZES = "UPDATE_EXERSIZES";
 import { db } from "../../firebaseConfig";
 import { updateDoc, doc } from "firebase/firestore";
+import uuid from "react-native-uuid";
 
 export const updateExersizes = (day, power, exersizes) => (dispatch) => {
   return new Promise(async (resolve) => {
     try {
+      if (exersizes.length === 0) {
+        let restDay = {
+          id: uuid.v4(),
+          exersize: "Rest",
+          sets: "",
+          reps: "",
+          weight: "",
+        };
+        exersizes.push(restDay);
+      }
+
       switch (day) {
         case 0: {
           if (power) {

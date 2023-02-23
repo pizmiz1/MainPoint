@@ -10,6 +10,7 @@ import { updateSquat } from "../store/actions/updateSquat";
 import { updateOHP } from "../store/actions/updateOHP";
 import { getExersizes } from "../store/actions/getExersizes";
 import { updatePower } from "../store/actions/updatePower";
+import { toggleBiweekly } from "../store/actions/toggleBiweekly";
 import { getGroceries } from "../store/actions/getGroceries";
 import { getMeals } from "../store/actions/getMeals";
 
@@ -25,6 +26,14 @@ const SplashScreen = (props) => {
       await dispatch(getExersizes());
       await dispatch(getGroceries());
       await dispatch(getMeals());
+
+      const biweekly = await AsyncStorage.getItem("Biweekly");
+      if (biweekly) {
+        const transformedBiweekly = JSON.parse(biweekly);
+        if (transformedBiweekly.biweekly) {
+          dispatch(toggleBiweekly());
+        }
+      }
 
       const power = await AsyncStorage.getItem("Power");
       if (power) {

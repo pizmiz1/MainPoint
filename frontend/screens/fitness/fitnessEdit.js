@@ -7,10 +7,12 @@ import {
   TextInput,
   FlatList,
   ActivityIndicator,
+  Switch,
 } from "react-native";
 import uuid from "react-native-uuid";
 import { updateExersizes } from "../../store/actions/updateExersizes";
 import { updatePower } from "../../store/actions/updatePower";
+import { toggleBiweekly } from "../../store/actions/toggleBiweekly";
 import { Notifier, Easing, NotifierComponents } from "react-native-notifier";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -20,6 +22,7 @@ import ScrollViewContainer from "../../components/scrollViewContainer";
 const FitnessEdit = (props) => {
   const colors = useSelector((state) => state.colors);
   const power = useSelector((state) => state.power);
+  const biweekly = useSelector((state) => state.biweekly);
   const mondayExersizes = useSelector((state) => state.mondayExersizes);
   const tuesdayExersizes = useSelector((state) => state.tuesdayExersizes);
   const wednesdayExersizes = useSelector((state) => state.wednesdayExersizes);
@@ -56,7 +59,7 @@ const FitnessEdit = (props) => {
       if (props.exersizes !== undefined) {
         setExersizes(props.exersizes);
       }
-      if (props.exersizes.at(0).exersize === "Rest") {
+      if (props.exersizes.at(0).exersize.toLowerCase() === "rest") {
         setIsRestDay(true);
       }
     }, []);
@@ -107,7 +110,7 @@ const FitnessEdit = (props) => {
     const handleExersizeChange = (index, val) => {
       let data = [...exersizes];
       data[index].exersize = val;
-      if (val === "Rest") {
+      if (val.toLowerCase() === "rest") {
         setIsRestDay(true);
       } else {
         setIsRestDay(false);
@@ -477,66 +480,68 @@ const FitnessEdit = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <View
-        style={{
-          flex: 0,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-evenly",
-          backgroundColor: colors.secondary,
-        }}
-      >
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity
-            style={{ alignItems: "center" }}
-            onPress={() => {
-              dispatch(updatePower(true));
-            }}
-          >
-            <MaterialCommunityIcons
-              name={power ? "arm-flex" : "arm-flex-outline"}
-              color={"white"}
-              size={30}
-            />
-            <View style={{ marginBottom: 5 }} />
-            <Text
-              style={{
-                fontSize: 15,
-                color: colors.textColors.headerText,
-                fontWeight: power ? "bold" : "normal",
-                textAlign: "center",
+      {!biweekly ? null : (
+        <View
+          style={{
+            flex: 0,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-evenly",
+            backgroundColor: colors.secondary,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              onPress={() => {
+                dispatch(updatePower(true));
               }}
             >
-              Power
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity
-            style={{ alignItems: "center" }}
-            onPress={() => {
-              dispatch(updatePower(false));
-            }}
-          >
-            <AntDesign
-              name={!power ? "smile-circle" : "smileo"}
-              color={"white"}
-              size={20}
-            />
-            <View style={{ marginBottom: 5 }} />
-            <Text
-              style={{
-                fontSize: 15,
-                color: colors.textColors.headerText,
-                fontWeight: !power ? "bold" : "normal",
-                textAlign: "center",
+              <MaterialCommunityIcons
+                name={power ? "arm-flex" : "arm-flex-outline"}
+                color={"white"}
+                size={30}
+              />
+              <View style={{ marginBottom: 5 }} />
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: colors.textColors.headerText,
+                  fontWeight: power ? "bold" : "normal",
+                  textAlign: "center",
+                }}
+              >
+                Power
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              onPress={() => {
+                dispatch(updatePower(false));
               }}
             >
-              BB
-            </Text>
-          </TouchableOpacity>
+              <AntDesign
+                name={!power ? "smile-circle" : "smileo"}
+                color={"white"}
+                size={20}
+              />
+              <View style={{ marginBottom: 5 }} />
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: colors.textColors.headerText,
+                  fontWeight: !power ? "bold" : "normal",
+                  textAlign: "center",
+                }}
+              >
+                BB
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
       <ScrollViewContainer
         content={
           <View style={{ flex: 1, marginTop: 20 }}>
@@ -568,7 +573,39 @@ const FitnessEdit = (props) => {
               day="Sunday"
               exersizes={power ? sundayExersizes : sundayExersizesB}
             />
-            <View style={{ marginBottom: 200 }} />
+            <View style={{ backgroundColor: "black" }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  backgroundColor: "#1c1c1e",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderRadius: 15,
+                  marginLeft: 20,
+                  marginRight: 20,
+                  marginTop: 20,
+                  padding: 15,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 20,
+                    color: "white",
+                  }}
+                >
+                  Biweekly
+                </Text>
+                <Switch
+                  onValueChange={() => {
+                    dispatch(toggleBiweekly());
+                  }}
+                  value={biweekly}
+                  ios_backgroundColor={colors.darkGrey}
+                  style={{ marginTop: 10 }}
+                />
+              </View>
+            </View>
+            <View style={{ marginBottom: 150 }} />
           </View>
         }
         nav={props.navigation}

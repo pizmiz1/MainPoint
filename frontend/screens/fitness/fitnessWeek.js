@@ -16,6 +16,7 @@ import BottomNavigationTab from "../../components/bottomNavTab";
 const FitnessWeek = (props) => {
   const colors = useSelector((state) => state.colors);
   const power = useSelector((state) => state.power);
+  const biweekly = useSelector((state) => state.biweekly);
   const maxBench = useSelector((state) => state.maxBench);
   const maxSquat = useSelector((state) => state.maxSquat);
   const maxOHP = useSelector((state) => state.maxOHP);
@@ -348,66 +349,68 @@ const FitnessWeek = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <View
-        style={{
-          flex: 0,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-evenly",
-          backgroundColor: colors.secondary,
-        }}
-      >
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity
-            style={{ alignItems: "center" }}
-            onPress={() => {
-              dispatch(updatePower(true));
-            }}
-          >
-            <MaterialCommunityIcons
-              name={power ? "arm-flex" : "arm-flex-outline"}
-              color={"white"}
-              size={30}
-            />
-            <View style={{ marginBottom: 5 }} />
-            <Text
-              style={{
-                fontSize: 15,
-                color: colors.textColors.headerText,
-                fontWeight: power ? "bold" : "normal",
-                textAlign: "center",
+      {!biweekly ? null : (
+        <View
+          style={{
+            flex: 0,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-evenly",
+            backgroundColor: colors.secondary,
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              onPress={() => {
+                dispatch(updatePower(true));
               }}
             >
-              Power
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity
-            style={{ alignItems: "center" }}
-            onPress={() => {
-              dispatch(updatePower(false));
-            }}
-          >
-            <AntDesign
-              name={!power ? "smile-circle" : "smileo"}
-              color={"white"}
-              size={20}
-            />
-            <View style={{ marginBottom: 5 }} />
-            <Text
-              style={{
-                fontSize: 15,
-                color: colors.textColors.headerText,
-                fontWeight: !power ? "bold" : "normal",
-                textAlign: "center",
+              <MaterialCommunityIcons
+                name={power ? "arm-flex" : "arm-flex-outline"}
+                color={"white"}
+                size={30}
+              />
+              <View style={{ marginBottom: 5 }} />
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: colors.textColors.headerText,
+                  fontWeight: power ? "bold" : "normal",
+                  textAlign: "center",
+                }}
+              >
+                Power
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              style={{ alignItems: "center" }}
+              onPress={() => {
+                dispatch(updatePower(false));
               }}
             >
-              BB
-            </Text>
-          </TouchableOpacity>
+              <AntDesign
+                name={!power ? "smile-circle" : "smileo"}
+                color={"white"}
+                size={20}
+              />
+              <View style={{ marginBottom: 5 }} />
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: colors.textColors.headerText,
+                  fontWeight: !power ? "bold" : "normal",
+                  textAlign: "center",
+                }}
+              >
+                BB
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
       <View style={{ flex: 0.9 }}>
         <ScrollViewContainer
           content={

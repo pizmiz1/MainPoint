@@ -6,6 +6,7 @@ import { UPDATE_SQUAT } from "../actions/updateSquat";
 import { UPDATE_OHP } from "../actions/updateOHP";
 import { UPDATE_POWER } from "../actions/updatePower";
 import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
+import { TOGGLE_BIWEEKLY } from "../actions/toggleBiweekly";
 
 // Grocery
 import { GET_GROCERIES } from "../actions/getGroceries";
@@ -20,6 +21,7 @@ import uuid from "react-native-uuid";
 
 const initialState = {
   mode: undefined,
+  biweekly: false,
   colors: {
     primary: "#03a9f5",
     secondary: "white",
@@ -347,6 +349,12 @@ const rootReducer = (state, action) => {
           }
           return meal;
         }),
+      };
+    }
+    case TOGGLE_BIWEEKLY: {
+      return {
+        ...state,
+        biweekly: !state.biweekly,
       };
     }
     default:
