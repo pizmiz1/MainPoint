@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, LayoutAnimation } from "react-native";
 import {
   AntDesign,
   MaterialCommunityIcons,
@@ -105,6 +105,13 @@ const FitnessWeek = (props) => {
       <View>
         <TouchableOpacity
           onPress={() => {
+            LayoutAnimation.configureNext(
+              LayoutAnimation.create(
+                200,
+                LayoutAnimation.Types.linear,
+                LayoutAnimation.Properties.opacity
+              )
+            );
             setSelected(!selected);
           }}
         >
