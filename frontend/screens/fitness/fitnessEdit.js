@@ -15,7 +15,11 @@ import { updateExersizes } from "../../store/actions/updateExersizes";
 import { updatePower } from "../../store/actions/updatePower";
 import { toggleBiweekly } from "../../store/actions/toggleBiweekly";
 import { Notifier, Easing, NotifierComponents } from "react-native-notifier";
-import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  AntDesign,
+  MaterialCommunityIcons,
+  Ionicons,
+} from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
 
 //components
@@ -74,6 +78,9 @@ const FitnessEdit = (props) => {
     const [submitLoading, setSubmitLoading] = useState(false);
     const [mainLiftIndexs, setMainLiftIndexs] = useState([]);
     const [isRestDay, setIsRestDay] = useState(false);
+    const [swapExersize, setSwapExersize] = useState(false);
+    const [swapExersizeFirst, setSwapExersizeFirst] = useState(null);
+    const [wasEdited, setWasEdited] = useState(false);
     const [exersizes, setExersizes] = useState([
       {
         id: uuid.v4(),
@@ -134,9 +141,13 @@ const FitnessEdit = (props) => {
         });
       }
       setSubmitLoading(false);
+      setWasEdited(false);
     };
 
     const handleExersizeChange = (index, val) => {
+      if (!wasEdited) {
+        setWasEdited(true);
+      }
       let data = [...exersizes];
       data[index].exersize = val;
       if (val.toLowerCase() === "rest") {
@@ -148,24 +159,36 @@ const FitnessEdit = (props) => {
     };
 
     const handleSetsChange = (index, val) => {
+      if (!wasEdited) {
+        setWasEdited(true);
+      }
       let data = [...exersizes];
       data[index].sets = val;
       setExersizes(data);
     };
 
     const handleRepsChange = (index, val) => {
+      if (!wasEdited) {
+        setWasEdited(true);
+      }
       let data = [...exersizes];
       data[index].reps = val;
       setExersizes(data);
     };
 
     const handleWeightChange = (index, val) => {
+      if (!wasEdited) {
+        setWasEdited(true);
+      }
       let data = [...exersizes];
       data[index].weight = val;
       setExersizes(data);
     };
 
     const addExersize = () => {
+      if (!wasEdited) {
+        setWasEdited(true);
+      }
       let newExersize = {
         id: uuid.v4(),
         exersize: "",
@@ -177,9 +200,45 @@ const FitnessEdit = (props) => {
     };
 
     const removeExersize = (index) => {
+      if (!wasEdited) {
+        setWasEdited(true);
+      }
       let data = [...exersizes];
       data.splice(index, 1);
       setExersizes(data);
+    };
+
+    const swapExersizes = (exersize, index) => {
+      if (swapExersizeFirst === exersize) {
+        setSwapExersizeFirst(null);
+        return;
+      } else if (swapExersizeFirst === null) {
+        setSwapExersizeFirst(exersize);
+        return;
+      } else {
+        if (!wasEdited) {
+          setWasEdited(true);
+        }
+        const firstIndex = exersizes.findIndex(
+          (curr) => curr === swapExersizeFirst
+        );
+        const localExersizes = exersizes;
+        const b = localExersizes[index];
+        localExersizes[index] = localExersizes[firstIndex];
+        localExersizes[firstIndex] = b;
+        setExersizes(localExersizes);
+        setSwapExersizeFirst(null);
+      }
+    };
+
+    const submitDisabled = () => {
+      if (swapExersize) {
+        return true;
+      } else if (!wasEdited) {
+        return true;
+      } else {
+        return false;
+      }
     };
 
     return (
@@ -195,6 +254,7 @@ const FitnessEdit = (props) => {
             );
             setSelected(!selected);
           }}
+          disabled={!submitDisabled()}
         >
           <View
             style={{
@@ -238,276 +298,276 @@ const FitnessEdit = (props) => {
           />
         </TouchableOpacity>
         {selected ? (
-          !isRestDay ? (
-            <View>
-              {exersizes.map((item, index) => {
-                if (!mainLiftIndexs.includes(index)) {
-                  if (
-                    item.exersize === "Squat" ||
-                    item.exersize === "Bench" ||
-                    item.exersize === "Overhead Press"
-                  ) {
-                    setMainLiftIndexs(mainLiftIndexs.concat([index]));
-                  }
-                } else {
-                  if (
-                    item.exersize !== "Squat" &&
-                    item.exersize !== "Bench" &&
-                    item.exersize !== "Overhead Press"
-                  ) {
-                    setMainLiftIndexs(
-                      mainLiftIndexs.filter((currIndex) => index !== currIndex)
-                    );
-                  }
+          <View>
+            {exersizes.map((item, index) => {
+              if (!mainLiftIndexs.includes(index)) {
+                if (
+                  item.exersize === "Squat" ||
+                  item.exersize === "Bench" ||
+                  item.exersize === "Overhead Press"
+                ) {
+                  setMainLiftIndexs(mainLiftIndexs.concat([index]));
                 }
-                return (
+              } else {
+                if (
+                  item.exersize !== "Squat" &&
+                  item.exersize !== "Bench" &&
+                  item.exersize !== "Overhead Press"
+                ) {
+                  setMainLiftIndexs(
+                    mainLiftIndexs.filter((currIndex) => index !== currIndex)
+                  );
+                }
+              }
+              return !isRestDay ? (
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    width: "100%",
+                  }}
+                  key={index}
+                  disabled={!swapExersize}
+                  onPress={() => {
+                    swapExersizes(item, index);
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 30,
+                      fontWeight: mainLiftIndexs.includes(index)
+                        ? "bold"
+                        : "normal",
+                      opacity:
+                        swapExersize && swapExersizeFirst !== item ? 0.4 : 1,
+                    }}
+                  >
+                    {" "}
+                    {index + 1}.
+                  </Text>
                   <View
                     style={{
                       flex: 1,
+                      justifyContent: "flex-end",
+                      alignItems: "center",
                       flexDirection: "row",
-                      width: "100%",
                     }}
-                    key={index}
                   >
-                    <Text
+                    <TextInput
+                      value={item.exersize}
+                      placeholder="Exersize"
+                      onChangeText={(val) => handleExersizeChange(index, val)}
                       style={{
+                        //margin: 5,
+                        borderWidth: 1,
+                        padding: 5,
+                        borderColor: "white",
+                        borderRadius: 10,
                         color: "white",
-                        fontSize: 30,
-                        fontWeight: mainLiftIndexs.includes(index)
-                          ? "bold"
-                          : "normal",
+                        fontSize: 15,
+                        width: "40%",
                       }}
-                    >
-                      {" "}
-                      {index + 1}.
-                    </Text>
-                    <View
+                      textAlign="center"
+                      editable={swapExersize ? false : true}
+                      selectTextOnFocus={swapExersize ? false : true}
+                    />
+                    <TextInput
+                      value={item.sets}
+                      placeholder="Sets"
+                      onChangeText={(val) => handleSetsChange(index, val)}
                       style={{
-                        flex: 1,
-                        justifyContent: "flex-end",
-                        alignItems: "center",
-                        flexDirection: "row",
+                        margin: 5,
+                        borderWidth: 1,
+                        padding: 5,
+                        borderColor: "white",
+                        borderRadius: 10,
+                        color: "white",
+                        fontSize: 15,
+                        width: "12%",
                       }}
+                      textAlign="center"
+                      keyboardType="number-pad"
+                      editable={swapExersize ? false : true}
+                      selectTextOnFocus={swapExersize ? false : true}
+                    />
+                    <TextInput
+                      value={item.reps}
+                      placeholder="Reps"
+                      onChangeText={(val) => handleRepsChange(index, val)}
+                      style={{
+                        //margin: 5,
+                        borderWidth: 1,
+                        padding: 5,
+                        borderColor: "white",
+                        borderRadius: 10,
+                        color: "white",
+                        fontSize: 15,
+                        width: "13%",
+                      }}
+                      textAlign="center"
+                      keyboardType="number-pad"
+                      editable={swapExersize ? false : true}
+                      selectTextOnFocus={swapExersize ? false : true}
+                    />
+                    <TextInput
+                      value={item.weight}
+                      placeholder={
+                        mainLiftIndexs.includes(index) ? "Percent" : "Weight"
+                      }
+                      onChangeText={(val) => handleWeightChange(index, val)}
+                      style={{
+                        margin: 5,
+                        borderWidth: 1,
+                        padding: 5,
+                        borderColor: "white",
+                        borderRadius: 10,
+                        color: "white",
+                        fontSize: 15,
+                        width: "17%",
+                        marginRight: 5,
+                      }}
+                      textAlign="center"
+                      keyboardType={
+                        mainLiftIndexs.includes(index)
+                          ? "decimal-pad"
+                          : "number-pad"
+                      }
+                      editable={swapExersize ? false : true}
+                      selectTextOnFocus={swapExersize ? false : true}
+                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        removeExersize(index);
+                      }}
+                      style={{ marginRight: 5, opacity: swapExersize ? 0 : 1 }}
+                      disabled={swapExersize ? true : false}
                     >
-                      <TextInput
-                        value={item.exersize}
-                        placeholder="Exersize"
-                        onChangeText={(val) => handleExersizeChange(index, val)}
-                        style={{
-                          //margin: 5,
-                          borderWidth: 1,
-                          padding: 5,
-                          borderColor: "white",
-                          borderRadius: 10,
-                          color: "white",
-                          fontSize: 15,
-                          width: "40%",
-                        }}
-                        textAlign="center"
-                      />
-                      <TextInput
-                        value={item.sets}
-                        placeholder="Sets"
-                        onChangeText={(val) => handleSetsChange(index, val)}
-                        style={{
-                          margin: 5,
-                          borderWidth: 1,
-                          padding: 5,
-                          borderColor: "white",
-                          borderRadius: 10,
-                          color: "white",
-                          fontSize: 15,
-                          width: "12%",
-                        }}
-                        textAlign="center"
-                        keyboardType="number-pad"
-                      />
-                      <TextInput
-                        value={item.reps}
-                        placeholder="Reps"
-                        onChangeText={(val) => handleRepsChange(index, val)}
-                        style={{
-                          //margin: 5,
-                          borderWidth: 1,
-                          padding: 5,
-                          borderColor: "white",
-                          borderRadius: 10,
-                          color: "white",
-                          fontSize: 15,
-                          width: "13%",
-                        }}
-                        textAlign="center"
-                        keyboardType="number-pad"
-                      />
-                      <TextInput
-                        value={item.weight}
-                        placeholder={
-                          mainLiftIndexs.includes(index) ? "Percent" : "Weight"
-                        }
-                        onChangeText={(val) => handleWeightChange(index, val)}
-                        style={{
-                          margin: 5,
-                          borderWidth: 1,
-                          padding: 5,
-                          borderColor: "white",
-                          borderRadius: 10,
-                          color: "white",
-                          fontSize: 15,
-                          width: "17%",
-                          marginRight: 5,
-                        }}
-                        textAlign="center"
-                        keyboardType={
-                          mainLiftIndexs.includes(index)
-                            ? "decimal-pad"
-                            : "number-pad"
-                        }
-                      />
-                      <TouchableOpacity
-                        onPress={() => {
-                          removeExersize(index);
-                        }}
-                        style={{ marginRight: 5 }}
-                      >
-                        <AntDesign name="minuscircleo" size={20} color="red" />
-                      </TouchableOpacity>
-                    </View>
+                      <AntDesign name="minuscircleo" size={20} color="red" />
+                    </TouchableOpacity>
                   </View>
-                );
-              })}
+                </TouchableOpacity>
+              ) : (
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    width: "100%",
+                  }}
+                  key={index}
+                >
+                  <Text
+                    style={{
+                      color: "white",
+                      fontSize: 30,
+                      fontWeight: mainLiftIndexs.includes(index)
+                        ? "bold"
+                        : "normal",
+                    }}
+                  >
+                    {" "}
+                    {index + 1}.
+                  </Text>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <TextInput
+                      value={item.exersize}
+                      placeholder="Exersize"
+                      onChangeText={(val) => handleExersizeChange(index, val)}
+                      style={{
+                        margin: 5,
+                        borderWidth: 1,
+                        padding: 5,
+                        borderColor: "white",
+                        borderRadius: 10,
+                        color: "white",
+                        fontSize: 15,
+                        width: "90%",
+                      }}
+                      textAlign="center"
+                    />
+                  </View>
+                </View>
+              );
+            })}
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                marginTop: 10,
+                width: "100%",
+                justifyContent: "space-between",
+              }}
+            >
               <TouchableOpacity
                 onPress={addExersize}
-                style={{ marginLeft: 5, marginTop: 10 }}
+                style={{
+                  marginLeft: 5,
+                  opacity: swapExersize || isRestDay ? 0 : 1,
+                }}
+                disabled={swapExersize || isRestDay ? true : false}
               >
                 <AntDesign name="pluscircleo" size={30} color="green" />
               </TouchableOpacity>
-              {submitLoading ? (
-                <ActivityIndicator size="large" />
-              ) : (
+              {isRestDay ? null : (
                 <TouchableOpacity
-                  onPress={submit}
+                  onPress={() => {
+                    setSwapExersize(!swapExersize);
+                  }}
                   style={{
-                    borderWidth: 1,
-                    borderColor: "grey",
-                    padding: 5,
-                    borderRadius: 20,
-                    width: "50%",
-                    alignSelf: "center",
-                    backgroundColor: colors.primary,
+                    marginRight: 10,
+                    alignItems: "flex-end",
                   }}
                 >
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 20,
-                      textAlign: "center",
-                    }}
-                  >
-                    Submit
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          ) : (
-            <View>
-              {exersizes.map((item, index) => {
-                if (!mainLiftIndexs.includes(index)) {
-                  if (
-                    item.exersize === "Squat" ||
-                    item.exersize === "Bench" ||
-                    item.exersize === "Overhead Press"
-                  ) {
-                    setMainLiftIndexs(mainLiftIndexs.concat([index]));
-                  }
-                } else {
-                  if (
-                    item.exersize !== "Squat" &&
-                    item.exersize !== "Bench" &&
-                    item.exersize !== "Overhead Press"
-                  ) {
-                    setMainLiftIndexs(
-                      mainLiftIndexs.filter((currIndex) => index !== currIndex)
-                    );
-                  }
-                }
-                return (
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: "row",
-                      width: "100%",
-                    }}
-                    key={index}
-                  >
-                    <Text
-                      style={{
-                        color: "white",
-                        fontSize: 30,
-                        fontWeight: mainLiftIndexs.includes(index)
-                          ? "bold"
-                          : "normal",
-                      }}
-                    >
-                      {" "}
-                      {index + 1}.
-                    </Text>
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        flexDirection: "row",
-                      }}
-                    >
-                      <TextInput
-                        value={item.exersize}
-                        placeholder="Exersize"
-                        onChangeText={(val) => handleExersizeChange(index, val)}
-                        style={{
-                          margin: 5,
-                          borderWidth: 1,
-                          padding: 5,
-                          borderColor: "white",
-                          borderRadius: 10,
-                          color: "white",
-                          fontSize: 15,
-                          width: "90%",
-                        }}
-                        textAlign="center"
+                  {exersizes.length > 1 ? (
+                    swapExersize ? (
+                      <AntDesign name="check" size={30} color="#03a9f5" />
+                    ) : (
+                      <Ionicons
+                        name="ios-swap-vertical"
+                        size={30}
+                        color="#03a9f5"
                       />
-                    </View>
-                  </View>
-                );
-              })}
-              {submitLoading ? (
-                <ActivityIndicator size="large" />
-              ) : (
-                <TouchableOpacity
-                  onPress={submit}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: "grey",
-                    padding: 5,
-                    borderRadius: 20,
-                    width: "50%",
-                    alignSelf: "center",
-                    backgroundColor: colors.primary,
-                    marginTop: 10,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: "white",
-                      fontSize: 20,
-                      textAlign: "center",
-                    }}
-                  >
-                    Submit
-                  </Text>
+                    )
+                  ) : null}
                 </TouchableOpacity>
               )}
             </View>
-          )
+            {submitLoading ? (
+              <ActivityIndicator size="large" />
+            ) : (
+              <TouchableOpacity
+                onPress={submit}
+                style={{
+                  borderWidth: 1,
+                  borderColor: "grey",
+                  padding: 5,
+                  borderRadius: 20,
+                  width: "50%",
+                  alignSelf: "center",
+                  backgroundColor: colors.primary,
+                  opacity: submitDisabled() ? 0 : 1,
+                }}
+                disabled={submitDisabled() ? true : false}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 20,
+                    textAlign: "center",
+                  }}
+                >
+                  Submit
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
         ) : undefined}
         <View style={{ marginBottom: 30 }} />
       </View>
