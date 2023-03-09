@@ -15,9 +15,8 @@ import { addMealAction } from "../../store/actions/addMeal";
 import { addGroceryAction } from "../../store/actions/addGrocery";
 import { removeGroceryAction } from "../../store/actions/removeGrocery";
 import { updateMealAction } from "../../store/actions/updateMeal";
-import { db } from "../../firebaseConfig";
-import { updateDoc, doc } from "firebase/firestore";
 import uuid from "react-native-uuid";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -50,8 +49,20 @@ const GroceryMeals = (props) => {
 
     useEffect(() => {
       const test = async () => {
-        const GroceryListDoc = await doc(db, "Grocery", "GroceryList");
-        await updateDoc(GroceryListDoc, { Groceries: groceryList });
+        // ############ OLD FIRESTORE CODE ##############
+        // const GroceryListDoc = await doc(db, "Grocery", "GroceryList");
+        // await updateDoc(GroceryListDoc, { Groceries: groceryList });
+        const GroceryData = await AsyncStorage.getItem("Grocery Data");
+        if (GroceryData) {
+          const transformedGroceryData = await JSON.parse(GroceryData).data;
+          transformedGroceryData.at(1).Groceries = groceryList;
+          await AsyncStorage.setItem(
+            "Grocery Data",
+            JSON.stringify({
+              data: transformedGroceryData,
+            })
+          );
+        }
       };
       test();
     }, []);
@@ -361,8 +372,21 @@ const GroceryMeals = (props) => {
         {editing ? (
           <TouchableOpacity
             onPress={async () => {
-              const MealsDoc = doc(db, "Grocery", "Meals");
-              await updateDoc(MealsDoc, { Meals: meals });
+              // ############ OLD FIRESTORE CODE ##############
+              // const MealsDoc = doc(db, "Grocery", "Meals");
+              // await updateDoc(MealsDoc, { Meals: meals });
+              const GroceryData = await AsyncStorage.getItem("Grocery Data");
+              if (GroceryData) {
+                const transformedGroceryData = await JSON.parse(GroceryData)
+                  .data;
+                transformedGroceryData.at(2).Meals = meals;
+                await AsyncStorage.setItem(
+                  "Grocery Data",
+                  JSON.stringify({
+                    data: transformedGroceryData,
+                  })
+                );
+              }
               setEditing(false);
             }}
             style={{ alignSelf: "center" }}

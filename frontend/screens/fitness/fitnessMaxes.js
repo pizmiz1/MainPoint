@@ -12,8 +12,7 @@ import { Entypo } from "@expo/vector-icons";
 import { updateBench } from "../../store/actions/updateBench";
 import { updateSquat } from "../../store/actions/updateSquat";
 import { updateOHP } from "../../store/actions/updateOHP";
-import { db } from "../../firebaseConfig";
-import { updateDoc, doc } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const FitnessMaxes = (props) => {
   const colors = useSelector((state) => state.colors);
@@ -70,8 +69,21 @@ const FitnessMaxes = (props) => {
               if (bench !== "") {
                 setBenchUpdating(true);
                 await dispatch(updateBench(bench));
-                const MaxesDoc = await doc(db, "Fitness", "Maxes");
-                await updateDoc(MaxesDoc, { Bench: bench });
+                // ############ OLD FIRESTORE CODE ##############
+                // const MaxesDoc = await doc(db, "Fitness", "Maxes");
+                // await updateDoc(MaxesDoc, { Bench: bench });
+                const FitnessData = await AsyncStorage.getItem("Fitness Data");
+                if (FitnessData) {
+                  const transformedFitnessData = await JSON.parse(FitnessData)
+                    .data;
+                  transformedFitnessData.at(2).Bench = bench;
+                  await AsyncStorage.setItem(
+                    "Fitness Data",
+                    JSON.stringify({
+                      data: transformedFitnessData,
+                    })
+                  );
+                }
                 setBenchUpdating(false);
               }
             }}
@@ -118,8 +130,21 @@ const FitnessMaxes = (props) => {
               if (squat !== "") {
                 setSquatUpdating(true);
                 await dispatch(updateSquat(squat));
-                const MaxesDoc = await doc(db, "Fitness", "Maxes");
-                await updateDoc(MaxesDoc, { Squat: squat });
+                // ############ OLD FIRESTORE CODE ##############
+                // const MaxesDoc = await doc(db, "Fitness", "Maxes");
+                // await updateDoc(MaxesDoc, { Squat: squat });
+                const FitnessData = await AsyncStorage.getItem("Fitness Data");
+                if (FitnessData) {
+                  const transformedFitnessData = await JSON.parse(FitnessData)
+                    .data;
+                  transformedFitnessData.at(2).Squat = squat;
+                  await AsyncStorage.setItem(
+                    "Fitness Data",
+                    JSON.stringify({
+                      data: transformedFitnessData,
+                    })
+                  );
+                }
                 setSquatUpdating(false);
               }
             }}
@@ -167,8 +192,21 @@ const FitnessMaxes = (props) => {
               if (OHP !== "") {
                 setOHPUpdating(true);
                 await dispatch(updateOHP(OHP));
-                const MaxesDoc = await doc(db, "Fitness", "Maxes");
-                await updateDoc(MaxesDoc, { OHP: OHP });
+                // ############ OLD FIRESTORE CODE ##############
+                // const MaxesDoc = await doc(db, "Fitness", "Maxes");
+                // await updateDoc(MaxesDoc, { OHP: OHP });
+                const FitnessData = await AsyncStorage.getItem("Fitness Data");
+                if (FitnessData) {
+                  const transformedFitnessData = await JSON.parse(FitnessData)
+                    .data;
+                  transformedFitnessData.at(2).OHP = OHP;
+                  await AsyncStorage.setItem(
+                    "Fitness Data",
+                    JSON.stringify({
+                      data: transformedFitnessData,
+                    })
+                  );
+                }
                 setOHPUpdating(false);
               }
             }}

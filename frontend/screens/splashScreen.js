@@ -19,40 +19,75 @@ const SplashScreen = (props) => {
 
   useEffect(() => {
     const load = async () => {
-      const FitnessDB = await getDocs(collection(db, "Fitness"));
-      await dispatch(updateBench(FitnessDB.docs.at(2).data().Bench));
-      await dispatch(updateSquat(FitnessDB.docs.at(2).data().Squat));
-      await dispatch(updateOHP(FitnessDB.docs.at(2).data().OHP));
-      await dispatch(getExersizes());
-      await dispatch(getGroceries());
-      await dispatch(getMeals());
+      const FitnessData = await AsyncStorage.getItem("Fitness Data");
+      if (FitnessData) {
+        const transformedFitnessData = await JSON.parse(FitnessData).data;
+        await dispatch(updateBench(transformedFitnessData.at(2).Bench));
+        await dispatch(updateSquat(transformedFitnessData.at(2).Squat));
+        await dispatch(updateOHP(transformedFitnessData.at(2).OHP));
+        await dispatch(getExersizes());
+        await dispatch(getGroceries());
+        await dispatch(getMeals());
 
-      const biweekly = await AsyncStorage.getItem("Biweekly");
-      if (biweekly) {
-        const transformedBiweekly = JSON.parse(biweekly);
-        if (transformedBiweekly.biweekly) {
-          dispatch(toggleBiweekly());
+        const biweekly = await AsyncStorage.getItem("Biweekly");
+        if (biweekly) {
+          const transformedBiweekly = JSON.parse(biweekly);
+          if (transformedBiweekly.biweekly) {
+            dispatch(toggleBiweekly());
+          }
         }
-      }
 
-      const power = await AsyncStorage.getItem("Power");
-      if (power) {
-        const transformedPower = JSON.parse(power);
-        dispatch(updatePower(transformedPower.power));
-      }
+        const power = await AsyncStorage.getItem("Power");
+        if (power) {
+          const transformedPower = JSON.parse(power);
+          dispatch(updatePower(transformedPower.power));
+        }
 
-      const mode = await AsyncStorage.getItem("Mode");
-      if (!mode) {
-        dispatch(switchMode("Grocery"));
-      } else {
-        const transformedMode = JSON.parse(mode);
-        if (transformedMode.mode === "Fitness") {
-          dispatch(switchMode("Fitness"));
-        } else {
+        const mode = await AsyncStorage.getItem("Mode");
+        if (!mode) {
           dispatch(switchMode("Grocery"));
+        } else {
+          const transformedMode = JSON.parse(mode);
+          if (transformedMode.mode === "Fitness") {
+            dispatch(switchMode("Fitness"));
+          } else {
+            dispatch(switchMode("Grocery"));
+          }
         }
+        props.navigation.navigate("App");
+      } else {
+        const FitnessDB = await getDocs(collection(db, "Fitness"));
+        let FitnessData = [];
+        for (const currDoc of FitnessDB.docs) {
+          FitnessData.push(currDoc.data());
+        }
+        const GroceryDB = await getDocs(collection(db, "Fitness"));
+        let GroceryData = [];
+        for (const currDoc of GroceryDB.docs) {
+          GroceryData.push(currDoc.data());
+        }
+        await AsyncStorage.setItem(
+          "Fitness Data",
+          JSON.stringify({
+            data: FitnessData,
+          })
+        );
+        await AsyncStorage.setItem(
+          "Grocery Data",
+          JSON.stringify({
+            data: GroceryData,
+          })
+        );
+        load();
       }
-      props.navigation.navigate("App");
+      // ############ OLD FIRESTORE CODE ##############
+      // const FitnessDB = await getDocs(collection(db, "Fitness"));
+      // await dispatch(updateBench(transformedFitnessData.at(2).Bench));
+      // await dispatch(updateSquat(FitnessDB.docs.at(2).data().Squat));
+      // await dispatch(updateOHP(FitnessDB.docs.at(2).data().OHP));
+      // await dispatch(getExersizes());
+      // await dispatch(getGroceries());
+      // await dispatch(getMeals());
     };
 
     load();

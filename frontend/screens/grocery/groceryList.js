@@ -16,8 +16,7 @@ import uuid from "react-native-uuid";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { removeGroceryAction } from "../../store/actions/removeGrocery";
 import { addGroceryAction } from "../../store/actions/addGrocery";
-import { db } from "../../firebaseConfig";
-import { updateDoc, doc } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -513,17 +512,30 @@ const GroceryList = (props) => {
                 )
               );
               setEditing(false);
-              const GroceryListDoc = await doc(db, "Grocery", "GroceryList");
-              await updateDoc(GroceryListDoc, { Groceries: groceryList });
-
-              const AllGroceryListDoc = await doc(
-                db,
-                "Grocery",
-                "AllGroceries"
-              );
-              await updateDoc(AllGroceryListDoc, {
-                AllGroceries: allGroceries,
-              });
+              // ############ OLD FIRESTORE CODE ##############
+              // const GroceryListDoc = await doc(db, "Grocery", "GroceryList");
+              // await updateDoc(GroceryListDoc, { Groceries: groceryList });
+              // const AllGroceryListDoc = await doc(
+              //   db,
+              //   "Grocery",
+              //   "AllGroceries"
+              // );
+              // await updateDoc(AllGroceryListDoc, {
+              //   AllGroceries: allGroceries,
+              // });
+              const GroceryData = await AsyncStorage.getItem("Grocery Data");
+              if (GroceryData) {
+                const transformedGroceryData = await JSON.parse(GroceryData)
+                  .data;
+                transformedGroceryData.at(1).Groceries = groceryList;
+                transformedGroceryData.at(0).AllGroceries = allGroceries;
+                await AsyncStorage.setItem(
+                  "Grocery Data",
+                  JSON.stringify({
+                    data: transformedGroceryData,
+                  })
+                );
+              }
             }}
             style={{ alignSelf: "center" }}
           >
