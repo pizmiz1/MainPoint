@@ -61,7 +61,7 @@ const SplashScreen = (props) => {
         for (const currDoc of FitnessDB.docs) {
           FitnessData.push(currDoc.data());
         }
-        const GroceryDB = await getDocs(collection(db, "Fitness"));
+        const GroceryDB = await getDocs(collection(db, "Grocery"));
         let GroceryData = [];
         for (const currDoc of GroceryDB.docs) {
           GroceryData.push(currDoc.data());
