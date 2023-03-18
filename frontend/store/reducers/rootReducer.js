@@ -7,6 +7,7 @@ import { UPDATE_OHP } from "../actions/updateOHP";
 import { UPDATE_POWER } from "../actions/updatePower";
 import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
 import { TOGGLE_BIWEEKLY } from "../actions/toggleBiweekly";
+import { CROSS_DAILY_FOOD } from "../actions/crossDailyFood";
 
 // Grocery
 import { GET_GROCERIES } from "../actions/getGroceries";
@@ -33,6 +34,9 @@ const initialState = {
   maxSquat: 0,
   maxOHP: 0,
   power: true,
+  shakeCrossed: false,
+  yogurtCrossed: false,
+  barCrossed: false,
   groceryList: [
     {
       id: uuid.v4(),
@@ -241,6 +245,39 @@ const rootReducer = (state, action) => {
         ...state,
         power: action.power,
       };
+    }
+    case CROSS_DAILY_FOOD: {
+      switch (action.passedDailyFood) {
+        case 0: {
+          return {
+            ...state,
+            shakeCrossed: !state.shakeCrossed,
+          };
+        }
+        case 1: {
+          return {
+            ...state,
+            yogurtCrossed: !state.yogurtCrossed,
+          };
+        }
+        case 2: {
+          return {
+            ...state,
+            barCrossed: !state.barCrossed,
+          };
+        }
+        case 3: {
+          return {
+            ...state,
+            shakeCrossed: false,
+            yogurtCrossed: false,
+            barCrossed: false,
+          };
+        }
+        default: {
+          return state;
+        }
+      }
     }
     case UPDATE_EXERSIZES: {
       switch (action.day) {

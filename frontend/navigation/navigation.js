@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Text } from "react-native";
-import { StatusBar } from "react-native";
+import { StatusBar, Animated } from "react-native";
 import { useSelector } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -19,6 +19,7 @@ import FitnessDay from "../screens/fitness/fitnessDay";
 import FitnessWeek from "../screens/fitness/fitnessWeek";
 import FitnessEdit from "../screens/fitness/fitnessEdit";
 import FitnessMaxes from "../screens/fitness/fitnessMaxes";
+import FitnessDailyFood from "../screens/fitness/fitnessDailyFood";
 
 //components
 import MyDrawerContainer from "../components/drawerContainer";
@@ -29,6 +30,43 @@ const MyDrawer = createDrawerNavigator();
 const MyDrawerNav = () => {
   const colors = useSelector((state) => state.colors);
   const mode = useSelector((state) => state.mode);
+
+  const shakeCrossed = useSelector((state) => state.shakeCrossed);
+  const yogurtCrossed = useSelector((state) => state.yogurtCrossed);
+  const barCrossed = useSelector((state) => state.barCrossed);
+
+  const determineValue = () => {
+    if (!shakeCrossed && !yogurtCrossed && !barCrossed) {
+      return 0;
+    } else if (!shakeCrossed && !yogurtCrossed && barCrossed) {
+      return 1;
+    } else if (!shakeCrossed && yogurtCrossed && !barCrossed) {
+      return 1;
+    } else if (shakeCrossed && !yogurtCrossed && !barCrossed) {
+      return 1;
+    } else if (!shakeCrossed && yogurtCrossed && barCrossed) {
+      return 2;
+    } else if (shakeCrossed && !yogurtCrossed && barCrossed) {
+      return 2;
+    } else if (shakeCrossed && yogurtCrossed && !barCrossed) {
+      return 2;
+    } else {
+      return 3;
+    }
+  };
+
+  const fadeAnim = useRef(new Animated.Value(determineValue())).current;
+
+  var color = fadeAnim.interpolate({
+    inputRange: [0, 1, 2, 3],
+    outputRange: ["red", "orange", "#90EE90", "green"],
+  });
+
+  Animated.timing(fadeAnim, {
+    toValue: determineValue(),
+    useNativeDriver: false,
+    duration: 400,
+  }).start();
 
   let weekDisp;
   const dayDisp = moment().format("dddd");
@@ -48,6 +86,27 @@ const MyDrawerNav = () => {
     weekDisp = moment().format("MMM Do");
   }
 
+  const bColor = () => {
+    const val = determineValue();
+    switch (val) {
+      case 0: {
+        return "red";
+      }
+      case 1: {
+        return "orange";
+      }
+      case 2: {
+        return "#90EE90";
+      }
+      case 3: {
+        return "green";
+      }
+      default: {
+        return "red";
+      }
+    }
+  };
+
   if (mode === "Fitness") {
     return (
       <MyDrawer.Navigator
@@ -58,8 +117,10 @@ const MyDrawerNav = () => {
           headerTintColor: colors.textColors.headerText,
           headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
           headerShadowVisible: false,
-          drawerStyle: { backgroundColor: colors.primary },
-          drawerActiveBackgroundColor: colors.primary,
+          drawerStyle: {
+            backgroundColor: bColor(),
+          },
+          drawerActiveBackgroundColor: bColor(),
           drawerActiveTintColor: colors.textColors.headerText,
           drawerInactiveTintColor: colors.textColors.headerText,
         }}
@@ -100,6 +161,28 @@ const MyDrawerNav = () => {
                 }}
               >
                 Edit
+              </Text>
+            ),
+          }}
+        />
+        <MyDrawer.Screen
+          name="Fitness Daily Food"
+          component={FitnessDailyFood}
+          options={{
+            headerTitle: dayDisp,
+            headerStyle: {
+              backgroundColor: color,
+            },
+            drawerLabel: ({ focused, color }) => (
+              <Text
+                style={{
+                  fontWeight: focused ? "bold" : "normal",
+                  textDecorationLine: focused ? "underline" : "none",
+                  color,
+                  fontSize: 20,
+                }}
+              >
+                Daily Food
               </Text>
             ),
           }}
