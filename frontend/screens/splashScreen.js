@@ -30,6 +30,33 @@ const SplashScreen = (props) => {
             .data;
           if (transformedCurrDayStorage !== currDay) {
             await dispatch(crossDailyFood(3));
+            const ShakeCrossed = await AsyncStorage.getItem("Shake Crossed");
+            if (ShakeCrossed) {
+              await AsyncStorage.setItem(
+                "Shake Crossed",
+                JSON.stringify({
+                  data: false,
+                })
+              );
+            }
+            const YogurtCrossed = await AsyncStorage.getItem("Yogurt Crossed");
+            if (YogurtCrossed) {
+              await AsyncStorage.setItem(
+                "Yogurt Crossed",
+                JSON.stringify({
+                  data: false,
+                })
+              );
+            }
+            const BarCrossed = await AsyncStorage.getItem("Bar Crossed");
+            if (BarCrossed) {
+              await AsyncStorage.setItem(
+                "Bar Crossed",
+                JSON.stringify({
+                  data: false,
+                })
+              );
+            }
             await AsyncStorage.setItem(
               "Current Day",
               JSON.stringify({
