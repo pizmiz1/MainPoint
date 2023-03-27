@@ -136,17 +136,29 @@ const MyDrawerNav = (props) => {
             transformedLastRoute = await JSON.parse(lastRoute).data;
           }
 
-          if (transformedLastRoute.includes("Grocery")) {
-            const fitnessInitialRoute = await AsyncStorage.getItem(
-              "Initial Fitness Route"
-            );
-            let transformedFitnessInitialRoute;
-            if (lastRoute) {
-              transformedFitnessInitialRoute = await JSON.parse(
-                fitnessInitialRoute
-              ).data;
+          if (
+            transformedLastRoute !== undefined &&
+            transformedLastRoute !== null
+          ) {
+            if (transformedLastRoute.includes("Grocery")) {
+              const fitnessInitialRoute = await AsyncStorage.getItem(
+                "Initial Fitness Route"
+              );
+              let transformedFitnessInitialRoute;
+              if (lastRoute) {
+                transformedFitnessInitialRoute = await JSON.parse(
+                  fitnessInitialRoute
+                ).data;
+              }
+              props.navigation.navigate(transformedFitnessInitialRoute);
+            } else {
+              await AsyncStorage.setItem(
+                "Initial Fitness Route",
+                JSON.stringify({
+                  data: state.route.name,
+                })
+              );
             }
-            props.navigation.navigate(transformedFitnessInitialRoute);
           } else {
             await AsyncStorage.setItem(
               "Initial Fitness Route",
@@ -279,17 +291,29 @@ const MyDrawerNav = (props) => {
             transformedLastRoute = await JSON.parse(lastRoute).data;
           }
 
-          if (transformedLastRoute.includes("Fitness")) {
-            const groceryInitialRoute = await AsyncStorage.getItem(
-              "Initial Grocery Route"
-            );
-            let transformedGroceryInitialRoute;
-            if (lastRoute) {
-              transformedGroceryInitialRoute = await JSON.parse(
-                groceryInitialRoute
-              ).data;
+          if (
+            transformedLastRoute !== undefined &&
+            transformedLastRoute !== null
+          ) {
+            if (transformedLastRoute.includes("Fitness")) {
+              const groceryInitialRoute = await AsyncStorage.getItem(
+                "Initial Grocery Route"
+              );
+              let transformedGroceryInitialRoute;
+              if (lastRoute) {
+                transformedGroceryInitialRoute = await JSON.parse(
+                  groceryInitialRoute
+                ).data;
+              }
+              props.navigation.navigate(transformedGroceryInitialRoute);
+            } else {
+              await AsyncStorage.setItem(
+                "Initial Grocery Route",
+                JSON.stringify({
+                  data: state.route.name,
+                })
+              );
             }
-            props.navigation.navigate(transformedGroceryInitialRoute);
           } else {
             await AsyncStorage.setItem(
               "Initial Grocery Route",
