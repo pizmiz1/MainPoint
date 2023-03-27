@@ -119,6 +119,8 @@ const SplashScreen = (props) => {
           dispatch(updatePower(transformedPower.power));
         }
 
+        let transformedMyInitialRoute;
+
         const mode = await AsyncStorage.getItem("Mode");
         if (!mode) {
           dispatch(switchMode("Grocery"));
@@ -126,11 +128,24 @@ const SplashScreen = (props) => {
           const transformedMode = JSON.parse(mode);
           if (transformedMode.mode === "Fitness") {
             dispatch(switchMode("Fitness"));
+            const myInitialRoute = await AsyncStorage.getItem(
+              "Initial Fitness Route"
+            );
+            if (myInitialRoute) {
+              transformedMyInitialRoute = await JSON.parse(myInitialRoute).data;
+            }
           } else {
+            const myInitialRoute = await AsyncStorage.getItem(
+              "Initial Grocery Route"
+            );
+            if (myInitialRoute) {
+              transformedMyInitialRoute = await JSON.parse(myInitialRoute).data;
+            }
             dispatch(switchMode("Grocery"));
           }
         }
-        props.navigation.navigate("App");
+
+        props.navigation.navigate("App", transformedMyInitialRoute);
       } else {
         const FitnessDB = await getDocs(collection(db, "Fitness"));
         let FitnessData = [];

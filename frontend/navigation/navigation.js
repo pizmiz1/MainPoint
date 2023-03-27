@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { Text } from "react-native";
 import { StatusBar, Animated } from "react-native";
 import { useSelector } from "react-redux";
@@ -6,6 +6,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import moment from "moment/moment";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //shared screens
 import SplashScreen from "../screens/splashScreen";
@@ -27,7 +28,8 @@ import MyDrawerContainer from "../components/drawerContainer";
 //Grocery Nav
 const MyDrawer = createDrawerNavigator();
 
-const MyDrawerNav = () => {
+const MyDrawerNav = (props) => {
+  let myInitialRoute = props.route.params;
   const colors = useSelector((state) => state.colors);
   const mode = useSelector((state) => state.mode);
 
@@ -126,6 +128,40 @@ const MyDrawerNav = () => {
         }}
         drawerContent={(props) => <MyDrawerContainer {...props} />}
         useLegacyImplementation={true}
+        initialRouteName={myInitialRoute}
+        screenListeners={async (state) => {
+          const lastRoute = await AsyncStorage.getItem("Last Route");
+          let transformedLastRoute;
+          if (lastRoute) {
+            transformedLastRoute = await JSON.parse(lastRoute).data;
+          }
+
+          if (transformedLastRoute.includes("Grocery")) {
+            const fitnessInitialRoute = await AsyncStorage.getItem(
+              "Initial Fitness Route"
+            );
+            let transformedFitnessInitialRoute;
+            if (lastRoute) {
+              transformedFitnessInitialRoute = await JSON.parse(
+                fitnessInitialRoute
+              ).data;
+            }
+            props.navigation.navigate(transformedFitnessInitialRoute);
+          } else {
+            await AsyncStorage.setItem(
+              "Initial Fitness Route",
+              JSON.stringify({
+                data: state.route.name,
+              })
+            );
+          }
+          await AsyncStorage.setItem(
+            "Last Route",
+            JSON.stringify({
+              data: state.route.name,
+            })
+          );
+        }}
       >
         <MyDrawer.Screen
           name="Fitness Day"
@@ -235,6 +271,40 @@ const MyDrawerNav = () => {
         }}
         drawerContent={(props) => <MyDrawerContainer {...props} />}
         useLegacyImplementation={true}
+        initialRouteName={myInitialRoute}
+        screenListeners={async (state) => {
+          const lastRoute = await AsyncStorage.getItem("Last Route");
+          let transformedLastRoute;
+          if (lastRoute) {
+            transformedLastRoute = await JSON.parse(lastRoute).data;
+          }
+
+          if (transformedLastRoute.includes("Fitness")) {
+            const groceryInitialRoute = await AsyncStorage.getItem(
+              "Initial Grocery Route"
+            );
+            let transformedGroceryInitialRoute;
+            if (lastRoute) {
+              transformedGroceryInitialRoute = await JSON.parse(
+                groceryInitialRoute
+              ).data;
+            }
+            props.navigation.navigate(transformedGroceryInitialRoute);
+          } else {
+            await AsyncStorage.setItem(
+              "Initial Grocery Route",
+              JSON.stringify({
+                data: state.route.name,
+              })
+            );
+          }
+          await AsyncStorage.setItem(
+            "Last Route",
+            JSON.stringify({
+              data: state.route.name,
+            })
+          );
+        }}
       >
         <MyDrawer.Screen
           name="Grocery List"

@@ -34,6 +34,7 @@ const GroceryList = (props) => {
   const [condimentsList, setCondimentsList] = useState([]);
   const [snacksList, setSnacksList] = useState([]);
   const [nonFoodList, setNonFoodList] = useState([]);
+  const [frozenList, setFrozenList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newGroceryName, updateNewGroceryName] = useState("");
   const [crossedGroceries, setCrossedGroceries] = useState([]);
@@ -63,6 +64,9 @@ const GroceryList = (props) => {
     );
     setNonFoodList(
       groceryList.filter((currGrocery) => currGrocery.Category === "Non Food")
+    );
+    setFrozenList(
+      groceryList.filter((currGrocery) => currGrocery.Category === "Frozen")
     );
   };
 
@@ -121,6 +125,9 @@ const GroceryList = (props) => {
         }
         case "Non Food": {
           return "grey";
+        }
+        case "Frozen": {
+          return "#3b5b73";
         }
         default: {
           return colors.primary;
@@ -266,6 +273,7 @@ const GroceryList = (props) => {
             "Dairy",
             "Condiment",
             "Snack",
+            "Frozen",
             "Non Food",
           ],
           cancelButtonIndex: 0,
@@ -305,6 +313,10 @@ const GroceryList = (props) => {
               break;
             }
             case 8: {
+              newGrocery.Category = "Frozen";
+              break;
+            }
+            case 9: {
               newGrocery.Category = "Non Food";
               break;
             }
@@ -457,6 +469,13 @@ const GroceryList = (props) => {
                 <CategoryComponent
                   catName={"Snacks"}
                   groceries={snacksList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {frozenList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Frozen"}
+                  groceries={frozenList}
                   remove={removeGrocery}
                 />
               ) : undefined}
