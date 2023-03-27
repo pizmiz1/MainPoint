@@ -21,6 +21,12 @@ const SplashScreen = (props) => {
 
   useEffect(() => {
     const load = async () => {
+      await AsyncStorage.setItem(
+        "Initial Grocery Route",
+        JSON.stringify({
+          data: "Grocery Meals",
+        })
+      );
       const FitnessData = await AsyncStorage.getItem("Fitness Data");
       if (FitnessData) {
         const currDay = moment().format("dddd");
