@@ -222,7 +222,7 @@ const FitnessEdit = (props) => {
         const firstIndex = exersizes.findIndex(
           (curr) => curr === swapExersizeFirst
         );
-        const localExersizes = exersizes;
+        const localExersizes = [...exersizes];
         const b = localExersizes[index];
         localExersizes[index] = localExersizes[firstIndex];
         localExersizes[firstIndex] = b;

@@ -21,6 +21,7 @@ import FitnessWeek from "../screens/fitness/fitnessWeek";
 import FitnessEdit from "../screens/fitness/fitnessEdit";
 import FitnessMaxes from "../screens/fitness/fitnessMaxes";
 import FitnessDailyFood from "../screens/fitness/fitnessDailyFood";
+import FitnessNotes from "../screens/fitness/fitnessNotes";
 
 //components
 import MyDrawerContainer from "../components/drawerContainer";
@@ -250,6 +251,25 @@ const MyDrawerNav = (props) => {
                 }}
               >
                 Maxes
+              </Text>
+            ),
+          }}
+        />
+        <MyDrawer.Screen
+          name="Fitness Notes"
+          component={FitnessNotes}
+          options={{
+            headerTitle: "Notes",
+            drawerLabel: ({ focused, color }) => (
+              <Text
+                style={{
+                  fontWeight: focused ? "bold" : "normal",
+                  textDecorationLine: focused ? "underline" : "none",
+                  color,
+                  fontSize: 20,
+                }}
+              >
+                Notes
               </Text>
             ),
           }}

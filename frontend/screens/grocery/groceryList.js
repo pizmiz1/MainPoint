@@ -416,8 +416,10 @@ const GroceryList = (props) => {
                 <TouchableOpacity
                   style={{ flex: 1, alignItems: "center", marginTop: 10 }}
                   onPress={() => {
-                    groceryList.splice(0, groceryList.length);
-                    setArrays();
+                    const tempArr = groceryList;
+                    tempArr.forEach((currGrocery) => {
+                      removeGrocery(currGrocery);
+                    });
                   }}
                 >
                   <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
