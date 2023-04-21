@@ -8,6 +8,9 @@ import { UPDATE_POWER } from "../actions/updatePower";
 import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
 import { TOGGLE_BIWEEKLY } from "../actions/toggleBiweekly";
 import { CROSS_DAILY_FOOD } from "../actions/crossDailyFood";
+import { SWITCH_RUNNING } from "../actions/switchRunning";
+import { UPDATE_RUNNING } from "../actions/updateRunning";
+import { UPDATE_START_DATE } from "../actions/updateRunningStartDate";
 
 // Grocery
 import { GET_GROCERIES } from "../actions/getGroceries";
@@ -22,6 +25,8 @@ import uuid from "react-native-uuid";
 
 const initialState = {
   mode: undefined,
+  running: false,
+  startDate: undefined,
   biweekly: false,
   colors: {
     primary: "#03a9f5",
@@ -57,6 +62,7 @@ const initialState = {
       Groceries: ["id1", "id2"],
     },
   ],
+  runningData: [{}],
   mondayExersizes: [
     {
       id: uuid.v4(),
@@ -185,6 +191,40 @@ const initialState = {
   ],
 };
 
+const groceryColors = {
+  primary: "#03a9f5",
+  secondary: "white",
+  textColors: {
+    headerText: "black",
+    drawerText: "white",
+  },
+  lightGrey: "#f2f1f6",
+  darkGrey: "#e6e6e6",
+  darkerGrey: "#7d7a7a",
+};
+
+const fitnessColors = {
+  primary: "#0a9d6c",
+  secondary: "black",
+  textColors: {
+    headerText: "white",
+    drawerText: "white",
+  },
+  darkGrey: "#1c1c1e",
+  lightGrey: "#3b4043",
+};
+
+const runningColors = {
+  primary: "#f9cedf",
+  secondary: "white",
+  textColors: {
+    headerText: "black",
+    drawerText: "black",
+  },
+  darkGrey: "#1c1c1e",
+  lightGrey: "#f2f1f6",
+};
+
 const rootReducer = (state, action) => {
   if (state === undefined) {
     state = initialState;
@@ -195,30 +235,13 @@ const rootReducer = (state, action) => {
         return {
           ...state,
           mode: action.mode,
-          colors: {
-            primary: "#03a9f5",
-            secondary: "white",
-            textColors: {
-              headerText: "black",
-            },
-            lightGrey: "#f2f1f6",
-            darkGrey: "#e6e6e6",
-            darkerGrey: "#7d7a7a",
-          },
+          colors: groceryColors,
         };
       } else if (action.mode === "Fitness") {
         return {
           ...state,
           mode: action.mode,
-          colors: {
-            primary: "#0a9d6c",
-            secondary: "black",
-            textColors: {
-              headerText: "white",
-            },
-            darkGrey: "#1c1c1e",
-            lightGrey: "#3b4043",
-          },
+          colors: state.running ? runningColors : fitnessColors,
         };
       }
     }
@@ -334,6 +357,12 @@ const rootReducer = (state, action) => {
           return state;
       }
     }
+    case UPDATE_RUNNING: {
+      return {
+        ...state,
+        runningData: action.runningData,
+      };
+    }
     case GET_GROCERIES: {
       if (action.all) {
         return { ...state, allGroceries: action.groceries };
@@ -392,6 +421,19 @@ const rootReducer = (state, action) => {
       return {
         ...state,
         biweekly: !state.biweekly,
+      };
+    }
+    case SWITCH_RUNNING: {
+      return {
+        ...state,
+        running: action.running,
+        colors: action.running ? runningColors : fitnessColors,
+      };
+    }
+    case UPDATE_START_DATE: {
+      return {
+        ...state,
+        startDate: action.startDate,
       };
     }
     default:

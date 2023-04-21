@@ -4,6 +4,8 @@ import { useSelector } from "react-redux";
 
 const ScrollViewContainer = (props) => {
   const colors = useSelector((state) => state.colors);
+  const running = useSelector((state) => state.running);
+  const mode = useSelector((state) => state.mode);
 
   const [shadowVisible, setShadowVisible] = useState(false);
 
@@ -19,7 +21,8 @@ const ScrollViewContainer = (props) => {
     props.nav.setOptions({
       headerShadowVisible: shadowVisible,
       headerStyle: {
-        backgroundColor: colors.secondary,
+        backgroundColor:
+          mode === "Fitness" && running ? colors.primary : colors.secondary,
         shadowColor: "#000000",
         shadowOffset: {
           width: 0,
@@ -42,6 +45,7 @@ const ScrollViewContainer = (props) => {
       contentContainerStyle={{ flexGrow: 1 }}
       onScroll={handleSroll}
       scrollEventThrottle={16}
+      scrollEnabled={!props.scrollDisabled}
     >
       {props.content}
     </ScrollView>

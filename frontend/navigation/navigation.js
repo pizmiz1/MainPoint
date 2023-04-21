@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 import { StatusBar, Animated } from "react-native";
 import { useSelector } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
@@ -22,6 +22,9 @@ import FitnessEdit from "../screens/fitness/fitnessEdit";
 import FitnessMaxes from "../screens/fitness/fitnessMaxes";
 import FitnessDailyFood from "../screens/fitness/fitnessDailyFood";
 import FitnessNotes from "../screens/fitness/fitnessNotes";
+import RunningEdit from "../screens/fitness/runningEdit";
+import RunningDay from "../screens/fitness/runningDay";
+import RunningWeek from "../screens/fitness/runningWeek";
 
 //components
 import MyDrawerContainer from "../components/drawerContainer";
@@ -33,10 +36,35 @@ const MyDrawerNav = (props) => {
   let myInitialRoute = props.route.params;
   const colors = useSelector((state) => state.colors);
   const mode = useSelector((state) => state.mode);
+  const running = useSelector((state) => state.running);
 
   const shakeCrossed = useSelector((state) => state.shakeCrossed);
   const yogurtCrossed = useSelector((state) => state.yogurtCrossed);
   const barCrossed = useSelector((state) => state.barCrossed);
+
+  // Working But Slow
+  //
+  // useEffect(() => {
+  //   const tester = async () => {
+  //     if (mode === "Fitness") {
+  //       let transformedMyInitialRoute;
+  //       const myInitialRoute = await AsyncStorage.getItem(
+  //         "Initial Fitness Route"
+  //       );
+  //       if (myInitialRoute) {
+  //         transformedMyInitialRoute = await JSON.parse(myInitialRoute).data;
+  //       }
+  //       if (transformedMyInitialRoute.includes("Edit")) {
+  //         if (!running) {
+  //           props.navigation.navigate("Fitness Edit");
+  //         } else {
+  //           props.navigation.navigate("Fitness Running Edit");
+  //         }
+  //       }
+  //     }
+  //   };
+  //   tester();
+  // }, [running]);
 
   const determineValue = () => {
     if (!shakeCrossed && !yogurtCrossed && !barCrossed) {
@@ -121,9 +149,9 @@ const MyDrawerNav = (props) => {
           headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
           headerShadowVisible: false,
           drawerStyle: {
-            backgroundColor: bColor(),
+            backgroundColor: running ? colors.primary : bColor(),
           },
-          drawerActiveBackgroundColor: bColor(),
+          drawerActiveBackgroundColor: running ? colors.primary : bColor(),
           drawerActiveTintColor: colors.textColors.headerText,
           drawerInactiveTintColor: colors.textColors.headerText,
         }}
@@ -176,114 +204,169 @@ const MyDrawerNav = (props) => {
           );
         }}
       >
-        <MyDrawer.Screen
-          name="Fitness Day"
-          component={FitnessDay}
-          options={{
-            headerTitle: dayDisp,
-            drawerLabel: ({ focused, color }) => (
-              <Text
-                style={{
-                  fontWeight: focused ? "bold" : "normal",
-                  textDecorationLine: focused ? "underline" : "none",
-                  color,
-                  fontSize: 20,
-                }}
-              >
-                Program
-              </Text>
-            ),
-          }}
-        />
-        <MyDrawer.Screen
-          name="Fitness Edit"
-          component={FitnessEdit}
-          options={{
-            headerTitle: "",
-            drawerLabel: ({ focused, color }) => (
-              <Text
-                style={{
-                  fontWeight: focused ? "bold" : "normal",
-                  textDecorationLine: focused ? "underline" : "none",
-                  color,
-                  fontSize: 20,
-                }}
-              >
-                Edit
-              </Text>
-            ),
-          }}
-        />
-        <MyDrawer.Screen
-          name="Fitness Daily Food"
-          component={FitnessDailyFood}
-          options={{
-            headerTitle: dayDisp,
-            headerStyle: {
-              backgroundColor: color,
-            },
-            drawerLabel: ({ focused, color }) => (
-              <Text
-                style={{
-                  fontWeight: focused ? "bold" : "normal",
-                  textDecorationLine: focused ? "underline" : "none",
-                  color,
-                  fontSize: 20,
-                }}
-              >
-                Daily Food
-              </Text>
-            ),
-          }}
-        />
-        <MyDrawer.Screen
-          name="Fitness Maxes"
-          component={FitnessMaxes}
-          options={{
-            headerTitle: "Maxes",
-            drawerLabel: ({ focused, color }) => (
-              <Text
-                style={{
-                  fontWeight: focused ? "bold" : "normal",
-                  textDecorationLine: focused ? "underline" : "none",
-                  color,
-                  fontSize: 20,
-                }}
-              >
-                Maxes
-              </Text>
-            ),
-          }}
-        />
-        <MyDrawer.Screen
-          name="Fitness Notes"
-          component={FitnessNotes}
-          options={{
-            headerTitle: "Notes",
-            drawerLabel: ({ focused, color }) => (
-              <Text
-                style={{
-                  fontWeight: focused ? "bold" : "normal",
-                  textDecorationLine: focused ? "underline" : "none",
-                  color,
-                  fontSize: 20,
-                }}
-              >
-                Notes
-              </Text>
-            ),
-          }}
-        />
-        <MyDrawer.Screen
-          name="Fitness Week"
-          component={FitnessWeek}
-          options={{
-            headerTitle: "Week of " + weekDisp,
-            drawerItemStyle: {
-              display: "none",
-            },
-          }}
-        />
+        {running ? (
+          <MyDrawer.Group>
+            <MyDrawer.Screen
+              name="Fitness Running Day"
+              component={RunningDay}
+              options={{
+                headerTitle: dayDisp,
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Program
+                  </Text>
+                ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Running Edit"
+              component={RunningEdit}
+              options={{
+                headerTitle: "",
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Edit
+                  </Text>
+                ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Running Week"
+              component={RunningWeek}
+              options={{
+                headerTitle: "Week of " + weekDisp,
+                drawerItemStyle: {
+                  display: "none",
+                },
+              }}
+            />
+          </MyDrawer.Group>
+        ) : (
+          <MyDrawer.Group>
+            <MyDrawer.Screen
+              name="Fitness Day"
+              component={FitnessDay}
+              options={{
+                headerTitle: dayDisp,
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Program
+                  </Text>
+                ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Edit"
+              component={FitnessEdit}
+              options={{
+                headerTitle: "",
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Edit
+                  </Text>
+                ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Daily Food"
+              component={FitnessDailyFood}
+              options={{
+                headerTitle: dayDisp,
+                headerStyle: {
+                  backgroundColor: color,
+                },
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Daily Food
+                  </Text>
+                ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Maxes"
+              component={FitnessMaxes}
+              options={{
+                headerTitle: "Maxes",
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Maxes
+                  </Text>
+                ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Notes"
+              component={FitnessNotes}
+              options={{
+                headerTitle: "Notes",
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Notes
+                  </Text>
+                ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Week"
+              component={FitnessWeek}
+              options={{
+                headerTitle: "Week of " + weekDisp,
+                drawerItemStyle: {
+                  display: "none",
+                },
+              }}
+            />
+          </MyDrawer.Group>
+        )}
       </MyDrawer.Navigator>
     );
   } else {

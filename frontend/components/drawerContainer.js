@@ -50,7 +50,7 @@ const MyDrawerContainer = (props) => {
             style={{
               fontSize: 20,
               textAlign: "center",
-              color: "white",
+              color: colors.textColors.drawerText,
             }}
           >
             Switch

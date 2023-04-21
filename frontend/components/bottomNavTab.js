@@ -5,6 +5,7 @@ import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 
 const BottomNavigationTab = (props) => {
   const colors = useSelector((state) => state.colors);
+  const running = useSelector((state) => state.running);
 
   const [dayIcon, setDayIcon] = useState("ios-sunny-outline");
   const [weekIcon, setWeekIcon] = useState("list-outline");
@@ -38,10 +39,18 @@ const BottomNavigationTab = (props) => {
         <TouchableOpacity
           style={{ alignItems: "center" }}
           onPress={() => {
-            props.navigation.jumpTo("Fitness Day");
+            if (running) {
+              props.navigation.jumpTo("Fitness Running Day");
+            } else {
+              props.navigation.jumpTo("Fitness Day");
+            }
           }}
         >
-          <Ionicons name={dayIcon} color={"white"} size={20} />
+          <Ionicons
+            name={dayIcon}
+            color={running ? "black" : "white"}
+            size={20}
+          />
           <View style={{ marginBottom: 5 }} />
           <Text
             style={{
@@ -59,10 +68,18 @@ const BottomNavigationTab = (props) => {
         <TouchableOpacity
           style={{ alignItems: "center" }}
           onPress={() => {
-            props.navigation.jumpTo("Fitness Week");
+            if (running) {
+              props.navigation.jumpTo("Fitness Running Week");
+            } else {
+              props.navigation.jumpTo("Fitness Week");
+            }
           }}
         >
-          <Ionicons name={weekIcon} color={"white"} size={20} />
+          <Ionicons
+            name={weekIcon}
+            color={running ? "black" : "white"}
+            size={20}
+          />
           <View style={{ marginBottom: 5 }} />
           <Text
             style={{

@@ -14,6 +14,7 @@ import uuid from "react-native-uuid";
 import { updateExersizes } from "../../store/actions/updateExersizes";
 import { updatePower } from "../../store/actions/updatePower";
 import { toggleBiweekly } from "../../store/actions/toggleBiweekly";
+import { switchRunning } from "../../store/actions/switchRunning";
 import { Notifier, Easing, NotifierComponents } from "react-native-notifier";
 import {
   AntDesign,
@@ -29,6 +30,7 @@ const FitnessEdit = (props) => {
   const colors = useSelector((state) => state.colors);
   const power = useSelector((state) => state.power);
   const biweekly = useSelector((state) => state.biweekly);
+  const running = useSelector((state) => state.running);
   const mondayExersizes = useSelector((state) => state.mondayExersizes);
   const tuesdayExersizes = useSelector((state) => state.tuesdayExersizes);
   const wednesdayExersizes = useSelector((state) => state.wednesdayExersizes);
@@ -669,6 +671,37 @@ const FitnessEdit = (props) => {
               day="Sunday"
               exersizes={power ? sundayExersizes : sundayExersizesB}
             />
+            <View style={{ backgroundColor: "black" }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  backgroundColor: "#1c1c1e",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderRadius: 15,
+                  marginLeft: 20,
+                  marginRight: 20,
+                  marginTop: 20,
+                  padding: 15,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 20,
+                    color: "white",
+                  }}
+                >
+                  Running
+                </Text>
+                <Switch
+                  onValueChange={() => {
+                    dispatch(switchRunning(!running));
+                  }}
+                  value={running}
+                  ios_backgroundColor={colors.darkGrey}
+                />
+              </View>
+            </View>
             <View style={{ backgroundColor: "black" }}>
               <View
                 style={{

@@ -14,6 +14,9 @@ import { toggleBiweekly } from "../store/actions/toggleBiweekly";
 import { getGroceries } from "../store/actions/getGroceries";
 import { getMeals } from "../store/actions/getMeals";
 import { crossDailyFood } from "../store/actions/crossDailyFood";
+import { switchRunning } from "../store/actions/switchRunning";
+import { updateRunning } from "../store/actions/updateRunning";
+import { updateRunningStartDate } from "../store/actions/updateRunningStartDate";
 import moment from "moment/moment";
 
 const SplashScreen = (props) => {
@@ -104,6 +107,25 @@ const SplashScreen = (props) => {
         await dispatch(getExersizes());
         await dispatch(getGroceries());
         await dispatch(getMeals());
+
+        const running = await AsyncStorage.getItem("Running");
+        if (running) {
+          const transformedRunning = JSON.parse(running);
+          dispatch(switchRunning(transformedRunning.running));
+        }
+
+        const RunningData = await AsyncStorage.getItem("Running Data");
+        if (RunningData) {
+          const transformedRunningData = await JSON.parse(RunningData).data;
+          dispatch(updateRunning(transformedRunningData));
+        }
+
+        const RunningStartDate = await AsyncStorage.getItem("Start Date");
+        if (RunningStartDate) {
+          const transformedRunningStartDate = await JSON.parse(RunningStartDate)
+            .data;
+          dispatch(updateRunningStartDate(transformedRunningStartDate));
+        }
 
         const biweekly = await AsyncStorage.getItem("Biweekly");
         if (biweekly) {
