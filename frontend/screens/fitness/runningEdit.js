@@ -20,6 +20,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { updateRunning } from "../../store/actions/updateRunning";
 import { updateRunningStartDate } from "../../store/actions/updateRunningStartDate";
 import moment from "moment";
+import Constants from "expo-constants";
 
 import ScrollViewContainer from "../../components/scrollViewContainer";
 
@@ -456,7 +457,9 @@ const RunningEdit = (props) => {
                 }}
                 mode="date"
                 themeVariant="light"
-                timeZoneOffsetInMinutes={300}
+                timeZoneOffsetInMinutes={
+                  Constants.executionEnvironment === "storeClient" ? 300 : 0
+                }
                 disabled={dateSelectOpen}
               />
             </TouchableOpacity>
