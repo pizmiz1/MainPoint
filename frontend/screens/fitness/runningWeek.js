@@ -170,7 +170,7 @@ const RunningWeek = (props) => {
                   </Text>
                   <Text style={{ fontSize: 50 }}>😎 😎 😎</Text>
                 </View>
-              ) : (
+              ) : myRunningWeek !== undefined ? (
                 <View>
                   <DayComponent day={"Mon"} miles={myRunningWeek.mondayMiles} />
                   <DayComponent
@@ -191,6 +191,10 @@ const RunningWeek = (props) => {
                     miles={myRunningWeek.saturdayMiles}
                   />
                   <DayComponent day={"Sun"} miles={myRunningWeek.sundayMiles} />
+                </View>
+              ) : (
+                <View>
+                  <Text>Unable To Get Running Data</Text>
                 </View>
               )}
             </View>

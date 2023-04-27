@@ -74,6 +74,9 @@ const RunningDay = (props) => {
 
   const todaysRunningMiles = () => {
     const dayDisp = moment().format("dddd");
+    if (myRunningWeek === undefined) {
+      return;
+    }
     let myRunningMiles;
     switch (dayDisp) {
       case "Monday": {
