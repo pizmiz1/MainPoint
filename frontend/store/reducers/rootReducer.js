@@ -11,6 +11,8 @@ import { CROSS_DAILY_FOOD } from "../actions/crossDailyFood";
 import { SWITCH_RUNNING } from "../actions/switchRunning";
 import { UPDATE_RUNNING } from "../actions/updateRunning";
 import { UPDATE_START_DATE } from "../actions/updateRunningStartDate";
+import { UPDATE_TOTAL_MILES } from "../actions/updateTotalMiles";
+import { UPDATE_RUNNING_DONE } from "../actions/updateRunningDone";
 
 // Grocery
 import { GET_GROCERIES } from "../actions/getGroceries";
@@ -28,6 +30,8 @@ const initialState = {
   running: false,
   startDate: undefined,
   biweekly: false,
+  totalMiles: 0,
+  runningDone: false,
   colors: {
     primary: "#03a9f5",
     secondary: "white",
@@ -434,6 +438,18 @@ const rootReducer = (state, action) => {
       return {
         ...state,
         startDate: action.startDate,
+      };
+    }
+    case UPDATE_TOTAL_MILES: {
+      return {
+        ...state,
+        totalMiles: action.totalMiles,
+      };
+    }
+    case UPDATE_RUNNING_DONE: {
+      return {
+        ...state,
+        runningDone: action.runningDone,
       };
     }
     default:

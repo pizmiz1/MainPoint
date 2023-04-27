@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { View, Animated, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { switchMode } from "../store/actions/switchMode";
 import { db } from "../firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
@@ -17,6 +17,8 @@ import { crossDailyFood } from "../store/actions/crossDailyFood";
 import { switchRunning } from "../store/actions/switchRunning";
 import { updateRunning } from "../store/actions/updateRunning";
 import { updateRunningStartDate } from "../store/actions/updateRunningStartDate";
+import { updateTotalMiles } from "../store/actions/updateTotalMiles";
+import { updateRunningDone } from "../store/actions/updateRunningDone";
 import moment from "moment/moment";
 
 const SplashScreen = (props) => {
@@ -66,6 +68,13 @@ const SplashScreen = (props) => {
                 data: currDay,
               })
             );
+
+            await AsyncStorage.setItem(
+              "Running Done",
+              JSON.stringify({
+                data: false,
+              })
+            );
           } else {
             const ShakeCrossed = await AsyncStorage.getItem("Shake Crossed");
             if (ShakeCrossed) {
@@ -88,6 +97,14 @@ const SplashScreen = (props) => {
               const barCrossedData = await JSON.parse(BarCrossed).data;
               if (barCrossedData) {
                 await dispatch(crossDailyFood(2));
+              }
+            }
+
+            const RunningDone = await AsyncStorage.getItem("Running Done");
+            if (RunningDone) {
+              const transformedRunningDone = await JSON.parse(RunningDone).data;
+              if (transformedRunningDone) {
+                dispatch(updateRunningDone(true));
               }
             }
           }
@@ -125,6 +142,14 @@ const SplashScreen = (props) => {
           const transformedRunningStartDate = await JSON.parse(RunningStartDate)
             .data;
           dispatch(updateRunningStartDate(transformedRunningStartDate));
+        }
+
+        const RunningTotalMiles = await AsyncStorage.getItem("Running Total");
+        if (RunningTotalMiles) {
+          const transformedRunningTotalMiles = await JSON.parse(
+            RunningTotalMiles
+          ).data;
+          dispatch(updateTotalMiles("Add", transformedRunningTotalMiles));
         }
 
         const biweekly = await AsyncStorage.getItem("Biweekly");

@@ -25,6 +25,7 @@ import FitnessNotes from "../screens/fitness/fitnessNotes";
 import RunningEdit from "../screens/fitness/runningEdit";
 import RunningDay from "../screens/fitness/runningDay";
 import RunningWeek from "../screens/fitness/runningWeek";
+import RunningTotal from "../screens/fitness/runningTotal";
 
 //components
 import MyDrawerContainer from "../components/drawerContainer";
@@ -240,6 +241,25 @@ const MyDrawerNav = (props) => {
                     }}
                   >
                     Edit
+                  </Text>
+                ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Running Total"
+              component={RunningTotal}
+              options={{
+                headerTitle: "",
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Total
                   </Text>
                 ),
               }}

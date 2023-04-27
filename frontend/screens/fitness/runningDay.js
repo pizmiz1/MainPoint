@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Switch,
   TouchableOpacity,
+  LayoutAnimation,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -17,12 +18,19 @@ import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
 import { FontAwesome } from "@expo/vector-icons";
 import moment from "moment/moment";
+import ConfettiCannon from "react-native-confetti-cannon";
+import { updateTotalMiles } from "../../store/actions/updateTotalMiles";
+import { updateRunningDone } from "../../store/actions/updateRunningDone";
 
 const RunningDay = (props) => {
   const colors = useSelector((state) => state.colors);
   const runningData = useSelector((state) => state.runningData);
   const startDate = useSelector((state) => state.startDate);
+  const totalMiles = useSelector((state) => state.totalMiles);
+  const done = useSelector((state) => state.runningDone);
+  const [runningAlreadyDone, setRunningAlreadyDone] = useState(false);
   const [milesTextColor, setMilesTextColor] = useState();
+  const [shoot, setShoot] = useState(false);
   const [rainbow, setRainbow] = useState([
     "red",
     "orange",
@@ -119,7 +127,12 @@ const RunningDay = (props) => {
   };
 
   useEffect(() => {
-    getTColor();
+    if (done) {
+      setRunningAlreadyDone(true);
+      setMilesTextColor("black");
+    } else {
+      getTColor();
+    }
   }, []);
 
   const dispatch = useDispatch();
@@ -176,17 +189,102 @@ const RunningDay = (props) => {
                       </LinearGradient>
                     </View>
                   ) : (
-                    <TouchableOpacity onPress={getTColor}>
-                      <Text
-                        style={{
-                          fontSize: 200,
-                          textAlign: "center",
-                          color: milesTextColor,
-                        }}
-                      >
-                        {todaysRunningMiles()}
-                      </Text>
-                    </TouchableOpacity>
+                    <View style={{ width: "100%" }}>
+                      <TouchableOpacity onPress={getTColor} disabled={done}>
+                        <Text
+                          style={{
+                            fontSize: 200,
+                            textAlign: "center",
+                            color: milesTextColor,
+                          }}
+                        >
+                          {todaysRunningMiles()}
+                        </Text>
+                        {shoot || runningAlreadyDone ? (
+                          <Text
+                            style={{
+                              fontSize: 30,
+                              textAlign: "center",
+                              color: milesTextColor,
+                            }}
+                          >
+                            Miles Ran Today!
+                          </Text>
+                        ) : null}
+                      </TouchableOpacity>
+                      {!shoot || runningAlreadyDone ? (
+                        <TouchableOpacity
+                          onPress={() => {
+                            LayoutAnimation.configureNext(
+                              LayoutAnimation.create(
+                                200,
+                                LayoutAnimation.Types.linear,
+                                LayoutAnimation.Properties.opacity
+                              )
+                            );
+                            dispatch(updateRunningDone(true));
+                            setTimeout(() => {
+                              setMilesTextColor("red");
+                            }, 200);
+                            setTimeout(() => {
+                              setMilesTextColor("orange");
+                            }, 400);
+                            setTimeout(() => {
+                              setMilesTextColor("yellow");
+                            }, 600);
+                            setTimeout(() => {
+                              setMilesTextColor("green");
+                            }, 800);
+                            setTimeout(() => {
+                              setMilesTextColor("blue");
+                            }, 1000);
+                            setTimeout(() => {
+                              setMilesTextColor("indigo");
+                            }, 1200);
+                            setTimeout(() => {
+                              setMilesTextColor("violet");
+                            }, 1400);
+                            setTimeout(() => {
+                              setMilesTextColor("black");
+                            }, 1600);
+                            setTimeout(async () => {
+                              setShoot(true);
+                              dispatch(
+                                updateTotalMiles(
+                                  "Add",
+                                  parseInt(todaysRunningMiles())
+                                )
+                              );
+                              await AsyncStorage.setItem(
+                                "Running Total",
+                                JSON.stringify({
+                                  data:
+                                    totalMiles + parseInt(todaysRunningMiles()),
+                                })
+                              );
+                              await AsyncStorage.setItem(
+                                "Running Done",
+                                JSON.stringify({
+                                  data: true,
+                                })
+                              );
+                            }, 1610);
+                          }}
+                          style={{
+                            padding: 5,
+                            borderRadius: 20,
+                            width: "50%",
+                            alignSelf: "center",
+                            alignItems: "center",
+                            backgroundColor: colors.primary,
+                            opacity: done ? 0 : 1,
+                          }}
+                          disabled={done}
+                        >
+                          <Text style={{ fontSize: 30 }}>Done</Text>
+                        </TouchableOpacity>
+                      ) : null}
+                    </View>
                   )}
                 </View>
               )}
@@ -196,11 +294,16 @@ const RunningDay = (props) => {
           scrollDisabled={
             determineWeekNum() < 0 || determineWeekNum() > runningData.length
               ? false
-              : todaysRunningMiles() === "0" || todaysRunningMiles() === ""
+              : todaysRunningMiles() === "0" ||
+                todaysRunningMiles() === "" ||
+                done
           }
         ></ScrollViewContainer>
       </View>
       <BottomNavigationTab screenName="DAY" {...props} />
+      {shoot ? (
+        <ConfettiCannon count={200} origin={{ x: -10, y: 0 }} fadeOut={true} />
+      ) : null}
     </View>
   );
 };
