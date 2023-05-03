@@ -38,6 +38,7 @@ const GroceryList = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [newGroceryName, updateNewGroceryName] = useState("");
   const [crossedGroceries, setCrossedGroceries] = useState([]);
+  const [clearVisible, setClearVisible] = useState(false);
   const [editing, setEditing] = useState(false);
 
   const setArrays = () => {
@@ -72,6 +73,11 @@ const GroceryList = (props) => {
 
   useEffect(() => {
     setArrays();
+    if (groceryList.length === 0) {
+      setClearVisible(false);
+    } else {
+      setClearVisible(true);
+    }
   }, [groceryList]);
 
   const dispatch = useDispatch();
@@ -414,13 +420,19 @@ const GroceryList = (props) => {
             >
               {editing ? (
                 <TouchableOpacity
-                  style={{ flex: 1, alignItems: "center", marginTop: 10 }}
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    marginTop: 10,
+                    opacity: clearVisible ? 1 : 0,
+                  }}
                   onPress={() => {
                     const tempArr = groceryList;
                     tempArr.forEach((currGrocery) => {
                       removeGrocery(currGrocery);
                     });
                   }}
+                  disabled={!clearVisible}
                 >
                   <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
                 </TouchableOpacity>

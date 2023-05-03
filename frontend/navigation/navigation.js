@@ -26,6 +26,7 @@ import RunningEdit from "../screens/fitness/runningEdit";
 import RunningDay from "../screens/fitness/runningDay";
 import RunningWeek from "../screens/fitness/runningWeek";
 import RunningTotal from "../screens/fitness/runningTotal";
+import Macros from "../screens/fitness/macros";
 
 //components
 import MyDrawerContainer from "../components/drawerContainer";
@@ -265,6 +266,26 @@ const MyDrawerNav = (props) => {
               }}
             />
             <MyDrawer.Screen
+              name="Fitness Calories"
+              component={Macros}
+              options={{
+                headerTitle: "",
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Macros
+                  </Text>
+                ),
+                unmountOnBlur: true,
+              }}
+            />
+            <MyDrawer.Screen
               name="Fitness Running Week"
               component={RunningWeek}
               options={{
@@ -373,6 +394,26 @@ const MyDrawerNav = (props) => {
                     Notes
                   </Text>
                 ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Calories"
+              component={Macros}
+              options={{
+                headerTitle: "Calories",
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Macros
+                  </Text>
+                ),
+                unmountOnBlur: true,
               }}
             />
             <MyDrawer.Screen
