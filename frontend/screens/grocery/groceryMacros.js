@@ -11,7 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 
-const Macros = (props) => {
+const GroceryMacros = (props) => {
   const colors = useSelector((state) => state.colors);
 
   const [calories, setCalories] = useState(0);
@@ -244,4 +244,4 @@ const Macros = (props) => {
   );
 };
 
-export default Macros;
+export default GroceryMacros;

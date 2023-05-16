@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Switch,
+  Alert,
+  LayoutAnimation,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -175,18 +177,206 @@ const RunningEdit = (props) => {
     }
   };
 
+  const handleWeekPress = (day) => {
+    const handleYesPress = (day, activating) => {
+      if (submitDisabled) {
+        setSubmitDisabled(false);
+      }
+      let data = [...weeks];
+      switch (day) {
+        case "Sun": {
+          for (let i = 0; i < data.length; i++) {
+            let newObj = data[i];
+            if (newObj.sundayMiles === "" || newObj.sundayMiles === "C") {
+              newObj.sundayMiles = activating ? "C" : "";
+              data[i] = newObj;
+            }
+          }
+          break;
+        }
+        case "Mon": {
+          for (let i = 0; i < data.length; i++) {
+            let newObj = data[i];
+            if (newObj.mondayMiles === "" || newObj.mondayMiles === "C") {
+              newObj.mondayMiles = activating ? "C" : "";
+              data[i] = newObj;
+            }
+          }
+          break;
+        }
+        case "Tues": {
+          for (let i = 0; i < data.length; i++) {
+            let newObj = data[i];
+            if (newObj.tuesdayMiles === "" || newObj.tuesdayMiles === "C") {
+              newObj.tuesdayMiles = activating ? "C" : "";
+              data[i] = newObj;
+            }
+          }
+          break;
+        }
+        case "Wed": {
+          for (let i = 0; i < data.length; i++) {
+            let newObj = data[i];
+            if (newObj.wednesdayMiles === "" || newObj.wednesdayMiles === "C") {
+              newObj.wednesdayMiles = activating ? "C" : "";
+              data[i] = newObj;
+            }
+          }
+          break;
+        }
+        case "Thur": {
+          for (let i = 0; i < data.length; i++) {
+            let newObj = data[i];
+            if (newObj.thursdayMiles === "" || newObj.thursdayMiles === "C") {
+              newObj.thursdayMiles = activating ? "C" : "";
+              data[i] = newObj;
+            }
+          }
+          break;
+        }
+        case "Fri": {
+          for (let i = 0; i < data.length; i++) {
+            let newObj = data[i];
+            if (newObj.fridayMiles === "" || newObj.fridayMiles === "C") {
+              newObj.fridayMiles = activating ? "C" : "";
+              data[i] = newObj;
+            }
+          }
+          break;
+        }
+        case "Sat": {
+          for (let i = 0; i < data.length; i++) {
+            let newObj = data[i];
+            if (newObj.saturdayMiles === "" || newObj.saturdayMiles === "C") {
+              newObj.saturdayMiles = activating ? "C" : "";
+              data[i] = newObj;
+            }
+          }
+          break;
+        }
+        default: {
+          return;
+        }
+      }
+      setWeeks(data);
+    };
+
+    let activating = true;
+    let data = [...weeks];
+    switch (day) {
+      case "Sun": {
+        for (let i = 0; i < data.length; i++) {
+          let curr = data[i];
+          if (curr.sundayMiles === "C") {
+            activating = false;
+          }
+        }
+        break;
+      }
+      case "Mon": {
+        for (let i = 0; i < data.length; i++) {
+          let curr = data[i];
+          if (curr.mondayMiles === "C") {
+            activating = false;
+          }
+        }
+        break;
+      }
+      case "Tues": {
+        for (let i = 0; i < data.length; i++) {
+          let curr = data[i];
+          if (curr.tuesdayMiles === "C") {
+            activating = false;
+          }
+        }
+        break;
+      }
+      case "Wed": {
+        for (let i = 0; i < data.length; i++) {
+          let curr = data[i];
+          if (curr.wednesdayMiles === "C") {
+            activating = false;
+          }
+        }
+        break;
+      }
+      case "Thur": {
+        for (let i = 0; i < data.length; i++) {
+          let curr = data[i];
+          if (curr.thursdayMiles === "C") {
+            activating = false;
+          }
+        }
+        break;
+      }
+      case "Fri": {
+        for (let i = 0; i < data.length; i++) {
+          let curr = data[i];
+          if (curr.fridayMiles === "C") {
+            activating = false;
+          }
+        }
+        break;
+      }
+      case "Sat": {
+        for (let i = 0; i < data.length; i++) {
+          let curr = data[i];
+          if (curr.saturdayMiles === "C") {
+            activating = false;
+          }
+        }
+        break;
+      }
+      default: {
+        activating = true;
+        break;
+      }
+    }
+
+    Alert.alert(
+      activating
+        ? "Cross Train on " + day + "?"
+        : "Remove Cross Training on " + day + "?",
+      "",
+      [
+        {
+          text: "Yes",
+          onPress: () => handleYesPress(day, activating),
+        },
+        {
+          text: "No",
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
   return (
     <ScrollViewContainer
       content={
         <View style={{ flex: 1, backgroundColor: colors.secondary }}>
           <View style={{ flexDirection: "row", marginLeft: 30, marginTop: 10 }}>
-            <Text style={{ fontSize: 20, marginLeft: 8 }}>Mon</Text>
-            <Text style={{ fontSize: 20, marginLeft: 5 }}>Tues</Text>
-            <Text style={{ fontSize: 20, marginLeft: 4 }}>Wed</Text>
-            <Text style={{ fontSize: 20, marginLeft: 5 }}>Thur</Text>
-            <Text style={{ fontSize: 20, marginLeft: 12 }}>Fri</Text>
-            <Text style={{ fontSize: 20, marginLeft: 20 }}>Sat</Text>
-            <Text style={{ fontSize: 20, marginLeft: 13 }}>Sun</Text>
+            <TouchableOpacity onPress={() => handleWeekPress("Mon")}>
+              <Text style={{ fontSize: 20, marginLeft: 8 }}>Mon</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleWeekPress("Tues")}>
+              <Text style={{ fontSize: 20, marginLeft: 5 }}>Tues</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleWeekPress("Wed")}>
+              <Text style={{ fontSize: 20, marginLeft: 4 }}>Wed</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleWeekPress("Thur")}>
+              <Text style={{ fontSize: 20, marginLeft: 5 }}>Thur</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleWeekPress("Fri")}>
+              <Text style={{ fontSize: 20, marginLeft: 12 }}>Fri</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleWeekPress("Sat")}>
+              <Text style={{ fontSize: 20, marginLeft: 20 }}>Sat</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleWeekPress("Sun")}>
+              <Text style={{ fontSize: 20, marginLeft: 13 }}>Sun</Text>
+            </TouchableOpacity>
           </View>
           <View>
             {weeks.map((item, index) => {

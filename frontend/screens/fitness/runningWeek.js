@@ -134,7 +134,7 @@ const RunningWeek = (props) => {
                 fontWeight: daysAway === 0 ? "bold" : "normal",
               }}
             >
-              {props.miles} Miles
+              {props.miles !== "C" ? props.miles + " Miles" : "Cross Training"}
             </Text>
           )}
         </View>

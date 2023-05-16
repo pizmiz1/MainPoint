@@ -196,12 +196,14 @@ const RunningDay = (props) => {
                       <TouchableOpacity onPress={getTColor} disabled={done}>
                         <Text
                           style={{
-                            fontSize: 200,
+                            fontSize: todaysRunningMiles() === "C" ? 55 : 200,
                             textAlign: "center",
                             color: milesTextColor,
                           }}
                         >
-                          {todaysRunningMiles()}
+                          {todaysRunningMiles() === "C"
+                            ? "Cross Training"
+                            : todaysRunningMiles()}
                         </Text>
                         {shoot || runningAlreadyDone ? (
                           <Text
@@ -211,7 +213,9 @@ const RunningDay = (props) => {
                               color: milesTextColor,
                             }}
                           >
-                            Miles Ran Today!
+                            {todaysRunningMiles() === "C"
+                              ? "Done Today!"
+                              : "Miles Ran Today!"}
                           </Text>
                         ) : null}
                       </TouchableOpacity>
@@ -252,19 +256,22 @@ const RunningDay = (props) => {
                             }, 1600);
                             setTimeout(async () => {
                               setShoot(true);
-                              dispatch(
-                                updateTotalMiles(
-                                  "Add",
-                                  parseInt(todaysRunningMiles())
-                                )
-                              );
-                              await AsyncStorage.setItem(
-                                "Running Total",
-                                JSON.stringify({
-                                  data:
-                                    totalMiles + parseInt(todaysRunningMiles()),
-                                })
-                              );
+                              if (todaysRunningMiles() !== "C") {
+                                dispatch(
+                                  updateTotalMiles(
+                                    "Add",
+                                    parseInt(todaysRunningMiles())
+                                  )
+                                );
+                                await AsyncStorage.setItem(
+                                  "Running Total",
+                                  JSON.stringify({
+                                    data:
+                                      totalMiles +
+                                      parseInt(todaysRunningMiles()),
+                                  })
+                                );
+                              }
                               await AsyncStorage.setItem(
                                 "Running Done",
                                 JSON.stringify({
