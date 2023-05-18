@@ -42,6 +42,9 @@ const ScrollViewContainer = (props) => {
         backgroundColor: colors.secondary,
         ...props.style,
       }}
+      keyboardShouldPersistTaps={
+        props.keyboardShouldPersistTaps ? "handled" : "never"
+      }
       contentContainerStyle={{ flexGrow: 1 }}
       onScroll={handleSroll}
       scrollEventThrottle={16}

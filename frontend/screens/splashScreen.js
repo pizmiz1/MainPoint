@@ -75,6 +75,43 @@ const SplashScreen = (props) => {
                 data: false,
               })
             );
+
+            let myBodyWeight;
+            let myLbsPerWeek;
+
+            const savedBodyweight = await AsyncStorage.getItem("Bodyweight");
+            if (savedBodyweight) {
+              const transformed = await JSON.parse(savedBodyweight).data;
+              if (transformed) {
+                myBodyWeight = transformed;
+              }
+            }
+
+            const savedLbsPerWeek = await AsyncStorage.getItem("LbsPerWeek");
+            if (savedLbsPerWeek) {
+              const transformed = await JSON.parse(savedLbsPerWeek).data;
+              if (transformed) {
+                myLbsPerWeek = transformed;
+              }
+            }
+
+            if (savedBodyweight && savedLbsPerWeek) {
+              await AsyncStorage.setItem(
+                "Calories",
+                JSON.stringify({
+                  data:
+                    parseInt(myBodyWeight) * 15 -
+                    parseFloat(myLbsPerWeek) * 420,
+                })
+              );
+            }
+
+            await AsyncStorage.setItem(
+              "Logs",
+              JSON.stringify({
+                data: [],
+              })
+            );
           } else {
             const ShakeCrossed = await AsyncStorage.getItem("Shake Crossed");
             if (ShakeCrossed) {

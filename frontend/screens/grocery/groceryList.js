@@ -385,6 +385,7 @@ const GroceryList = (props) => {
                 autoFocus={true}
                 returnKeyType="done"
                 onSubmitEditing={addGrocery}
+                autoCapitalize="words"
               />
               <View
                 style={{

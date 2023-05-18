@@ -35,6 +35,7 @@ const GroceryMeals = (props) => {
     let newMeal = {
       Name: "",
       Groceries: [uuid.v4()],
+      Calories: 0,
     };
     dispatch(addMealAction(newMeal));
   };

@@ -1,70 +1,235 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   View,
   Text,
   TouchableOpacity,
   LayoutAnimation,
   TextInput,
+  Switch,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
 import { AntDesign, Entypo } from "@expo/vector-icons";
+import { updateMealAction } from "../../store/actions/updateMeal";
 
 const GroceryMacros = (props) => {
-  const colors = useSelector((state) => state.colors);
+  const dispatch = useDispatch();
 
+  const colors = useSelector((state) => state.colors);
+  const meals = useSelector((state) => state.meals);
+
+  const [switchedMeals, setSwitchedMeals] = useState([]);
   const [calories, setCalories] = useState(0);
-  const [clearVisible, setClearVisible] = useState(false);
-  const [minusVisible, setMinusVisible] = useState(false);
-  const [plusVisible, setPlusVisible] = useState(false);
+  const [bodyweight, setBodyweight] = useState(0);
+  const [lbsPerWeek, setLbsPerWeek] = useState(0);
+  const [calsToSubtract, setCalsToSubtract] = useState(0);
+  const [calsToAdd, setCalsToAdd] = useState(0);
   const [editing, setEditing] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [logsSelected, setLogsSelected] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       const savedCals = await AsyncStorage.getItem("Calories");
+      let foundCals;
       if (savedCals) {
-        const transformedSavedCals = await JSON.parse(savedCals).data;
-        if (transformedSavedCals) {
-          setCalories(transformedSavedCals);
+        foundCals = await JSON.parse(savedCals).data;
+        if (foundCals) {
+          setCalories(foundCals);
+        }
+      }
+
+      const savedBodyweight = await AsyncStorage.getItem("Bodyweight");
+      if (savedBodyweight) {
+        const transformed = await JSON.parse(savedBodyweight).data;
+        if (transformed) {
+          setBodyweight(transformed);
+        }
+      }
+
+      const savedLbsPerWeek = await AsyncStorage.getItem("LbsPerWeek");
+      if (savedLbsPerWeek) {
+        const transformed = await JSON.parse(savedLbsPerWeek).data;
+        if (transformed) {
+          setLbsPerWeek(transformed);
+        }
+      }
+
+      const switchedMeals = await AsyncStorage.getItem("Switched Meals");
+      if (switchedMeals) {
+        const transformed = await JSON.parse(switchedMeals).data;
+        if (transformed) {
+          setSwitchedMeals(transformed);
+        }
+      }
+
+      const logs = await AsyncStorage.getItem("Logs");
+      if (logs) {
+        const transformed = await JSON.parse(logs).data;
+        if (transformed) {
+          setLogs(transformed);
         }
       }
     };
     load();
   }, []);
 
-  useEffect(() => {
-    if (calories === 0 || calories === "") {
-      setClearVisible(false);
-    } else {
-      setClearVisible(true);
-    }
+  const calcCalsRemaining = () => {
+    return parseInt(bodyweight) * 15 - parseFloat(lbsPerWeek) * 420;
+  };
 
-    if (calories >= 50) {
-      setMinusVisible(true);
-    } else {
-      setMinusVisible(false);
-    }
+  const MealSwitchComp = (props) => {
+    const [mealCals, updateMealCals] = useState(
+      props.cals !== undefined ? props.cals.toString() : ""
+    );
 
-    if (calories < 9950) {
-      setPlusVisible(true);
-    } else {
-      setPlusVisible(false);
-    }
-  }, [calories]);
+    const toggleSwitch = async () => {
+      const alreadySwitched = switchedMeals.includes(props.index);
+      if (alreadySwitched) {
+        setSwitchedMeals(switchedMeals.filter((curr) => curr !== props.index));
+        await AsyncStorage.setItem(
+          "Switched Meals",
+          JSON.stringify({
+            data: switchedMeals.filter((curr) => curr !== props.index),
+          })
+        );
+        if (mealCals === "") {
+          return;
+        }
+        setCalories(parseInt(calories) + parseInt(mealCals));
+        await AsyncStorage.setItem(
+          "Calories",
+          JSON.stringify({
+            data: parseInt(calories) + parseInt(mealCals),
+          })
+        );
+        setLogs(logs.filter((curr) => curr.cals !== parseInt(mealCals)));
+        await AsyncStorage.setItem(
+          "Logs",
+          JSON.stringify({
+            data: logs.filter((curr) => curr.cals !== parseInt(mealCals)),
+          })
+        );
+      } else {
+        const test = switchedMeals.concat([props.index]);
+        setSwitchedMeals(test);
+        await AsyncStorage.setItem(
+          "Switched Meals",
+          JSON.stringify({
+            data: test,
+          })
+        );
+        if (mealCals === "") {
+          return;
+        }
+        setCalories(parseInt(calories) - parseInt(mealCals));
+        await AsyncStorage.setItem(
+          "Calories",
+          JSON.stringify({
+            data: parseInt(calories) - parseInt(mealCals),
+          })
+        );
+        const log = {
+          type: "meal",
+          cals: parseInt(mealCals),
+        };
+        setLogs(logs.concat([log]));
+        await AsyncStorage.setItem(
+          "Logs",
+          JSON.stringify({
+            data: logs.concat([log]),
+          })
+        );
+      }
+    };
+
+    return (
+      <View
+        style={{
+          backgroundColor: "white",
+          borderRadius: 15,
+          marginLeft: 20,
+          marginRight: 20,
+          marginTop: 20,
+          padding: 15,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            //justifyContent: "space-between",
+          }}
+        >
+          <Text
+            style={{
+              alignSelf: "center",
+              fontSize: 25,
+              width: "90%",
+            }}
+          >
+            {props.mealName}
+          </Text>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "flex-end",
+            }}
+          >
+            {editing ? (
+              <TextInput
+                value={mealCals}
+                onChangeText={updateMealCals}
+                onEndEditing={async () => {
+                  const updatedMeal = {
+                    Name: props.mealName,
+                    Groceries: props.groceries,
+                    Calories: parseInt(mealCals),
+                  };
+                  await dispatch(updateMealAction(updatedMeal, props.index));
+                  setCalories(calcCalsRemaining());
+                  setSwitchedMeals([]);
+                }}
+                keyboardType="numeric"
+                maxLength={4}
+                style={{
+                  fontSize: 20,
+                  borderBottomColor: "grey",
+                  borderBottomWidth: 0.5,
+                  width: "250%",
+                  textAlign: "center",
+                }}
+              />
+            ) : (
+              <Switch
+                value={switchedMeals.includes(props.index)}
+                onValueChange={toggleSwitch}
+              />
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={{ flex: 1 }}>
       <View style={{ flex: 0.9 }}>
         <ScrollViewContainer
+          keyboardShouldPersistTaps={true}
+          style={{ backgroundColor: colors.lightGrey }}
           content={
             editing ? (
               <View
                 style={{
-                  flex: 1,
+                  //flex: 1,
                   alignItems: "center",
-                  justifyContent: "center",
+                  //justifyContent: "center",
                   marginBottom: 65,
+                  backgroundColor: colors.lightGrey,
+                  marginTop: 20,
                 }}
               >
                 <Text
@@ -72,69 +237,285 @@ const GroceryMacros = (props) => {
                     fontSize: 40,
                     textDecorationLine: "underline",
                     color: colors.textColors.headerText,
+                    marginTop: 0,
                   }}
                 >
-                  Today's Calories
+                  Calories Remaining
                 </Text>
-                <View style={{ flexDirection: "row" }}>
+                <Text
+                  style={{ fontSize: 70, color: colors.textColors.headerText }}
+                >
+                  {calories}
+                </Text>
+                {meals.map((item, index) => {
+                  return (
+                    <View key={index}>
+                      <MealSwitchComp
+                        mealName={item.Name}
+                        cals={item.Calories}
+                        groceries={item.Groceries}
+                        index={index}
+                      />
+                    </View>
+                  );
+                })}
+                <View style={{ width: "100%" }}>
                   <TouchableOpacity
                     onPress={() => {
-                      setCalories(parseInt(calories) - 50);
+                      LayoutAnimation.configureNext(
+                        LayoutAnimation.create(
+                          200,
+                          LayoutAnimation.Types.linear,
+                          LayoutAnimation.Properties.opacity
+                        )
+                      );
+                      setLogsSelected(!logsSelected);
                     }}
-                    style={{
-                      marginRight: 20,
-                      alignSelf: "center",
-                      opacity: minusVisible ? 1 : 0,
-                    }}
-                    disabled={!minusVisible}
                   >
-                    <AntDesign name="minuscircleo" size={40} color="red" />
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        //flex: 1,
+                        width: "100%",
+                        marginTop: 30,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 25,
+                          color: colors.textColors.headerText,
+                          fontWeight: logsSelected ? "bold" : "normal",
+                          marginLeft: 20,
+                        }}
+                      >
+                        Logs
+                      </Text>
+                      <View
+                        style={{
+                          //alignSelf: "center",
+                          marginTop: 5,
+                          //justifyContent: "center",
+                          //flex: 1,
+                          marginRight: 10,
+                        }}
+                      >
+                        <AntDesign
+                          name={logsSelected ? "arrowup" : "arrowdown"}
+                          color={"black"}
+                          size={20}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        borderBottomColor: "#D4D4D4",
+                        borderBottomWidth: 1,
+                        width: "100%",
+                      }}
+                    />
                   </TouchableOpacity>
-                  <TextInput
-                    style={{
-                      fontSize: 100,
-                      color: colors.textColors.headerText,
-                    }}
-                    value={calories.toString()}
-                    onChangeText={setCalories}
-                    keyboardType="number-pad"
-                    maxLength={4}
-                  />
-                  <TouchableOpacity
-                    onPress={() => {
-                      setCalories(parseInt(calories) + 50);
-                    }}
-                    style={{
-                      marginLeft: 20,
-                      alignSelf: "center",
-                      opacity: plusVisible ? 1 : 0,
-                    }}
-                    disabled={!plusVisible}
-                  >
-                    <AntDesign name="pluscircleo" size={40} color="green" />
-                  </TouchableOpacity>
+                  {logsSelected && logs.length !== 0 ? (
+                    <View>
+                      <View
+                        style={{
+                          backgroundColor: colors.darkGrey,
+                          width: "90%",
+                          alignSelf: "center",
+                          flex: 1,
+                          padding: 5,
+                          borderRadius: 10,
+                          marginTop: 20,
+                        }}
+                      >
+                        {logs.map((item, index) => {
+                          const logColor = () => {
+                            if (item.type === "meal") {
+                              return "black";
+                            } else if (item.type === "add") {
+                              return "green";
+                            } else {
+                              return "red";
+                            }
+                          };
+
+                          return (
+                            <View key={index}>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  flexDirection: "row",
+                                  width: "100%",
+                                  marginTop: 10,
+                                  marginBottom: 10,
+                                  backgroundColor: colors.darkGrey,
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    margin: 5,
+                                    padding: 5,
+                                    color: logColor(),
+                                    fontSize: 20,
+                                    width: "40%",
+                                    textAlign: "center",
+                                    fontWeight: "normal",
+                                  }}
+                                >
+                                  {item.cals}
+                                </Text>
+                              </View>
+                              {logs.length === index + 1 ? undefined : (
+                                <View
+                                  style={{
+                                    borderColor: colors.lightGrey,
+                                    borderWidth: 0.5,
+                                    width: "95%",
+                                    alignSelf: "flex-end",
+                                  }}
+                                />
+                              )}
+                            </View>
+                          );
+                        })}
+                      </View>
+                      <View
+                        style={{
+                          width: "100%",
+                          alignItems: "center",
+                          marginTop: 10,
+                          flexDirection: "row",
+                          justifyContent: "space-around",
+                        }}
+                      >
+                        <View style={{ alignItems: "center" }}>
+                          <Text style={{ fontSize: 15 }}>Food</Text>
+                          <View
+                            style={{
+                              width: 20,
+                              height: 20,
+                              borderColor: "red",
+                              borderWidth: 1,
+                              backgroundColor: "red",
+                            }}
+                          />
+                        </View>
+                        <View style={{ alignItems: "center" }}>
+                          <Text style={{ fontSize: 15 }}>Meal</Text>
+                          <View
+                            style={{
+                              width: 20,
+                              height: 20,
+                              borderColor: "black",
+                              borderWidth: 1,
+                              backgroundColor: "black",
+                            }}
+                          />
+                        </View>
+                        <View style={{ alignItems: "center" }}>
+                          <Text style={{ fontSize: 15 }}>Exercise</Text>
+                          <View
+                            style={{
+                              width: 20,
+                              height: 20,
+                              borderColor: "green",
+                              borderWidth: 1,
+                              backgroundColor: "green",
+                            }}
+                          />
+                        </View>
+                      </View>
+                    </View>
+                  ) : undefined}
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                    width: "100%",
+                    marginTop: 70,
+                  }}
+                >
+                  <View style={{ alignItems: "center" }}>
+                    <Text>Bodyweight</Text>
+                    <TextInput
+                      value={bodyweight}
+                      onChangeText={setBodyweight}
+                      keyboardType="numeric"
+                      maxLength={3}
+                      style={{
+                        fontSize: 30,
+                        borderBottomColor: "grey",
+                        borderBottomWidth: 1,
+                        width: "90%",
+                        textAlign: "center",
+                      }}
+                      placeholder="100"
+                      placeholderTextColor="#D4D4D4"
+                    />
+                  </View>
+                  <View style={{ alignItems: "center" }}>
+                    <Text>Lbs Per Week</Text>
+                    <TextInput
+                      value={lbsPerWeek}
+                      onChangeText={setLbsPerWeek}
+                      keyboardType="numeric"
+                      maxLength={3}
+                      style={{
+                        fontSize: 30,
+                        borderBottomColor: "grey",
+                        borderBottomWidth: 1,
+                        width: "90%",
+                        textAlign: "center",
+                      }}
+                      placeholder="1.5"
+                      placeholderTextColor="#D4D4D4"
+                    />
+                  </View>
                 </View>
                 <TouchableOpacity
+                  onPress={async () => {
+                    setCalories(calcCalsRemaining());
+                    setLogs([]);
+                    await AsyncStorage.setItem(
+                      "Logs",
+                      JSON.stringify({
+                        data: [],
+                      })
+                    );
+                  }}
                   style={{
-                    alignItems: "center",
-                    marginTop: 10,
-                    opacity: clearVisible ? 1 : 0,
+                    padding: 5,
+                    borderRadius: 20,
+                    width: "50%",
+                    alignSelf: "center",
+                    backgroundColor: colors.primary,
+                    marginTop: 15,
                   }}
-                  onPress={() => {
-                    setCalories(0);
-                  }}
-                  disabled={!clearVisible}
                 >
-                  <Text style={{ fontSize: 20, color: "red" }}>Clear</Text>
+                  <Text
+                    style={{
+                      color: colors.textColors.headerText,
+                      fontSize: 20,
+                      textAlign: "center",
+                    }}
+                  >
+                    Reset Cals
+                  </Text>
                 </TouchableOpacity>
+                <View style={{ marginBottom: 200 }} />
               </View>
             ) : (
               <View
                 style={{
-                  flex: 1,
+                  //flex: 1,
                   alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: 100,
+                  //justifyContent: "center",
+                  marginBottom: 65,
+                  backgroundColor: colors.lightGrey,
+                  marginTop: 20,
                 }}
               >
                 <Text
@@ -142,15 +523,161 @@ const GroceryMacros = (props) => {
                     fontSize: 40,
                     textDecorationLine: "underline",
                     color: colors.textColors.headerText,
+                    marginTop: 0,
                   }}
                 >
-                  Today's Calories
+                  Calories Remaining
                 </Text>
                 <Text
-                  style={{ fontSize: 100, color: colors.textColors.headerText }}
+                  style={{ fontSize: 70, color: colors.textColors.headerText }}
                 >
                   {calories}
                 </Text>
+                <View
+                  style={{
+                    width: "100%",
+                    marginTop: 15,
+                    marginBottom: 15,
+                    alignItems: "center",
+                    flexDirection: "row",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <View style={{ width: "24%", alignItems: "center" }}>
+                    <Text>Food</Text>
+                    <TextInput
+                      value={calsToSubtract}
+                      onChangeText={setCalsToSubtract}
+                      keyboardType="number-pad"
+                      maxLength={3}
+                      style={{
+                        fontSize: 30,
+                        borderBottomColor: "grey",
+                        borderBottomWidth: 1,
+                        textAlign: "center",
+                        width: "90%",
+                      }}
+                      placeholder="500"
+                      placeholderTextColor="#D4D4D4"
+                    />
+                    <TouchableOpacity
+                      onPress={async () => {
+                        setCalories(
+                          parseInt(calories) - parseInt(calsToSubtract)
+                        );
+                        await AsyncStorage.setItem(
+                          "Calories",
+                          JSON.stringify({
+                            data: parseInt(calories) - parseInt(calsToSubtract),
+                          })
+                        );
+                        const log = {
+                          type: "sub",
+                          cals: calsToSubtract,
+                        };
+                        setLogs(logs.concat([log]));
+                        await AsyncStorage.setItem(
+                          "Logs",
+                          JSON.stringify({
+                            data: logs.concat([log]),
+                          })
+                        );
+                        setCalsToSubtract(0);
+                      }}
+                      style={{
+                        padding: 5,
+                        borderRadius: 20,
+                        width: "100%",
+                        alignSelf: "center",
+                        backgroundColor: colors.primary,
+                        marginTop: 15,
+                        width: "130%",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: colors.textColors.headerText,
+                          fontSize: 20,
+                          textAlign: "center",
+                        }}
+                      >
+                        Subtract
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={{ width: "24%", alignItems: "center" }}>
+                    <Text>Exercise</Text>
+                    <TextInput
+                      value={calsToAdd}
+                      onChangeText={setCalsToAdd}
+                      keyboardType="number-pad"
+                      maxLength={3}
+                      style={{
+                        fontSize: 30,
+                        borderBottomColor: "grey",
+                        borderBottomWidth: 1,
+                        textAlign: "center",
+                        width: "100%",
+                      }}
+                      placeholder="500"
+                      placeholderTextColor="#D4D4D4"
+                    />
+                    <TouchableOpacity
+                      onPress={async () => {
+                        setCalories(parseInt(calories) + parseInt(calsToAdd));
+                        await AsyncStorage.setItem(
+                          "Calories",
+                          JSON.stringify({
+                            data: parseInt(calories) + parseInt(calsToAdd),
+                          })
+                        );
+                        const log = {
+                          type: "add",
+                          cals: calsToAdd,
+                        };
+                        setLogs(logs.concat([log]));
+                        await AsyncStorage.setItem(
+                          "Logs",
+                          JSON.stringify({
+                            data: logs.concat([log]),
+                          })
+                        );
+                        setCalsToAdd(0);
+                      }}
+                      style={{
+                        padding: 5,
+                        borderRadius: 20,
+                        width: "100%",
+                        alignSelf: "center",
+                        backgroundColor: colors.primary,
+                        marginTop: 15,
+                        width: "130%",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: colors.textColors.headerText,
+                          fontSize: 20,
+                          textAlign: "center",
+                        }}
+                      >
+                        Add
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                {meals.map((item, index) => {
+                  return (
+                    <View key={index}>
+                      <MealSwitchComp
+                        mealName={item.Name}
+                        cals={item.Calories}
+                        groceries={item.Groceries}
+                        index={index}
+                      />
+                    </View>
+                  );
+                })}
               </View>
             )
           }
@@ -187,6 +714,30 @@ const GroceryMacros = (props) => {
                   data: calories,
                 })
               );
+              await AsyncStorage.setItem(
+                "Bodyweight",
+                JSON.stringify({
+                  data: bodyweight,
+                })
+              );
+              await AsyncStorage.setItem(
+                "LbsPerWeek",
+                JSON.stringify({
+                  data: lbsPerWeek,
+                })
+              );
+              const GroceryData = await AsyncStorage.getItem("Grocery Data");
+              if (GroceryData) {
+                const transformedGroceryData = await JSON.parse(GroceryData)
+                  .data;
+                transformedGroceryData.at(2).Meals = meals;
+                await AsyncStorage.setItem(
+                  "Grocery Data",
+                  JSON.stringify({
+                    data: transformedGroceryData,
+                  })
+                );
+              }
             }}
             style={{ alignSelf: "center", marginRight: 13 }}
           >
@@ -212,9 +763,14 @@ const GroceryMacros = (props) => {
             }}
           >
             <Text
-              style={{ marginLeft: 35, color: colors.textColors.headerText }}
+              style={{
+                marginLeft: 35,
+                color: parseInt(calories) < 0 ? "red" : "green",
+              }}
             >
-              {calories} Calories
+              {parseInt(calories) < 0
+                ? calories * -1 + " Over"
+                : calories + " Remaining"}
             </Text>
           </View>
           <TouchableOpacity
