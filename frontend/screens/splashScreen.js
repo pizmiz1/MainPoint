@@ -112,6 +112,13 @@ const SplashScreen = (props) => {
                 data: [],
               })
             );
+
+            await AsyncStorage.setItem(
+              "Switched Meals",
+              JSON.stringify({
+                data: [],
+              })
+            );
           } else {
             const ShakeCrossed = await AsyncStorage.getItem("Shake Crossed");
             if (ShakeCrossed) {
