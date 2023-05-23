@@ -11,10 +11,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { updateTotalMiles } from "../../store/actions/updateTotalMiles";
+import { updateShoeMiles } from "../../store/actions/updateShoeMiles";
 
 const RunningTotal = (props) => {
   const colors = useSelector((state) => state.colors);
   const totalMiles = useSelector((state) => state.totalMiles);
+  const shoeMiles = useSelector((state) => state.shoeMiles);
 
   const [editing, setEditing] = useState(false);
 
@@ -26,50 +28,108 @@ const RunningTotal = (props) => {
         <ScrollViewContainer
           content={
             editing ? (
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: 100,
-                }}
-              >
-                <Text style={{ fontSize: 40, textDecorationLine: "underline" }}>
-                  Total Miles
-                </Text>
-                <View style={{ flexDirection: "row" }}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      dispatch(updateTotalMiles("Subtract", 1));
-                    }}
-                    style={{ marginRight: 20, alignSelf: "center" }}
+              <View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: 100,
+                  }}
+                >
+                  <Text
+                    style={{ fontSize: 40, textDecorationLine: "underline" }}
                   >
-                    <AntDesign name="minuscircleo" size={40} color="red" />
-                  </TouchableOpacity>
-                  <Text style={{ fontSize: 100 }}>{totalMiles}</Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      dispatch(updateTotalMiles("Add", 1));
+                    Total Miles
+                  </Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        dispatch(updateTotalMiles("Subtract", 1));
+                        dispatch(updateShoeMiles("Subtract", 1));
+                      }}
+                      style={{ marginRight: 20, alignSelf: "center" }}
+                    >
+                      <AntDesign name="minuscircleo" size={40} color="red" />
+                    </TouchableOpacity>
+                    <Text style={{ fontSize: 100 }}>{totalMiles}</Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        dispatch(updateTotalMiles("Add", 1));
+                        dispatch(updateShoeMiles("Add", 1));
+                      }}
+                      style={{ marginLeft: 20, alignSelf: "center" }}
+                    >
+                      <AntDesign name="pluscircleo" size={40} color="green" />
+                    </TouchableOpacity>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginTop: 30,
                     }}
-                    style={{ marginLeft: 20, alignSelf: "center" }}
                   >
-                    <AntDesign name="pluscircleo" size={40} color="green" />
-                  </TouchableOpacity>
+                    <Text
+                      style={{ fontSize: 40, textDecorationLine: "underline" }}
+                    >
+                      Shoe Miles
+                    </Text>
+                    <View style={{ flexDirection: "row" }}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          dispatch(updateShoeMiles("Subtract", 1));
+                        }}
+                        style={{ marginRight: 20, alignSelf: "center" }}
+                      >
+                        <AntDesign name="minuscircleo" size={40} color="red" />
+                      </TouchableOpacity>
+                      <Text style={{ fontSize: 100 }}>{shoeMiles}</Text>
+                      <TouchableOpacity
+                        onPress={() => {
+                          dispatch(updateShoeMiles("Add", 1));
+                        }}
+                        style={{ marginLeft: 20, alignSelf: "center" }}
+                      >
+                        <AntDesign name="pluscircleo" size={40} color="green" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 </View>
               </View>
             ) : (
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: 100,
-                }}
-              >
-                <Text style={{ fontSize: 40, textDecorationLine: "underline" }}>
-                  Total Miles
-                </Text>
-                <Text style={{ fontSize: 100 }}>{totalMiles}</Text>
+              <View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: 100,
+                  }}
+                >
+                  <Text
+                    style={{ fontSize: 40, textDecorationLine: "underline" }}
+                  >
+                    Total Miles
+                  </Text>
+                  <Text style={{ fontSize: 100 }}>{totalMiles}</Text>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: 30,
+                  }}
+                >
+                  <Text
+                    style={{ fontSize: 40, textDecorationLine: "underline" }}
+                  >
+                    Shoe Miles
+                  </Text>
+                  <Text style={{ fontSize: 100 }}>{shoeMiles}</Text>
+                </View>
               </View>
             )
           }
@@ -101,6 +161,12 @@ const RunningTotal = (props) => {
                 "Running Total",
                 JSON.stringify({
                   data: totalMiles,
+                })
+              );
+              await AsyncStorage.setItem(
+                "Running Shoe Total",
+                JSON.stringify({
+                  data: shoeMiles,
                 })
               );
             }}

@@ -18,6 +18,7 @@ import { switchRunning } from "../store/actions/switchRunning";
 import { updateRunning } from "../store/actions/updateRunning";
 import { updateRunningStartDate } from "../store/actions/updateRunningStartDate";
 import { updateTotalMiles } from "../store/actions/updateTotalMiles";
+import { updateShoeMiles } from "../store/actions/updateShoeMiles";
 import { updateRunningDone } from "../store/actions/updateRunningDone";
 import moment from "moment/moment";
 
@@ -148,7 +149,7 @@ const SplashScreen = (props) => {
             if (RunningDone) {
               const transformedRunningDone = await JSON.parse(RunningDone).data;
               if (transformedRunningDone) {
-                dispatch(updateRunningDone(true));
+                await dispatch(updateRunningDone(true));
               }
             }
           }
@@ -194,6 +195,16 @@ const SplashScreen = (props) => {
             RunningTotalMiles
           ).data;
           dispatch(updateTotalMiles("Add", transformedRunningTotalMiles));
+        }
+
+        const RunningTotalShoeMiles = await AsyncStorage.getItem(
+          "Running Shoe Total"
+        );
+        if (RunningTotalShoeMiles) {
+          const transformedRunningTotalShoeMiles = await JSON.parse(
+            RunningTotalShoeMiles
+          ).data;
+          dispatch(updateShoeMiles("Add", transformedRunningTotalShoeMiles));
         }
 
         const biweekly = await AsyncStorage.getItem("Biweekly");

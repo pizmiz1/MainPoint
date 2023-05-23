@@ -20,6 +20,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import moment from "moment/moment";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { updateTotalMiles } from "../../store/actions/updateTotalMiles";
+import { updateShoeMiles } from "../../store/actions/updateShoeMiles";
 import { updateRunningDone } from "../../store/actions/updateRunningDone";
 
 const RunningDay = (props) => {
@@ -27,6 +28,7 @@ const RunningDay = (props) => {
   const runningData = useSelector((state) => state.runningData);
   const startDate = useSelector((state) => state.startDate);
   const totalMiles = useSelector((state) => state.totalMiles);
+  const shoeMiles = useSelector((state) => state.shoeMiles);
   const done = useSelector((state) => state.runningDone);
   const [runningAlreadyDone, setRunningAlreadyDone] = useState(false);
   const [milesTextColor, setMilesTextColor] = useState();
@@ -263,11 +265,25 @@ const RunningDay = (props) => {
                                     parseInt(todaysRunningMiles())
                                   )
                                 );
+                                dispatch(
+                                  updateShoeMiles(
+                                    "Add",
+                                    parseInt(todaysRunningMiles())
+                                  )
+                                );
                                 await AsyncStorage.setItem(
                                   "Running Total",
                                   JSON.stringify({
                                     data:
                                       totalMiles +
+                                      parseInt(todaysRunningMiles()),
+                                  })
+                                );
+                                await AsyncStorage.setItem(
+                                  "Running Shoe Total",
+                                  JSON.stringify({
+                                    data:
+                                      shoeMiles +
                                       parseInt(todaysRunningMiles()),
                                   })
                                 );

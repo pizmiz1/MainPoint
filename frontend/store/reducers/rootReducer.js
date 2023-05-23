@@ -12,6 +12,7 @@ import { SWITCH_RUNNING } from "../actions/switchRunning";
 import { UPDATE_RUNNING } from "../actions/updateRunning";
 import { UPDATE_START_DATE } from "../actions/updateRunningStartDate";
 import { UPDATE_TOTAL_MILES } from "../actions/updateTotalMiles";
+import { UPDATE_SHOE_MILES } from "../actions/updateShoeMiles";
 import { UPDATE_RUNNING_DONE } from "../actions/updateRunningDone";
 
 // Grocery
@@ -31,6 +32,7 @@ const initialState = {
   startDate: undefined,
   biweekly: false,
   totalMiles: 0,
+  shoeMiles: 0,
   runningDone: false,
   colors: {
     primary: "#03a9f5",
@@ -446,6 +448,12 @@ const rootReducer = (state, action) => {
       return {
         ...state,
         totalMiles: action.totalMiles,
+      };
+    }
+    case UPDATE_SHOE_MILES: {
+      return {
+        ...state,
+        shoeMiles: action.shoeMiles,
       };
     }
     case UPDATE_RUNNING_DONE: {
