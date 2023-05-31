@@ -242,6 +242,23 @@ const GroceryMeals = (props) => {
                       }
                     });
 
+                    const nameChange = props.mealName !== mealName;
+
+                    if (nameChange) {
+                      const nameExists =
+                        meals.filter((curr) => curr.Name === mealName).length >
+                        0;
+
+                      if (nameExists) {
+                        Alert.alert(
+                          "Error",
+                          meals.filter((curr) => curr.Name === mealName)[0]
+                            .Name + " already exists"
+                        );
+                        return;
+                      }
+                    }
+
                     if (validMeal === true) {
                       let groceryIds = groceries.map((curr) => curr.id);
                       const updatedMeal = {

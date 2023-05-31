@@ -27,7 +27,7 @@ const GroceryMacros = (props) => {
   const [calsToAdd, setCalsToAdd] = useState(0);
   const [editing, setEditing] = useState(false);
   const [logs, setLogs] = useState([]);
-  const [logsSelected, setLogsSelected] = useState(true);
+  const [logsSelected, setLogsSelected] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -71,6 +71,16 @@ const GroceryMacros = (props) => {
           setLogs(transformed);
         }
       }
+
+      const logsSelected = await AsyncStorage.getItem("Logs Selected");
+      if (logsSelected) {
+        const transformed = await JSON.parse(logsSelected).data;
+        if (transformed) {
+          setLogsSelected(transformed);
+        }
+      } else {
+        setLogsSelected(true);
+      }
     };
     load();
   }, []);
@@ -104,11 +114,15 @@ const GroceryMacros = (props) => {
             data: parseInt(calories) + parseInt(mealCals),
           })
         );
-        setLogs(logs.filter((curr) => curr.cals !== parseInt(mealCals)));
+        const log = {
+          type: "add",
+          cals: mealCals,
+        };
+        setLogs(logs.concat([log]));
         await AsyncStorage.setItem(
           "Logs",
           JSON.stringify({
-            data: logs.filter((curr) => curr.cals !== parseInt(mealCals)),
+            data: logs.concat([log]),
           })
         );
       } else {
@@ -131,8 +145,8 @@ const GroceryMacros = (props) => {
           })
         );
         const log = {
-          type: "meal",
-          cals: parseInt(mealCals),
+          type: "subtract",
+          cals: mealCals,
         };
         setLogs(logs.concat([log]));
         await AsyncStorage.setItem(
@@ -183,14 +197,52 @@ const GroceryMacros = (props) => {
                 value={mealCals}
                 onChangeText={updateMealCals}
                 onEndEditing={async () => {
+                  const oldCals = meals.filter(
+                    (curr) => curr.Name === props.mealName
+                  )[0].Calories;
+
+                  const alreadySwitched = switchedMeals.includes(props.index);
+                  if (alreadySwitched) {
+                    setSwitchedMeals(
+                      switchedMeals.filter((curr) => curr !== props.index)
+                    );
+                    await AsyncStorage.setItem(
+                      "Switched Meals",
+                      JSON.stringify({
+                        data: switchedMeals.filter(
+                          (curr) => curr !== props.index
+                        ),
+                      })
+                    );
+                    if (mealCals === "") {
+                      return;
+                    }
+                    setCalories(parseInt(calories) + parseInt(oldCals));
+                    await AsyncStorage.setItem(
+                      "Calories",
+                      JSON.stringify({
+                        data: parseInt(calories) + parseInt(oldCals),
+                      })
+                    );
+                    const log = {
+                      type: "add",
+                      cals: oldCals,
+                    };
+                    setLogs(logs.concat([log]));
+                    await AsyncStorage.setItem(
+                      "Logs",
+                      JSON.stringify({
+                        data: logs.concat([log]),
+                      })
+                    );
+                  }
+
                   const updatedMeal = {
                     Name: props.mealName,
                     Groceries: props.groceries,
                     Calories: parseInt(mealCals),
                   };
                   await dispatch(updateMealAction(updatedMeal, props.index));
-                  setCalories(calcCalsRemaining());
-                  setSwitchedMeals([]);
                 }}
                 keyboardType="numeric"
                 maxLength={4}
@@ -259,177 +311,6 @@ const GroceryMacros = (props) => {
                     </View>
                   );
                 })}
-                <View style={{ width: "100%" }}>
-                  <TouchableOpacity
-                    onPress={() => {
-                      LayoutAnimation.configureNext(
-                        LayoutAnimation.create(
-                          200,
-                          LayoutAnimation.Types.linear,
-                          LayoutAnimation.Properties.opacity
-                        )
-                      );
-                      setLogsSelected(!logsSelected);
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        //flex: 1,
-                        width: "100%",
-                        marginTop: 30,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 25,
-                          color: colors.textColors.headerText,
-                          fontWeight: logsSelected ? "bold" : "normal",
-                          marginLeft: 20,
-                        }}
-                      >
-                        Logs
-                      </Text>
-                      <View
-                        style={{
-                          //alignSelf: "center",
-                          marginTop: 5,
-                          //justifyContent: "center",
-                          //flex: 1,
-                          marginRight: 10,
-                        }}
-                      >
-                        <AntDesign
-                          name={logsSelected ? "arrowup" : "arrowdown"}
-                          color={"black"}
-                          size={20}
-                        />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        borderBottomColor: "#D4D4D4",
-                        borderBottomWidth: 1,
-                        width: "100%",
-                      }}
-                    />
-                  </TouchableOpacity>
-                  {logsSelected && logs.length !== 0 ? (
-                    <View>
-                      <View
-                        style={{
-                          backgroundColor: colors.darkGrey,
-                          width: "90%",
-                          alignSelf: "center",
-                          flex: 1,
-                          padding: 5,
-                          borderRadius: 10,
-                          marginTop: 20,
-                        }}
-                      >
-                        {logs.map((item, index) => {
-                          const logColor = () => {
-                            if (item.type === "meal") {
-                              return "black";
-                            } else if (item.type === "add") {
-                              return "green";
-                            } else {
-                              return "red";
-                            }
-                          };
-
-                          return (
-                            <View key={index}>
-                              <View
-                                style={{
-                                  flex: 1,
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  flexDirection: "row",
-                                  width: "100%",
-                                  marginTop: 10,
-                                  marginBottom: 10,
-                                  backgroundColor: colors.darkGrey,
-                                }}
-                              >
-                                <Text
-                                  style={{
-                                    margin: 5,
-                                    padding: 5,
-                                    color: logColor(),
-                                    fontSize: 20,
-                                    width: "40%",
-                                    textAlign: "center",
-                                    fontWeight: "normal",
-                                  }}
-                                >
-                                  {item.cals}
-                                </Text>
-                              </View>
-                              {logs.length === index + 1 ? undefined : (
-                                <View
-                                  style={{
-                                    borderColor: colors.lightGrey,
-                                    borderWidth: 0.5,
-                                    width: "95%",
-                                    alignSelf: "flex-end",
-                                  }}
-                                />
-                              )}
-                            </View>
-                          );
-                        })}
-                      </View>
-                      <View
-                        style={{
-                          width: "100%",
-                          alignItems: "center",
-                          marginTop: 10,
-                          flexDirection: "row",
-                          justifyContent: "space-around",
-                        }}
-                      >
-                        <View style={{ alignItems: "center" }}>
-                          <Text style={{ fontSize: 15 }}>Food</Text>
-                          <View
-                            style={{
-                              width: 20,
-                              height: 20,
-                              borderColor: "red",
-                              borderWidth: 1,
-                              backgroundColor: "red",
-                            }}
-                          />
-                        </View>
-                        <View style={{ alignItems: "center" }}>
-                          <Text style={{ fontSize: 15 }}>Meal</Text>
-                          <View
-                            style={{
-                              width: 20,
-                              height: 20,
-                              borderColor: "black",
-                              borderWidth: 1,
-                              backgroundColor: "black",
-                            }}
-                          />
-                        </View>
-                        <View style={{ alignItems: "center" }}>
-                          <Text style={{ fontSize: 15 }}>Exercise</Text>
-                          <View
-                            style={{
-                              width: 20,
-                              height: 20,
-                              borderColor: "green",
-                              borderWidth: 1,
-                              backgroundColor: "green",
-                            }}
-                          />
-                        </View>
-                      </View>
-                    </View>
-                  ) : undefined}
-                </View>
                 <View
                   style={{
                     flexDirection: "row",
@@ -478,11 +359,28 @@ const GroceryMacros = (props) => {
                 <TouchableOpacity
                   onPress={async () => {
                     setCalories(calcCalsRemaining());
-                    setLogs([]);
+                    await AsyncStorage.setItem(
+                      "Calories",
+                      JSON.stringify({
+                        data: calcCalsRemaining(),
+                      })
+                    );
+                    setSwitchedMeals([]);
+                    await AsyncStorage.setItem(
+                      "Switched Meals",
+                      JSON.stringify({
+                        data: [],
+                      })
+                    );
+                    const log = {
+                      type: "add",
+                      cals: "Reset",
+                    };
+                    setLogs(logs.concat([log]));
                     await AsyncStorage.setItem(
                       "Logs",
                       JSON.stringify({
-                        data: [],
+                        data: logs.concat([log]),
                       })
                     );
                   }}
@@ -549,7 +447,7 @@ const GroceryMacros = (props) => {
                       value={calsToSubtract}
                       onChangeText={setCalsToSubtract}
                       keyboardType="number-pad"
-                      maxLength={3}
+                      maxLength={4}
                       style={{
                         fontSize: 30,
                         borderBottomColor: "grey",
@@ -611,7 +509,7 @@ const GroceryMacros = (props) => {
                       value={calsToAdd}
                       onChangeText={setCalsToAdd}
                       keyboardType="number-pad"
-                      maxLength={3}
+                      maxLength={4}
                       style={{
                         fontSize: 30,
                         borderBottomColor: "grey",
@@ -678,6 +576,166 @@ const GroceryMacros = (props) => {
                     </View>
                   );
                 })}
+                <View style={{ width: "100%" }}>
+                  <TouchableOpacity
+                    onPress={async () => {
+                      LayoutAnimation.configureNext(
+                        LayoutAnimation.create(
+                          200,
+                          LayoutAnimation.Types.linear,
+                          LayoutAnimation.Properties.opacity
+                        )
+                      );
+                      setLogsSelected(!logsSelected);
+                      await AsyncStorage.setItem(
+                        "Logs Selected",
+                        JSON.stringify({
+                          data: !logsSelected,
+                        })
+                      );
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        //flex: 1,
+                        width: "100%",
+                        marginTop: 30,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 25,
+                          color: colors.textColors.headerText,
+                          fontWeight: logsSelected ? "bold" : "normal",
+                          marginLeft: 20,
+                        }}
+                      >
+                        Logs
+                      </Text>
+                      <View
+                        style={{
+                          //alignSelf: "center",
+                          marginTop: 5,
+                          //justifyContent: "center",
+                          //flex: 1,
+                          marginRight: 10,
+                        }}
+                      >
+                        <AntDesign
+                          name={logsSelected ? "arrowup" : "arrowdown"}
+                          color={"black"}
+                          size={20}
+                        />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        borderBottomColor: "#D4D4D4",
+                        borderBottomWidth: 1,
+                        width: "100%",
+                      }}
+                    />
+                  </TouchableOpacity>
+                  {logsSelected && logs.length !== 0 ? (
+                    <View>
+                      <View
+                        style={{
+                          backgroundColor: colors.darkGrey,
+                          width: "90%",
+                          alignSelf: "center",
+                          flex: 1,
+                          padding: 5,
+                          borderRadius: 10,
+                          marginTop: 20,
+                        }}
+                      >
+                        {logs.map((item, index) => {
+                          const getTColor = () => {
+                            if (item.cals === "Reset") {
+                              return "black";
+                            } else if (item.type === "add") {
+                              return "green";
+                            } else {
+                              return "red";
+                            }
+                          };
+
+                          return (
+                            <View key={index}>
+                              <View
+                                style={{
+                                  flex: 1,
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  flexDirection: "row",
+                                  width: "100%",
+                                  marginTop: 10,
+                                  marginBottom: 10,
+                                  backgroundColor: colors.darkGrey,
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    margin: 5,
+                                    padding: 5,
+                                    color: getTColor(),
+                                    fontSize: 20,
+                                    width: "40%",
+                                    textAlign: "center",
+                                    fontWeight: "normal",
+                                  }}
+                                >
+                                  {item.cals}
+                                </Text>
+                              </View>
+                              {logs.length === index + 1 ? undefined : (
+                                <View
+                                  style={{
+                                    borderColor: colors.lightGrey,
+                                    borderWidth: 0.5,
+                                    width: "95%",
+                                    alignSelf: "flex-end",
+                                  }}
+                                />
+                              )}
+                            </View>
+                          );
+                        })}
+                      </View>
+                      <TouchableOpacity
+                        onPress={async () => {
+                          setLogs([]);
+                          await AsyncStorage.setItem(
+                            "Logs",
+                            JSON.stringify({
+                              data: [],
+                            })
+                          );
+                        }}
+                        style={{
+                          padding: 5,
+                          borderRadius: 20,
+                          width: "50%",
+                          alignSelf: "center",
+                          backgroundColor: colors.primary,
+                          marginTop: 15,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: colors.textColors.headerText,
+                            fontSize: 20,
+                            textAlign: "center",
+                          }}
+                        >
+                          Clear Logs
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : undefined}
+                </View>
               </View>
             )
           }
