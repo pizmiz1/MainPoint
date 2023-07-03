@@ -29,7 +29,7 @@ import RunningWeek from "../screens/fitness/runningWeek";
 import RunningTotal from "../screens/fitness/runningTotal";
 
 //components
-import MyDrawerContainer from "../components/drawerContainer";
+import SwitchIconComp from "../components/switchIconComp";
 
 //Grocery Nav
 const MyDrawer = createDrawerNavigator();
@@ -156,47 +156,22 @@ const MyDrawerNav = (props) => {
           drawerActiveBackgroundColor: running ? colors.primary : bColor(),
           drawerActiveTintColor: colors.textColors.headerText,
           drawerInactiveTintColor: colors.textColors.headerText,
+          headerRight: () => SwitchIconComp(props),
         }}
-        drawerContent={(props) => <MyDrawerContainer {...props} />}
         useLegacyImplementation={true}
         initialRouteName={myInitialRoute}
         screenListeners={async (state) => {
           const lastRoute = await AsyncStorage.getItem("Last Route");
-          let transformedLastRoute;
           if (lastRoute) {
-            transformedLastRoute = await JSON.parse(lastRoute).data;
-          }
-
-          if (
-            transformedLastRoute !== undefined &&
-            transformedLastRoute !== null
-          ) {
-            if (transformedLastRoute.includes("Grocery")) {
-              const fitnessInitialRoute = await AsyncStorage.getItem(
-                "Initial Fitness Route"
-              );
-              let transformedFitnessInitialRoute;
-              if (lastRoute) {
-                transformedFitnessInitialRoute = await JSON.parse(
-                  fitnessInitialRoute
-                ).data;
-              }
-              props.navigation.navigate(transformedFitnessInitialRoute);
-            } else {
+            const transformed = await JSON.parse(lastRoute).data;
+            if (!transformed.includes("Grocery")) {
               await AsyncStorage.setItem(
-                "Initial Fitness Route",
+                "Last Fitness Route",
                 JSON.stringify({
                   data: state.route.name,
                 })
               );
             }
-          } else {
-            await AsyncStorage.setItem(
-              "Initial Fitness Route",
-              JSON.stringify({
-                data: state.route.name,
-              })
-            );
           }
           await AsyncStorage.setItem(
             "Last Route",
@@ -231,7 +206,7 @@ const MyDrawerNav = (props) => {
               name="Fitness Running Edit"
               component={RunningEdit}
               options={{
-                headerTitle: "",
+                headerTitle: "Edit",
                 drawerLabel: ({ focused, color }) => (
                   <Text
                     style={{
@@ -250,7 +225,7 @@ const MyDrawerNav = (props) => {
               name="Fitness Running Total"
               component={RunningTotal}
               options={{
-                headerTitle: "",
+                headerTitle: "Total",
                 drawerLabel: ({ focused, color }) => (
                   <Text
                     style={{
@@ -404,47 +379,22 @@ const MyDrawerNav = (props) => {
           drawerActiveBackgroundColor: colors.primary,
           drawerActiveTintColor: "white",
           drawerInactiveTintColor: "white",
+          headerRight: () => SwitchIconComp(props),
         }}
-        drawerContent={(props) => <MyDrawerContainer {...props} />}
         useLegacyImplementation={true}
         initialRouteName={myInitialRoute}
         screenListeners={async (state) => {
           const lastRoute = await AsyncStorage.getItem("Last Route");
-          let transformedLastRoute;
           if (lastRoute) {
-            transformedLastRoute = await JSON.parse(lastRoute).data;
-          }
-
-          if (
-            transformedLastRoute !== undefined &&
-            transformedLastRoute !== null
-          ) {
-            if (transformedLastRoute.includes("Fitness")) {
-              const groceryInitialRoute = await AsyncStorage.getItem(
-                "Initial Grocery Route"
-              );
-              let transformedGroceryInitialRoute;
-              if (lastRoute) {
-                transformedGroceryInitialRoute = await JSON.parse(
-                  groceryInitialRoute
-                ).data;
-              }
-              props.navigation.navigate(transformedGroceryInitialRoute);
-            } else {
+            const transformed = await JSON.parse(lastRoute).data;
+            if (!transformed.includes("Fitness")) {
               await AsyncStorage.setItem(
-                "Initial Grocery Route",
+                "Last Grocery Route",
                 JSON.stringify({
                   data: state.route.name,
                 })
               );
             }
-          } else {
-            await AsyncStorage.setItem(
-              "Initial Grocery Route",
-              JSON.stringify({
-                data: state.route.name,
-              })
-            );
           }
           await AsyncStorage.setItem(
             "Last Route",

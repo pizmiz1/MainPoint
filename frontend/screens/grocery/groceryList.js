@@ -72,6 +72,17 @@ const GroceryList = (props) => {
   };
 
   useEffect(() => {
+    const load = async () => {
+      const CrossedGroceries = await AsyncStorage.getItem("Crossed Groceries");
+      if (CrossedGroceries) {
+        const transformedCrossed = await JSON.parse(CrossedGroceries).data;
+        setCrossedGroceries(transformedCrossed);
+      }
+    };
+    load();
+  }, []);
+
+  useEffect(() => {
     setArrays();
     if (groceryList.length === 0) {
       setClearVisible(false);
@@ -167,12 +178,26 @@ const GroceryList = (props) => {
         >
           <View style={{ width: "94%", marginLeft: 20 }}>
             {groceries.map((item, index) => {
-              const crossGroceryOff = () => {
+              const crossGroceryOff = async () => {
                 if (!crossedGroceries.includes(item.id)) {
                   setCrossedGroceries(crossedGroceries.concat([item.id]));
+                  await AsyncStorage.setItem(
+                    "Crossed Groceries",
+                    JSON.stringify({
+                      data: crossedGroceries.concat([item.id]),
+                    })
+                  );
                 } else {
                   setCrossedGroceries(
                     crossedGroceries.filter((currId) => item.id !== currId)
+                  );
+                  await AsyncStorage.setItem(
+                    "Crossed Groceries",
+                    JSON.stringify({
+                      data: crossedGroceries.filter(
+                        (currId) => item.id !== currId
+                      ),
+                    })
                   );
                 }
               };
@@ -427,11 +452,18 @@ const GroceryList = (props) => {
                     marginTop: 10,
                     opacity: clearVisible ? 1 : 0,
                   }}
-                  onPress={() => {
+                  onPress={async () => {
                     const tempArr = groceryList;
                     tempArr.forEach((currGrocery) => {
                       removeGrocery(currGrocery);
                     });
+                    setCrossedGroceries([]);
+                    await AsyncStorage.setItem(
+                      "Crossed Groceries",
+                      JSON.stringify({
+                        data: [],
+                      })
+                    );
                   }}
                   disabled={!clearVisible}
                 >

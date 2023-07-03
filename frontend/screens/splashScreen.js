@@ -225,29 +225,33 @@ const SplashScreen = (props) => {
 
         const mode = await AsyncStorage.getItem("Mode");
         if (!mode) {
-          dispatch(switchMode("Grocery"));
+          dispatch(switchMode("Grocery", props));
         } else {
           const transformedMode = JSON.parse(mode);
           if (transformedMode.mode === "Fitness") {
-            dispatch(switchMode("Fitness"));
+            dispatch(switchMode("Fitness", props));
             const myInitialRoute = await AsyncStorage.getItem(
-              "Initial Fitness Route"
+              "Last Fitness Route"
             );
             if (myInitialRoute) {
               transformedMyInitialRoute = await JSON.parse(myInitialRoute).data;
             }
           } else {
             const myInitialRoute = await AsyncStorage.getItem(
-              "Initial Grocery Route"
+              "Last Grocery Route"
             );
             if (myInitialRoute) {
               transformedMyInitialRoute = await JSON.parse(myInitialRoute).data;
             }
-            dispatch(switchMode("Grocery"));
+            dispatch(switchMode("Grocery", props));
           }
         }
 
-        props.navigation.navigate("App", transformedMyInitialRoute);
+        if (transformedMyInitialRoute) {
+          props.navigation.navigate("App", transformedMyInitialRoute);
+        } else {
+          props.navigation.navigate("App");
+        }
       } else {
         const FitnessDB = await getDocs(collection(db, "Fitness"));
         let FitnessData = [];
