@@ -13,7 +13,7 @@ import ScrollViewContainer from "../../components/scrollViewContainer";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { updateMealAction } from "../../store/actions/updateMeal";
 
-const GroceryMacros = (props) => {
+const Calories = (props) => {
   const dispatch = useDispatch();
 
   const colors = useSelector((state) => state.colors);
@@ -28,6 +28,7 @@ const GroceryMacros = (props) => {
   const [editing, setEditing] = useState(false);
   const [logs, setLogs] = useState([]);
   const [logsSelected, setLogsSelected] = useState(null);
+  const [mealsSelected, setMealsSelected] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -70,6 +71,16 @@ const GroceryMacros = (props) => {
         if (transformed) {
           setLogs(transformed);
         }
+      }
+
+      const mealsSelected = await AsyncStorage.getItem("Meals Selected");
+      if (mealsSelected) {
+        const transformed = await JSON.parse(mealsSelected).data;
+        if (transformed) {
+          setMealsSelected(transformed);
+        }
+      } else {
+        setMealsSelected(true);
       }
 
       const logsSelected = await AsyncStorage.getItem("Logs Selected");
@@ -161,7 +172,7 @@ const GroceryMacros = (props) => {
     return (
       <View
         style={{
-          backgroundColor: "white",
+          backgroundColor: colors.lightGrey,
           borderRadius: 15,
           marginLeft: 20,
           marginRight: 20,
@@ -180,6 +191,7 @@ const GroceryMacros = (props) => {
               alignSelf: "center",
               fontSize: 25,
               width: "90%",
+              color: colors.textColors.headerText,
             }}
           >
             {props.mealName}
@@ -271,16 +283,15 @@ const GroceryMacros = (props) => {
       <View style={{ flex: 0.9 }}>
         <ScrollViewContainer
           keyboardShouldPersistTaps={true}
-          style={{ backgroundColor: colors.lightGrey }}
           content={
             editing ? (
               <View
                 style={{
-                  //flex: 1,
+                  // flex: 1,
                   alignItems: "center",
                   //justifyContent: "center",
                   marginBottom: 65,
-                  backgroundColor: colors.lightGrey,
+                  backgroundColor: colors.secondary,
                   marginTop: 20,
                 }}
               >
@@ -412,7 +423,7 @@ const GroceryMacros = (props) => {
                   alignItems: "center",
                   //justifyContent: "center",
                   marginBottom: 65,
-                  backgroundColor: colors.lightGrey,
+                  backgroundColor: colors.secondary,
                   marginTop: 20,
                 }}
               >
@@ -564,18 +575,82 @@ const GroceryMacros = (props) => {
                     </TouchableOpacity>
                   </View>
                 </View>
-                {meals.map((item, index) => {
-                  return (
-                    <View key={index}>
-                      <MealSwitchComp
-                        mealName={item.Name}
-                        cals={item.Calories}
-                        groceries={item.Groceries}
-                        index={index}
+                <TouchableOpacity
+                  style={{ width: "100%" }}
+                  onPress={async () => {
+                    LayoutAnimation.configureNext(
+                      LayoutAnimation.create(
+                        200,
+                        LayoutAnimation.Types.linear,
+                        LayoutAnimation.Properties.opacity
+                      )
+                    );
+                    setMealsSelected(!mealsSelected);
+                    await AsyncStorage.setItem(
+                      "Meals Selected",
+                      JSON.stringify({
+                        data: !mealsSelected,
+                      })
+                    );
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      //flex: 1,
+                      width: "100%",
+                      marginTop: 30,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 25,
+                        color: colors.textColors.headerText,
+                        fontWeight: mealsSelected ? "bold" : "normal",
+                        marginLeft: 20,
+                      }}
+                    >
+                      Meals
+                    </Text>
+                    <View
+                      style={{
+                        //alignSelf: "center",
+                        marginTop: 5,
+                        //justifyContent: "center",
+                        //flex: 1,
+                        marginRight: 10,
+                      }}
+                    >
+                      <AntDesign
+                        name={mealsSelected ? "arrowup" : "arrowdown"}
+                        color={"black"}
+                        size={20}
                       />
                     </View>
-                  );
-                })}
+                  </View>
+                  <View
+                    style={{
+                      borderBottomColor: "#D4D4D4",
+                      borderBottomWidth: 1,
+                      width: "100%",
+                    }}
+                  />
+                </TouchableOpacity>
+                {mealsSelected
+                  ? meals.map((item, index) => {
+                      return (
+                        <View key={index}>
+                          <MealSwitchComp
+                            mealName={item.Name}
+                            cals={item.Calories}
+                            groceries={item.Groceries}
+                            index={index}
+                          />
+                        </View>
+                      );
+                    })
+                  : null}
                 <View style={{ width: "100%" }}>
                   <TouchableOpacity
                     onPress={async () => {
@@ -642,7 +717,7 @@ const GroceryMacros = (props) => {
                     <View>
                       <View
                         style={{
-                          backgroundColor: colors.darkGrey,
+                          backgroundColor: colors.lightGrey,
                           width: "90%",
                           alignSelf: "center",
                           flex: 1,
@@ -673,7 +748,7 @@ const GroceryMacros = (props) => {
                                   width: "100%",
                                   marginTop: 10,
                                   marginBottom: 10,
-                                  backgroundColor: colors.darkGrey,
+                                  backgroundColor: colors.lightGrey,
                                 }}
                               >
                                 <Text
@@ -693,7 +768,7 @@ const GroceryMacros = (props) => {
                               {logs.length === index + 1 ? undefined : (
                                 <View
                                   style={{
-                                    borderColor: colors.lightGrey,
+                                    borderColor: "white",
                                     borderWidth: 0.5,
                                     width: "95%",
                                     alignSelf: "flex-end",
@@ -858,4 +933,4 @@ const GroceryMacros = (props) => {
   );
 };
 
-export default GroceryMacros;
+export default Calories;

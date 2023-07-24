@@ -23,9 +23,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
         switch (day) {
           case 0: {
             if (power) {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "Monday");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(3).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -34,9 +31,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
                 })
               );
             } else {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "MondayB");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(4).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -49,9 +43,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
           }
           case 1: {
             if (power) {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "Tuesday");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(11).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -60,9 +51,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
                 })
               );
             } else {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "TuesdayB");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(12).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -75,9 +63,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
           }
           case 2: {
             if (power) {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "Wednesday");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(13).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -86,9 +71,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
                 })
               );
             } else {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "WednesdayB");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(14).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -101,9 +83,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
           }
           case 3: {
             if (power) {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "Thursday");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(9).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -112,9 +91,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
                 })
               );
             } else {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "ThursdayB");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(10).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -127,9 +103,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
           }
           case 4: {
             if (power) {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "Friday");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(0).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -138,9 +111,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
                 })
               );
             } else {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "FridayB");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(1).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -153,9 +123,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
           }
           case 5: {
             if (power) {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "Saturday");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(5).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -164,9 +131,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
                 })
               );
             } else {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "SaturdayB");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(6).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -179,9 +143,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
           }
           case 6: {
             if (power) {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "Sunday");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(7).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",
@@ -190,9 +151,6 @@ export const updateExersizes = (day, power, exersizes) => (dispatch) => {
                 })
               );
             } else {
-              // ############ OLD FIRESTORE CODE ##############
-              // const ExersizeDoc = await doc(db, "Fitness", "SundayB");
-              // await updateDoc(ExersizeDoc, { Exersizes: exersizes });
               transformedFitnessData.at(8).Exersizes = exersizes;
               await AsyncStorage.setItem(
                 "Fitness Data",

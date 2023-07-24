@@ -4,9 +4,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const getExersizes = () => (dispatch) => {
   return new Promise(async (resolve) => {
     try {
-      // ############ OLD FIRESTORE CODE ##############
-      // const FitnessDB = await getDocs(collection(db, "Fitness"));
-
       const FitnessData = await AsyncStorage.getItem("Fitness Data");
       if (FitnessData) {
         const transformedFitnessData = await JSON.parse(FitnessData).data;

@@ -18,6 +18,7 @@ import { UPDATE_RUNNING_DONE } from "../actions/updateRunningDone";
 // Grocery
 import { GET_GROCERIES } from "../actions/getGroceries";
 import { ADD_GROCERY } from "../actions/addGrocery";
+import { ADD_NEW_GROCERY } from "../actions/addNewGrocery";
 import { REMOVE_GROCERY } from "../actions/removeGrocery";
 import { GET_MEALS } from "../actions/getMeals";
 import { REMOVE_MEAL } from "../actions/removeMeal";
@@ -383,13 +384,28 @@ const rootReducer = (state, action) => {
         groceryList: state.groceryList.concat([action.grocery]),
       };
     }
-    case REMOVE_GROCERY: {
+    case ADD_NEW_GROCERY: {
       return {
         ...state,
-        groceryList: state.groceryList.filter(
-          (currGrocery) => currGrocery.Name !== action.grocery.Name
-        ),
+        allGroceries: state.allGroceries.concat([action.grocery]),
       };
+    }
+    case REMOVE_GROCERY: {
+      if (action.all) {
+        return {
+          ...state,
+          allGroceries: state.allGroceries.filter(
+            (currGrocery) => currGrocery.Name !== action.grocery.Name
+          ),
+        };
+      } else {
+        return {
+          ...state,
+          groceryList: state.groceryList.filter(
+            (currGrocery) => currGrocery.Name !== action.grocery.Name
+          ),
+        };
+      }
     }
     case GET_MEALS: {
       return {

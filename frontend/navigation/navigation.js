@@ -14,7 +14,7 @@ import SplashScreen from "../screens/splashScreen";
 //grocery screens
 import GroceryList from "../screens/grocery/groceryList";
 import GroceryMeals from "../screens/grocery/groceryMeals";
-import GroceryMacros from "../screens/grocery/groceryMacros";
+import GroceryGroceries from "../screens/grocery/groceryGroceries";
 
 //fitness screens
 import FitnessDay from "../screens/fitness/fitnessDay";
@@ -27,6 +27,7 @@ import RunningEdit from "../screens/fitness/runningEdit";
 import RunningDay from "../screens/fitness/runningDay";
 import RunningWeek from "../screens/fitness/runningWeek";
 import RunningTotal from "../screens/fitness/runningTotal";
+import Calories from "../screens/fitness/calories";
 
 //components
 import SwitchIconComp from "../components/switchIconComp";
@@ -198,6 +199,25 @@ const MyDrawerNav = (props) => {
                     }}
                   >
                     Program
+                  </Text>
+                ),
+              }}
+            />
+            <MyDrawer.Screen
+              name="Fitness Calories"
+              component={Calories}
+              options={{
+                headerTitle: "Calories",
+                drawerLabel: ({ focused, color }) => (
+                  <Text
+                    style={{
+                      fontWeight: focused ? "bold" : "normal",
+                      textDecorationLine: focused ? "underline" : "none",
+                      color,
+                      fontSize: 20,
+                    }}
+                  >
+                    Calories
                   </Text>
                 ),
               }}
@@ -443,10 +463,10 @@ const MyDrawerNav = (props) => {
           }}
         />
         <MyDrawer.Screen
-          name="Grocery Calories"
-          component={GroceryMacros}
+          name="Grocery Groceries"
+          component={GroceryGroceries}
           options={{
-            headerTitle: "Macros",
+            headerTitle: "Groceries",
             drawerLabel: ({ focused, color }) => (
               <Text
                 style={{
@@ -456,7 +476,7 @@ const MyDrawerNav = (props) => {
                   fontSize: 20,
                 }}
               >
-                Macros
+                Groceries
               </Text>
             ),
           }}

@@ -50,9 +50,6 @@ const GroceryMeals = (props) => {
 
     useEffect(() => {
       const test = async () => {
-        // ############ OLD FIRESTORE CODE ##############
-        // const GroceryListDoc = await doc(db, "Grocery", "GroceryList");
-        // await updateDoc(GroceryListDoc, { Groceries: groceryList });
         const GroceryData = await AsyncStorage.getItem("Grocery Data");
         if (GroceryData) {
           const transformedGroceryData = await JSON.parse(GroceryData).data;
@@ -390,9 +387,6 @@ const GroceryMeals = (props) => {
         {editing ? (
           <TouchableOpacity
             onPress={async () => {
-              // ############ OLD FIRESTORE CODE ##############
-              // const MealsDoc = doc(db, "Grocery", "Meals");
-              // await updateDoc(MealsDoc, { Meals: meals });
               const GroceryData = await AsyncStorage.getItem("Grocery Data");
               if (GroceryData) {
                 const transformedGroceryData = await JSON.parse(GroceryData)

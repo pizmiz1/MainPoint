@@ -40,6 +40,7 @@ const GroceryList = (props) => {
   const [crossedGroceries, setCrossedGroceries] = useState([]);
   const [clearVisible, setClearVisible] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [groceryNotFound, setGroceryNotFound] = useState(false);
 
   const setArrays = () => {
     setProduceList(
@@ -94,7 +95,7 @@ const GroceryList = (props) => {
   const dispatch = useDispatch();
 
   const removeGrocery = async (passedGrocery) => {
-    await dispatch(removeGroceryAction(passedGrocery));
+    await dispatch(removeGroceryAction(passedGrocery, false));
   };
 
   const CategoryComponent = (props) => {
@@ -293,71 +294,8 @@ const GroceryList = (props) => {
       setModalVisible(false);
       dispatch(addGroceryAction(newGrocery));
     } else {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: [
-            "Cancel",
-            "Produce",
-            "Fish",
-            "Meat",
-            "Grain",
-            "Dairy",
-            "Condiment",
-            "Snack",
-            "Frozen",
-            "Non Food",
-          ],
-          cancelButtonIndex: 0,
-          userInterfaceStyle: "light",
-        },
-        async (buttonIndex) => {
-          switch (buttonIndex) {
-            case 0: {
-              return;
-            }
-            case 1: {
-              newGrocery.Category = "Produce";
-              break;
-            }
-            case 2: {
-              newGrocery.Category = "Fish";
-              break;
-            }
-            case 3: {
-              newGrocery.Category = "Meat";
-              break;
-            }
-            case 4: {
-              newGrocery.Category = "Grain";
-              break;
-            }
-            case 5: {
-              newGrocery.Category = "Dairy";
-              break;
-            }
-            case 6: {
-              newGrocery.Category = "Condiment";
-              break;
-            }
-            case 7: {
-              newGrocery.Category = "Snack";
-              break;
-            }
-            case 8: {
-              newGrocery.Category = "Frozen";
-              break;
-            }
-            case 9: {
-              newGrocery.Category = "Non Food";
-              break;
-            }
-          }
-          allGroceries.push(newGrocery);
-          updateNewGroceryName("");
-          setModalVisible(false);
-          dispatch(addGroceryAction(newGrocery));
-        }
-      );
+      setGroceryNotFound(true);
+      return;
     }
   };
 
@@ -395,14 +333,17 @@ const GroceryList = (props) => {
               <TextInput
                 value={newGroceryName}
                 placeholder="Name"
-                onChangeText={updateNewGroceryName}
+                onChangeText={(text) => {
+                  setGroceryNotFound(false);
+                  updateNewGroceryName(text);
+                }}
                 style={{
                   borderBottomWidth: 1,
                   padding: 5,
                   borderBottomColor: colors.darkGrey,
                   color: "black",
                   fontSize: 15,
-                  width: "60%",
+                  width: "90%",
                 }}
                 textAlign="center"
                 placeholderTextColor={colors.darkerGrey}
@@ -410,19 +351,25 @@ const GroceryList = (props) => {
                 autoFocus={true}
                 returnKeyType="done"
                 onSubmitEditing={addGrocery}
+                blurOnSubmit={false}
                 autoCapitalize="words"
               />
+              <Text style={{ color: "red", opacity: groceryNotFound ? 1 : 0 }}>
+                Grocery Not Found
+              </Text>
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
                   width: "100%",
-                  marginTop: 20,
+                  marginTop: 10,
                 }}
               >
                 <TouchableOpacity
                   onPress={() => {
+                    setGroceryNotFound(false);
                     setModalVisible(false);
+                    updateNewGroceryName("");
                   }}
                 >
                   <Text style={{ color: "red", fontSize: 17 }}>Cancel</Text>
@@ -578,17 +525,6 @@ const GroceryList = (props) => {
                 )
               );
               setEditing(false);
-              // ############ OLD FIRESTORE CODE ##############
-              // const GroceryListDoc = await doc(db, "Grocery", "GroceryList");
-              // await updateDoc(GroceryListDoc, { Groceries: groceryList });
-              // const AllGroceryListDoc = await doc(
-              //   db,
-              //   "Grocery",
-              //   "AllGroceries"
-              // );
-              // await updateDoc(AllGroceryListDoc, {
-              //   AllGroceries: allGroceries,
-              // });
               const GroceryData = await AsyncStorage.getItem("Grocery Data");
               if (GroceryData) {
                 const transformedGroceryData = await JSON.parse(GroceryData)

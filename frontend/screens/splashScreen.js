@@ -277,14 +277,6 @@ const SplashScreen = (props) => {
         );
         load();
       }
-      // ############ OLD FIRESTORE CODE ##############
-      // const FitnessDB = await getDocs(collection(db, "Fitness"));
-      // await dispatch(updateBench(transformedFitnessData.at(2).Bench));
-      // await dispatch(updateSquat(FitnessDB.docs.at(2).data().Squat));
-      // await dispatch(updateOHP(FitnessDB.docs.at(2).data().OHP));
-      // await dispatch(getExersizes());
-      // await dispatch(getGroceries());
-      // await dispatch(getMeals());
     };
 
     load();

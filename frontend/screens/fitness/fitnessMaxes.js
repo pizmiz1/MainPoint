@@ -69,9 +69,6 @@ const FitnessMaxes = (props) => {
               if (bench !== "") {
                 setBenchUpdating(true);
                 await dispatch(updateBench(bench));
-                // ############ OLD FIRESTORE CODE ##############
-                // const MaxesDoc = await doc(db, "Fitness", "Maxes");
-                // await updateDoc(MaxesDoc, { Bench: bench });
                 const FitnessData = await AsyncStorage.getItem("Fitness Data");
                 if (FitnessData) {
                   const transformedFitnessData = await JSON.parse(FitnessData)
@@ -130,9 +127,6 @@ const FitnessMaxes = (props) => {
               if (squat !== "") {
                 setSquatUpdating(true);
                 await dispatch(updateSquat(squat));
-                // ############ OLD FIRESTORE CODE ##############
-                // const MaxesDoc = await doc(db, "Fitness", "Maxes");
-                // await updateDoc(MaxesDoc, { Squat: squat });
                 const FitnessData = await AsyncStorage.getItem("Fitness Data");
                 if (FitnessData) {
                   const transformedFitnessData = await JSON.parse(FitnessData)
@@ -192,9 +186,6 @@ const FitnessMaxes = (props) => {
               if (OHP !== "") {
                 setOHPUpdating(true);
                 await dispatch(updateOHP(OHP));
-                // ############ OLD FIRESTORE CODE ##############
-                // const MaxesDoc = await doc(db, "Fitness", "Maxes");
-                // await updateDoc(MaxesDoc, { OHP: OHP });
                 const FitnessData = await AsyncStorage.getItem("Fitness Data");
                 if (FitnessData) {
                   const transformedFitnessData = await JSON.parse(FitnessData)
