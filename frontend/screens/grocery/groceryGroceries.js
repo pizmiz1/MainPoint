@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Text,
   View,
@@ -18,6 +18,7 @@ import { removeGroceryAction } from "../../store/actions/removeGrocery";
 import { addNewGroceryAction } from "../../store/actions/addNewGrocery";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SelectDropdown from "react-native-select-dropdown";
+import { Notifier, Easing, NotifierComponents } from "react-native-notifier";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -44,14 +45,16 @@ const GroceryGroceries = (props) => {
   const [groceryInvalid, setGroceryInvalid] = useState(false);
   const [catInvalid, setCatInvalid] = useState(false);
 
+  const oldGrocery = useRef(null);
+
   const cats = [
     "Produce",
     "Fish",
     "Meat",
-    "Grains",
+    "Grain",
     "Dairy",
-    "Condiments",
-    "Snacks",
+    "Condiment",
+    "Snack",
     "Frozen",
     "Non Food",
   ];
@@ -110,13 +113,22 @@ const GroceryGroceries = (props) => {
       case "Grains": {
         return "tan";
       }
+      case "Grain": {
+        return "tan";
+      }
       case "Dairy": {
         return "teal";
       }
       case "Condiments": {
         return "#f5ce42";
       }
+      case "Condiment": {
+        return "#f5ce42";
+      }
       case "Snacks": {
+        return "#f27e1f";
+      }
+      case "Snack": {
         return "#f27e1f";
       }
       case "Non Food": {
@@ -206,7 +218,11 @@ const GroceryGroceries = (props) => {
                 return (
                   <View key={index}>
                     <View style={{ flexDirection: "row", width: "100%" }}>
-                      <TouchableOpacity style={{ flex: editing ? 0 : 1 }}>
+                      <TouchableOpacity
+                        style={{ flex: editing ? 0 : 1 }}
+                        onPress={() => props.selectGrocery(item)}
+                        disabled={!editing}
+                      >
                         <Text
                           style={{
                             fontSize: 25,
@@ -287,58 +303,53 @@ const GroceryGroceries = (props) => {
     let newGrocery = {
       id: uuid.v4(),
       Name: newGroceryName,
-      Category: "",
+      Category: newCat,
     };
 
-    switch (newCat) {
-      case "Produce": {
-        newGrocery.Category = "Produce";
-        break;
+    let toastMessage = "Added";
+
+    if (oldGrocery.current !== null) {
+      if (
+        newGrocery.Category === oldGrocery.current.Category &&
+        newGrocery.Name === oldGrocery.current.Name
+      ) {
+        updateNewGroceryName("");
+        setNewCat(null);
+        setCatInvalid(false);
+        setGroceryInvalid(false);
+        setModalVisible(false);
+        oldGrocery.current = null;
+        return;
       }
-      case "Fish": {
-        newGrocery.Category = "Fish";
-        break;
-      }
-      case "Meat": {
-        newGrocery.Category = "Meat";
-        break;
-      }
-      case "Grains": {
-        newGrocery.Category = "Grain";
-        break;
-      }
-      case "Dairy": {
-        newGrocery.Category = "Dairy";
-        break;
-      }
-      case "Condiments": {
-        newGrocery.Category = "Condiment";
-        break;
-      }
-      case "Snacks": {
-        newGrocery.Category = "Snack";
-        break;
-      }
-      case "Non Food": {
-        newGrocery.Category = "Non Food";
-        break;
-      }
-      case "Frozen": {
-        newGrocery.Category = "Frozen";
-        break;
-      }
-      default: {
-        newGrocery.Category = "Produce";
-        break;
-      }
+      dispatch(removeGroceryAction(oldGrocery.current, true));
+      toastMessage = "Updated";
     }
+
+    dispatch(addNewGroceryAction(newGrocery));
 
     updateNewGroceryName("");
     setNewCat(null);
     setCatInvalid(false);
     setGroceryInvalid(false);
     setModalVisible(false);
-    dispatch(addNewGroceryAction(newGrocery));
+    oldGrocery.current = null;
+
+    Notifier.showNotification({
+      title: toastMessage,
+      Component: NotifierComponents.Alert,
+      componentProps: {
+        alertType: "success",
+        backgroundColor: backgroundColor(newCat),
+      },
+      duration: 2000,
+    });
+  };
+
+  const changeGrocery = (grocery) => {
+    updateNewGroceryName(grocery.Name);
+    setNewCat(grocery.Category);
+    oldGrocery.current = grocery;
+    setModalVisible(true);
   };
 
   return (
@@ -356,6 +367,7 @@ const GroceryGroceries = (props) => {
             setCatInvalid(false);
             setGroceryInvalid(false);
             updateNewGroceryName("");
+            oldGrocery.current = null;
           }}
         >
           <View
@@ -435,6 +447,7 @@ const GroceryGroceries = (props) => {
                       setNewCat(selectedItem);
                       setCatInvalid(false);
                     }}
+                    defaultValue={newCat !== null ? newCat : null}
                     buttonStyle={{ borderRadius: 8, backgroundColor: "white" }}
                     renderCustomizedButtonChild={(selectedItem, index) => {
                       return (
@@ -515,13 +528,14 @@ const GroceryGroceries = (props) => {
                       setCatInvalid(false);
                       setGroceryInvalid(false);
                       updateNewGroceryName("");
+                      oldGrocery.current = null;
                     }}
                   >
                     <Text style={{ color: "red", fontSize: 17 }}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={addGrocery}>
                     <Text style={{ color: colors.primary, fontSize: 17 }}>
-                      Add
+                      {oldGrocery.current === null ? "Add" : "Update"}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -545,6 +559,7 @@ const GroceryGroceries = (props) => {
                   catName={"Produce"}
                   groceries={produceList}
                   remove={removeGrocery}
+                  selectGrocery={changeGrocery}
                 />
               ) : undefined}
               {fishList.length !== 0 ? (
@@ -552,6 +567,7 @@ const GroceryGroceries = (props) => {
                   catName={"Fish"}
                   groceries={fishList}
                   remove={removeGrocery}
+                  selectGrocery={changeGrocery}
                 />
               ) : undefined}
               {meatList.length !== 0 ? (
@@ -559,6 +575,7 @@ const GroceryGroceries = (props) => {
                   catName={"Meat"}
                   groceries={meatList}
                   remove={removeGrocery}
+                  selectGrocery={changeGrocery}
                 />
               ) : undefined}
               {grainsList.length !== 0 ? (
@@ -566,6 +583,7 @@ const GroceryGroceries = (props) => {
                   catName={"Grains"}
                   groceries={grainsList}
                   remove={removeGrocery}
+                  selectGrocery={changeGrocery}
                 />
               ) : undefined}
               {dairyList.length !== 0 ? (
@@ -573,6 +591,7 @@ const GroceryGroceries = (props) => {
                   catName={"Dairy"}
                   groceries={dairyList}
                   remove={removeGrocery}
+                  selectGrocery={changeGrocery}
                 />
               ) : undefined}
               {condimentsList.length !== 0 ? (
@@ -580,6 +599,7 @@ const GroceryGroceries = (props) => {
                   catName={"Condiments"}
                   groceries={condimentsList}
                   remove={removeGrocery}
+                  selectGrocery={changeGrocery}
                 />
               ) : undefined}
               {snacksList.length !== 0 ? (
@@ -587,6 +607,7 @@ const GroceryGroceries = (props) => {
                   catName={"Snacks"}
                   groceries={snacksList}
                   remove={removeGrocery}
+                  selectGrocery={changeGrocery}
                 />
               ) : undefined}
               {frozenList.length !== 0 ? (
@@ -594,6 +615,7 @@ const GroceryGroceries = (props) => {
                   catName={"Frozen"}
                   groceries={frozenList}
                   remove={removeGrocery}
+                  selectGrocery={changeGrocery}
                 />
               ) : undefined}
               {nonFoodList.length !== 0 ? (
@@ -601,6 +623,7 @@ const GroceryGroceries = (props) => {
                   catName={"Non Food"}
                   groceries={nonFoodList}
                   remove={removeGrocery}
+                  selectGrocery={changeGrocery}
                 />
               ) : undefined}
             </View>
