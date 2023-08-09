@@ -1,45 +1,30 @@
 import React from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { useSelector } from "react-redux";
 
 const Card = (props) => {
-  if (props.isTouchable) {
-    return (
-      <TouchableOpacity
-        style={{
-          ...props.style,
-          shadowColor: "#000000",
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-          shadowRadius: 3,
-          shadowOpacity: 0.5,
-          borderRadius: 20,
-        }}
-        onPress={props.onPress}
-      >
-        {props.content}
-      </TouchableOpacity>
-    );
-  } else {
-    return (
-      <View
-        style={{
-          ...props.style,
-          shadowColor: "#000000",
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-          shadowRadius: 3,
-          shadowOpacity: 0.5,
-          borderRadius: 20,
-        }}
-      >
-        {props.content}
-      </View>
-    );
-  }
+  const colors = useSelector((state) => state.colors);
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        width: "100%",
+        borderRadius: 20,
+        padding: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.23,
+        shadowRadius: 2.62,
+        ...props.style,
+      }}
+    >
+      {props.content}
+    </View>
+  );
 };
 
 export default Card;

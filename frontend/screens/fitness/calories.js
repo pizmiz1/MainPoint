@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   View,
@@ -7,11 +7,14 @@ import {
   LayoutAnimation,
   TextInput,
   Switch,
+  Animated,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
 import { AntDesign, Entypo } from "@expo/vector-icons";
 import { updateMealAction } from "../../store/actions/updateMeal";
+import Card from "../../components/card";
+import { AnimatedCircularProgress } from "react-native-circular-progress";
 
 const Calories = (props) => {
   const dispatch = useDispatch();
@@ -23,12 +26,13 @@ const Calories = (props) => {
   const [calories, setCalories] = useState(0);
   const [bodyweight, setBodyweight] = useState(0);
   const [lbsPerWeek, setLbsPerWeek] = useState(0);
-  const [calsToSubtract, setCalsToSubtract] = useState(0);
-  const [calsToAdd, setCalsToAdd] = useState(0);
+  const [calsTyped, setCalsTyped] = useState("");
   const [editing, setEditing] = useState(false);
   const [logs, setLogs] = useState([]);
   const [logsSelected, setLogsSelected] = useState(null);
   const [mealsSelected, setMealsSelected] = useState(null);
+
+  const errorFade = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const load = async () => {
@@ -100,6 +104,97 @@ const Calories = (props) => {
     return parseInt(bodyweight) * 15 - parseFloat(lbsPerWeek) * 420;
   };
 
+  const subtractOrAddCals = async (subtract) => {
+    if (calsTyped === "") {
+      Animated.timing(errorFade, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+      return;
+    }
+    setCalsTyped("");
+    let newCals;
+    if (subtract) {
+      newCals = parseInt(calories) - parseInt(calsTyped);
+    } else {
+      newCals = parseInt(calories) + parseInt(calsTyped);
+    }
+    setCalories(newCals);
+    await AsyncStorage.setItem(
+      "Calories",
+      JSON.stringify({
+        data: newCals,
+      })
+    );
+    const log = {
+      type: subtract ? "sub" : "add",
+      cals: calsTyped,
+    };
+    setLogs(logs.concat([log]));
+    await AsyncStorage.setItem(
+      "Logs",
+      JSON.stringify({
+        data: logs.concat([log]),
+      })
+    );
+  };
+
+  const handleCalorieEditing = async () => {
+    if (!editing) {
+      LayoutAnimation.configureNext(
+        LayoutAnimation.create(
+          200,
+          LayoutAnimation.Types.linear,
+          LayoutAnimation.Properties.opacity
+        )
+      );
+      setEditing(true);
+    } else {
+      LayoutAnimation.configureNext(
+        LayoutAnimation.create(
+          200,
+          LayoutAnimation.Types.linear,
+          LayoutAnimation.Properties.opacity
+        )
+      );
+      if (calories === "") {
+        setCalories(0);
+      }
+      await AsyncStorage.setItem(
+        "Calories",
+        JSON.stringify({
+          data: calories,
+        })
+      );
+      await AsyncStorage.setItem(
+        "Bodyweight",
+        JSON.stringify({
+          data: bodyweight,
+        })
+      );
+      await AsyncStorage.setItem(
+        "LbsPerWeek",
+        JSON.stringify({
+          data: lbsPerWeek,
+        })
+      );
+      const GroceryData = await AsyncStorage.getItem("Grocery Data");
+      if (GroceryData) {
+        const transformedGroceryData = await JSON.parse(GroceryData).data;
+        transformedGroceryData.at(2).Meals = meals;
+        await AsyncStorage.setItem(
+          "Grocery Data",
+          JSON.stringify({
+            data: transformedGroceryData,
+          })
+        );
+      }
+      setEditing(false);
+    }
+  };
+
+  // COMPS
   const MealSwitchComp = (props) => {
     const [mealCals, updateMealCals] = useState(
       props.cals !== undefined ? props.cals.toString() : ""
@@ -125,17 +220,6 @@ const Calories = (props) => {
             data: parseInt(calories) + parseInt(mealCals),
           })
         );
-        const log = {
-          type: "add",
-          cals: mealCals,
-        };
-        setLogs(logs.concat([log]));
-        await AsyncStorage.setItem(
-          "Logs",
-          JSON.stringify({
-            data: logs.concat([log]),
-          })
-        );
       } else {
         const test = switchedMeals.concat([props.index]);
         setSwitchedMeals(test);
@@ -155,24 +239,24 @@ const Calories = (props) => {
             data: parseInt(calories) - parseInt(mealCals),
           })
         );
-        const log = {
-          type: "subtract",
-          cals: mealCals,
-        };
-        setLogs(logs.concat([log]));
-        await AsyncStorage.setItem(
-          "Logs",
-          JSON.stringify({
-            data: logs.concat([log]),
-          })
-        );
       }
+      const log = {
+        type: alreadySwitched ? "add" : "subtract",
+        cals: mealCals,
+      };
+      setLogs(logs.concat([log]));
+      await AsyncStorage.setItem(
+        "Logs",
+        JSON.stringify({
+          data: logs.concat([log]),
+        })
+      );
     };
 
     return (
       <View
         style={{
-          backgroundColor: colors.lightGrey,
+          backgroundColor: "white",
           borderRadius: 15,
           marginLeft: 20,
           marginRight: 20,
@@ -260,8 +344,6 @@ const Calories = (props) => {
                 maxLength={4}
                 style={{
                   fontSize: 20,
-                  borderBottomColor: "grey",
-                  borderBottomWidth: 0.5,
                   width: "250%",
                   textAlign: "center",
                 }}
@@ -279,393 +361,162 @@ const Calories = (props) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ flex: 0.9 }}>
-        <ScrollViewContainer
-          keyboardShouldPersistTaps={true}
-          content={
-            editing ? (
-              <View
+    <Animated.View style={{ flex: 1 }}>
+      <ScrollViewContainer
+        keyboardShouldPersistTaps={true}
+        content={
+          <View
+            style={{
+              //flex: 1,
+              alignItems: "center",
+              //justifyContent: "center",
+              width: "90%",
+              alignSelf: "center",
+              //marginBottom: 65,
+              backgroundColor: colors.secondary,
+              marginTop: 20,
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "100%",
+                marginBottom: 10,
+                alignItems: "flex-end",
+              }}
+            >
+              <Text
                 style={{
-                  // flex: 1,
-                  alignItems: "center",
-                  //justifyContent: "center",
-                  marginBottom: 65,
-                  backgroundColor: colors.secondary,
-                  marginTop: 20,
+                  fontSize: 30,
+
+                  fontWeight: "bold",
                 }}
               >
-                <Text
-                  style={{
-                    fontSize: 40,
-                    textDecorationLine: "underline",
-                    color: colors.textColors.headerText,
-                    marginTop: 0,
-                  }}
-                >
-                  Calories Remaining
-                </Text>
-                <Text
-                  style={{ fontSize: 70, color: colors.textColors.headerText }}
-                >
-                  {calories}
-                </Text>
-                {meals.map((item, index) => {
-                  return (
-                    <View key={index}>
-                      <MealSwitchComp
-                        mealName={item.Name}
-                        cals={item.Calories}
-                        groceries={item.Groceries}
-                        index={index}
-                      />
-                    </View>
-                  );
-                })}
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                    width: "100%",
-                    marginTop: 70,
-                  }}
-                >
+                Calories
+              </Text>
+              <TouchableOpacity onPress={handleCalorieEditing}>
+                {editing ? (
+                  <AntDesign name="check" size={24} color="#3078cb" />
+                ) : (
+                  <Entypo name="new-message" size={24} color="#3078cb" />
+                )}
+              </TouchableOpacity>
+            </View>
+            <Card
+              style={{ backgroundColor: colors.lightGrey }}
+              content={
+                <View>
                   <View style={{ alignItems: "center" }}>
-                    <Text>Bodyweight</Text>
-                    <TextInput
-                      value={bodyweight}
-                      onChangeText={setBodyweight}
-                      keyboardType="numeric"
-                      maxLength={3}
-                      style={{
-                        fontSize: 30,
-                        borderBottomColor: "grey",
-                        borderBottomWidth: 1,
-                        width: "90%",
-                        textAlign: "center",
-                      }}
-                      placeholder="100"
-                      placeholderTextColor="#D4D4D4"
-                    />
-                  </View>
-                  <View style={{ alignItems: "center" }}>
-                    <Text>Lbs Per Week</Text>
-                    <TextInput
-                      value={lbsPerWeek}
-                      onChangeText={setLbsPerWeek}
-                      keyboardType="numeric"
-                      maxLength={3}
-                      style={{
-                        fontSize: 30,
-                        borderBottomColor: "grey",
-                        borderBottomWidth: 1,
-                        width: "90%",
-                        textAlign: "center",
-                      }}
-                      placeholder="1.5"
-                      placeholderTextColor="#D4D4D4"
-                    />
-                  </View>
-                </View>
-                <TouchableOpacity
-                  onPress={async () => {
-                    setCalories(calcCalsRemaining());
-                    await AsyncStorage.setItem(
-                      "Calories",
-                      JSON.stringify({
-                        data: calcCalsRemaining(),
-                      })
-                    );
-                    setSwitchedMeals([]);
-                    await AsyncStorage.setItem(
-                      "Switched Meals",
-                      JSON.stringify({
-                        data: [],
-                      })
-                    );
-                    const log = {
-                      type: "add",
-                      cals: "Reset",
-                    };
-                    setLogs(logs.concat([log]));
-                    await AsyncStorage.setItem(
-                      "Logs",
-                      JSON.stringify({
-                        data: logs.concat([log]),
-                      })
-                    );
-                  }}
-                  style={{
-                    padding: 5,
-                    borderRadius: 20,
-                    width: "50%",
-                    alignSelf: "center",
-                    backgroundColor: colors.primary,
-                    marginTop: 15,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: colors.textColors.headerText,
-                      fontSize: 20,
-                      textAlign: "center",
-                    }}
-                  >
-                    Reset Cals
-                  </Text>
-                </TouchableOpacity>
-                <View style={{ marginBottom: 200 }} />
-              </View>
-            ) : (
-              <View
-                style={{
-                  //flex: 1,
-                  alignItems: "center",
-                  //justifyContent: "center",
-                  marginBottom: 65,
-                  backgroundColor: colors.secondary,
-                  marginTop: 20,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 40,
-                    textDecorationLine: "underline",
-                    color: colors.textColors.headerText,
-                    marginTop: 0,
-                  }}
-                >
-                  Calories Remaining
-                </Text>
-                <Text
-                  style={{ fontSize: 70, color: colors.textColors.headerText }}
-                >
-                  {calories}
-                </Text>
-                <View
-                  style={{
-                    width: "100%",
-                    marginTop: 15,
-                    marginBottom: 15,
-                    alignItems: "center",
-                    flexDirection: "row",
-                    justifyContent: "space-around",
-                  }}
-                >
-                  <View style={{ width: "24%", alignItems: "center" }}>
-                    <Text>Food</Text>
-                    <TextInput
-                      value={calsToSubtract}
-                      onChangeText={setCalsToSubtract}
-                      keyboardType="number-pad"
-                      maxLength={4}
-                      style={{
-                        fontSize: 30,
-                        borderBottomColor: "grey",
-                        borderBottomWidth: 1,
-                        textAlign: "center",
-                        width: "90%",
-                      }}
-                      placeholder="500"
-                      placeholderTextColor="#D4D4D4"
-                    />
-                    <TouchableOpacity
-                      onPress={async () => {
-                        setCalories(
-                          parseInt(calories) - parseInt(calsToSubtract)
-                        );
-                        await AsyncStorage.setItem(
-                          "Calories",
-                          JSON.stringify({
-                            data: parseInt(calories) - parseInt(calsToSubtract),
-                          })
-                        );
-                        const log = {
-                          type: "sub",
-                          cals: calsToSubtract,
-                        };
-                        setLogs(logs.concat([log]));
-                        await AsyncStorage.setItem(
-                          "Logs",
-                          JSON.stringify({
-                            data: logs.concat([log]),
-                          })
-                        );
-                        setCalsToSubtract(0);
-                      }}
-                      style={{
-                        padding: 5,
-                        borderRadius: 20,
-                        width: "100%",
-                        alignSelf: "center",
-                        backgroundColor: colors.primary,
-                        marginTop: 15,
-                        width: "130%",
-                      }}
+                    <AnimatedCircularProgress
+                      size={180}
+                      width={15}
+                      backgroundWidth={15}
+                      fill={(calories / calcCalsRemaining()) * 100}
+                      tintColor="#ff0000"
+                      tintColorSecondary="#00ff00"
+                      backgroundColor="#7d7a7a"
+                      arcSweepAngle={240}
+                      rotation={240}
+                      lineCap="round"
                     >
-                      <Text
-                        style={{
-                          color: colors.textColors.headerText,
-                          fontSize: 20,
-                          textAlign: "center",
-                        }}
-                      >
-                        Subtract
-                      </Text>
-                    </TouchableOpacity>
+                      {(fill) => (
+                        <Text
+                          style={{
+                            textAlign: "center",
+                            color: "black",
+                            fontSize: 45,
+                          }}
+                        >
+                          {calories}
+                        </Text>
+                      )}
+                    </AnimatedCircularProgress>
                   </View>
-                  <View style={{ width: "24%", alignItems: "center" }}>
-                    <Text>Exercise</Text>
-                    <TextInput
-                      value={calsToAdd}
-                      onChangeText={setCalsToAdd}
-                      keyboardType="number-pad"
-                      maxLength={4}
-                      style={{
-                        fontSize: 30,
-                        borderBottomColor: "grey",
-                        borderBottomWidth: 1,
-                        textAlign: "center",
-                        width: "100%",
-                      }}
-                      placeholder="500"
-                      placeholderTextColor="#D4D4D4"
-                    />
-                    <TouchableOpacity
-                      onPress={async () => {
-                        setCalories(parseInt(calories) + parseInt(calsToAdd));
-                        await AsyncStorage.setItem(
-                          "Calories",
-                          JSON.stringify({
-                            data: parseInt(calories) + parseInt(calsToAdd),
-                          })
-                        );
-                        const log = {
-                          type: "add",
-                          cals: calsToAdd,
-                        };
-                        setLogs(logs.concat([log]));
-                        await AsyncStorage.setItem(
-                          "Logs",
-                          JSON.stringify({
-                            data: logs.concat([log]),
-                          })
-                        );
-                        setCalsToAdd(0);
-                      }}
-                      style={{
-                        padding: 5,
-                        borderRadius: 20,
-                        width: "100%",
-                        alignSelf: "center",
-                        backgroundColor: colors.primary,
-                        marginTop: 15,
-                        width: "130%",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: colors.textColors.headerText,
-                          fontSize: 20,
-                          textAlign: "center",
-                        }}
-                      >
-                        Add
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                <TouchableOpacity
-                  style={{ width: "100%" }}
-                  onPress={async () => {
-                    LayoutAnimation.configureNext(
-                      LayoutAnimation.create(
-                        200,
-                        LayoutAnimation.Types.linear,
-                        LayoutAnimation.Properties.opacity
-                      )
-                    );
-                    setMealsSelected(!mealsSelected);
-                    await AsyncStorage.setItem(
-                      "Meals Selected",
-                      JSON.stringify({
-                        data: !mealsSelected,
-                      })
-                    );
-                  }}
-                >
                   <View
                     style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      //flex: 1,
                       width: "100%",
-                      marginTop: 30,
+                      alignItems: "center",
+                      borderRadius: 20,
+                      padding: 5,
+                      flexDirection: "row",
+                      flex: 1,
+                      justifyContent: "space-around",
+                      marginTop: -15,
                     }}
                   >
+                    <TouchableOpacity
+                      onPress={() => {
+                        subtractOrAddCals(true);
+                      }}
+                      style={{
+                        borderRadius: 20,
+                        alignSelf: "center",
+                        opacity: 1,
+                      }}
+                    >
+                      <AntDesign name="minuscircleo" size={27} color="red" />
+                    </TouchableOpacity>
+
+                    <TextInput
+                      value={calsTyped}
+                      onChangeText={(text) => {
+                        errorFade.setValue(0);
+                        setCalsTyped(text);
+                      }}
+                      keyboardType="number-pad"
+                      maxLength={4}
+                      style={{
+                        fontSize: 30,
+                        textAlign: "center",
+                        width: "30%",
+                      }}
+                      placeholder="500"
+                      placeholderTextColor="#a1a6ab"
+                    />
+
+                    <TouchableOpacity
+                      onPress={() => {
+                        subtractOrAddCals(false);
+                      }}
+                      style={{
+                        borderRadius: 20,
+                        alignSelf: "center",
+                        opacity: 1,
+                      }}
+                    >
+                      <AntDesign name="pluscircleo" size={27} color="green" />
+                    </TouchableOpacity>
+                  </View>
+                  <Animated.View style={{ opacity: errorFade }}>
                     <Text
                       style={{
-                        fontSize: 25,
-                        color: colors.textColors.headerText,
-                        fontWeight: mealsSelected ? "bold" : "normal",
-                        marginLeft: 20,
+                        color: "red",
+                        alignSelf: "center",
+                        marginTop: -5,
                       }}
                     >
-                      Meals
+                      Enter Amount
                     </Text>
-                    <View
-                      style={{
-                        //alignSelf: "center",
-                        marginTop: 5,
-                        //justifyContent: "center",
-                        //flex: 1,
-                        marginRight: 10,
-                      }}
-                    >
-                      <AntDesign
-                        name={mealsSelected ? "arrowup" : "arrowdown"}
-                        color={"black"}
-                        size={20}
-                      />
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      borderBottomColor: "#D4D4D4",
-                      borderBottomWidth: 1,
-                      width: "100%",
-                    }}
-                  />
-                </TouchableOpacity>
-                {mealsSelected
-                  ? meals.map((item, index) => {
-                      return (
-                        <View key={index}>
-                          <MealSwitchComp
-                            mealName={item.Name}
-                            cals={item.Calories}
-                            groceries={item.Groceries}
-                            index={index}
-                          />
-                        </View>
-                      );
-                    })
-                  : null}
-                <View style={{ width: "100%" }}>
+                  </Animated.View>
                   <TouchableOpacity
+                    style={{ width: "100%", marginTop: 10 }}
                     onPress={async () => {
-                      LayoutAnimation.configureNext(
-                        LayoutAnimation.create(
-                          200,
-                          LayoutAnimation.Types.linear,
-                          LayoutAnimation.Properties.opacity
-                        )
-                      );
-                      setLogsSelected(!logsSelected);
+                      if (mealsSelected) {
+                        LayoutAnimation.configureNext(
+                          LayoutAnimation.create(
+                            200,
+                            LayoutAnimation.Types.linear,
+                            LayoutAnimation.Properties.opacity
+                          )
+                        );
+                      }
+                      setMealsSelected(!mealsSelected);
                       await AsyncStorage.setItem(
-                        "Logs Selected",
+                        "Meals Selected",
                         JSON.stringify({
-                          data: !logsSelected,
+                          data: !mealsSelected,
                         })
                       );
                     }}
@@ -676,18 +527,17 @@ const Calories = (props) => {
                         justifyContent: "space-between",
                         //flex: 1,
                         width: "100%",
-                        marginTop: 30,
                       }}
                     >
                       <Text
                         style={{
                           fontSize: 25,
                           color: colors.textColors.headerText,
-                          fontWeight: logsSelected ? "bold" : "normal",
+                          fontWeight: mealsSelected ? "bold" : "normal",
                           marginLeft: 20,
                         }}
                       >
-                        Logs
+                        Meals
                       </Text>
                       <View
                         style={{
@@ -699,93 +549,99 @@ const Calories = (props) => {
                         }}
                       >
                         <AntDesign
-                          name={logsSelected ? "arrowup" : "arrowdown"}
+                          name={mealsSelected ? "arrowup" : "arrowdown"}
                           color={"black"}
                           size={20}
                         />
                       </View>
                     </View>
-                    <View
-                      style={{
-                        borderBottomColor: "#D4D4D4",
-                        borderBottomWidth: 1,
-                        width: "100%",
-                      }}
-                    />
                   </TouchableOpacity>
-                  {logsSelected && logs.length !== 0 ? (
+                  {mealsSelected
+                    ? meals.map((item, index) => {
+                        return (
+                          <View key={index}>
+                            <MealSwitchComp
+                              mealName={item.Name}
+                              cals={item.Calories}
+                              groceries={item.Groceries}
+                              index={index}
+                            />
+                          </View>
+                        );
+                      })
+                    : null}
+                  {editing ? (
                     <View>
                       <View
                         style={{
-                          backgroundColor: colors.lightGrey,
-                          width: "90%",
-                          alignSelf: "center",
-                          flex: 1,
-                          padding: 5,
-                          borderRadius: 10,
+                          flexDirection: "row",
+                          justifyContent: "space-around",
+                          width: "100%",
                           marginTop: 20,
                         }}
                       >
-                        {logs.map((item, index) => {
-                          const getTColor = () => {
-                            if (item.cals === "Reset") {
-                              return "black";
-                            } else if (item.type === "add") {
-                              return "green";
-                            } else {
-                              return "red";
-                            }
-                          };
-
-                          return (
-                            <View key={index}>
-                              <View
-                                style={{
-                                  flex: 1,
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  flexDirection: "row",
-                                  width: "100%",
-                                  marginTop: 10,
-                                  marginBottom: 10,
-                                  backgroundColor: colors.lightGrey,
-                                }}
-                              >
-                                <Text
-                                  style={{
-                                    margin: 5,
-                                    padding: 5,
-                                    color: getTColor(),
-                                    fontSize: 20,
-                                    width: "40%",
-                                    textAlign: "center",
-                                    fontWeight: "normal",
-                                  }}
-                                >
-                                  {item.cals}
-                                </Text>
-                              </View>
-                              {logs.length === index + 1 ? undefined : (
-                                <View
-                                  style={{
-                                    borderColor: "white",
-                                    borderWidth: 0.5,
-                                    width: "95%",
-                                    alignSelf: "flex-end",
-                                  }}
-                                />
-                              )}
-                            </View>
-                          );
-                        })}
+                        <View style={{ alignItems: "center" }}>
+                          <Text>Bodyweight</Text>
+                          <TextInput
+                            value={bodyweight}
+                            onChangeText={setBodyweight}
+                            keyboardType="numeric"
+                            maxLength={3}
+                            style={{
+                              fontSize: 30,
+                              borderBottomColor: "grey",
+                              borderBottomWidth: 1,
+                              width: "90%",
+                              textAlign: "center",
+                            }}
+                            placeholder="100"
+                            placeholderTextColor="#D4D4D4"
+                          />
+                        </View>
+                        <View style={{ alignItems: "center" }}>
+                          <Text>Lbs Per Week</Text>
+                          <TextInput
+                            value={lbsPerWeek}
+                            onChangeText={setLbsPerWeek}
+                            keyboardType="numeric"
+                            maxLength={3}
+                            style={{
+                              fontSize: 30,
+                              borderBottomColor: "grey",
+                              borderBottomWidth: 1,
+                              width: "90%",
+                              textAlign: "center",
+                            }}
+                            placeholder="1.5"
+                            placeholderTextColor="#D4D4D4"
+                          />
+                        </View>
                       </View>
                       <TouchableOpacity
                         onPress={async () => {
-                          setLogs([]);
+                          setCalories(calcCalsRemaining());
+                          await AsyncStorage.setItem(
+                            "Calories",
+                            JSON.stringify({
+                              data: calcCalsRemaining(),
+                            })
+                          );
+                          setSwitchedMeals([]);
+                          await AsyncStorage.setItem(
+                            "Switched Meals",
+                            JSON.stringify({
+                              data: [],
+                            })
+                          );
+                          const log = {
+                            type: "add",
+                            cals: "Reset",
+                          };
+                          setLogs(logs.concat([log]));
                           await AsyncStorage.setItem(
                             "Logs",
                             JSON.stringify({
-                              data: [],
+                              data: logs.concat([log]),
                             })
                           );
                         }}
@@ -805,131 +661,176 @@ const Calories = (props) => {
                             textAlign: "center",
                           }}
                         >
-                          Clear Logs
+                          Reset Cals
                         </Text>
                       </TouchableOpacity>
                     </View>
-                  ) : undefined}
+                  ) : (
+                    <View style={{ width: "100%" }}>
+                      <TouchableOpacity
+                        onPress={async () => {
+                          if (logsSelected) {
+                            LayoutAnimation.configureNext(
+                              LayoutAnimation.create(
+                                200,
+                                LayoutAnimation.Types.linear,
+                                LayoutAnimation.Properties.opacity
+                              )
+                            );
+                          }
+                          setLogsSelected(!logsSelected);
+                          await AsyncStorage.setItem(
+                            "Logs Selected",
+                            JSON.stringify({
+                              data: !logsSelected,
+                            })
+                          );
+                        }}
+                      >
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            //flex: 1,
+                            width: "100%",
+                            marginTop: 30,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 25,
+                              color: colors.textColors.headerText,
+                              fontWeight: logsSelected ? "bold" : "normal",
+                              marginLeft: 20,
+                            }}
+                          >
+                            Logs
+                          </Text>
+                          <View
+                            style={{
+                              //alignSelf: "center",
+                              marginTop: 5,
+                              //justifyContent: "center",
+                              //flex: 1,
+                              marginRight: 10,
+                            }}
+                          >
+                            <AntDesign
+                              name={logsSelected ? "arrowup" : "arrowdown"}
+                              color={"black"}
+                              size={20}
+                            />
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                      {logsSelected && logs.length !== 0 ? (
+                        <View>
+                          <View
+                            style={{
+                              backgroundColor: "white",
+                              width: "90%",
+                              alignSelf: "center",
+                              flex: 1,
+                              padding: 5,
+                              borderRadius: 10,
+                              marginTop: 20,
+                            }}
+                          >
+                            {logs.map((item, index) => {
+                              const getTColor = () => {
+                                if (item.cals === "Reset") {
+                                  return "black";
+                                } else if (item.type === "add") {
+                                  return "green";
+                                } else {
+                                  return "red";
+                                }
+                              };
+
+                              return (
+                                <View key={index}>
+                                  <View
+                                    style={{
+                                      flex: 1,
+                                      justifyContent: "center",
+                                      alignItems: "center",
+                                      flexDirection: "row",
+                                      width: "100%",
+                                      marginTop: 10,
+                                      marginBottom: 10,
+                                      backgroundColor: "white",
+                                    }}
+                                  >
+                                    <Text
+                                      style={{
+                                        margin: 5,
+                                        padding: 5,
+                                        color: getTColor(),
+                                        fontSize: 20,
+                                        width: "40%",
+                                        textAlign: "center",
+                                        fontWeight: "normal",
+                                      }}
+                                    >
+                                      {item.cals}
+                                    </Text>
+                                  </View>
+                                  {logs.length === index + 1 ? undefined : (
+                                    <View
+                                      style={{
+                                        borderColor: colors.lightGrey,
+                                        borderWidth: 0.5,
+                                        width: "95%",
+                                        alignSelf: "flex-end",
+                                      }}
+                                    />
+                                  )}
+                                </View>
+                              );
+                            })}
+                          </View>
+                          <TouchableOpacity
+                            onPress={async () => {
+                              setLogs([]);
+                              await AsyncStorage.setItem(
+                                "Logs",
+                                JSON.stringify({
+                                  data: [],
+                                })
+                              );
+                            }}
+                            style={{
+                              padding: 5,
+                              borderRadius: 20,
+                              width: "50%",
+                              alignSelf: "center",
+                              backgroundColor: colors.primary,
+                              marginTop: 15,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                color: colors.textColors.headerText,
+                                fontSize: 20,
+                                textAlign: "center",
+                              }}
+                            >
+                              Clear Logs
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : null}
+                    </View>
+                  )}
                 </View>
-              </View>
-            )
-          }
-          nav={props.navigation}
-        ></ScrollViewContainer>
-      </View>
-      {editing ? (
-        <View
-          style={{
-            flex: 0.1,
-            flexDirection: "row",
-            alignItems: "center",
-            width: "100%",
-            justifyContent: "flex-end",
-            backgroundColor: colors.secondary,
-          }}
-        >
-          <TouchableOpacity
-            onPress={async () => {
-              LayoutAnimation.configureNext(
-                LayoutAnimation.create(
-                  200,
-                  LayoutAnimation.Types.linear,
-                  LayoutAnimation.Properties.opacity
-                )
-              );
-              if (calories === "") {
-                setCalories(0);
               }
-              setEditing(false);
-              await AsyncStorage.setItem(
-                "Calories",
-                JSON.stringify({
-                  data: calories,
-                })
-              );
-              await AsyncStorage.setItem(
-                "Bodyweight",
-                JSON.stringify({
-                  data: bodyweight,
-                })
-              );
-              await AsyncStorage.setItem(
-                "LbsPerWeek",
-                JSON.stringify({
-                  data: lbsPerWeek,
-                })
-              );
-              const GroceryData = await AsyncStorage.getItem("Grocery Data");
-              if (GroceryData) {
-                const transformedGroceryData = await JSON.parse(GroceryData)
-                  .data;
-                transformedGroceryData.at(2).Meals = meals;
-                await AsyncStorage.setItem(
-                  "Grocery Data",
-                  JSON.stringify({
-                    data: transformedGroceryData,
-                  })
-                );
-              }
-            }}
-            style={{ alignSelf: "center", marginRight: 13 }}
-          >
-            <AntDesign name="check" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View
-          style={{
-            flex: 0.1,
-            flexDirection: "row",
-            alignItems: "center",
-            width: "90%",
-            backgroundColor: colors.secondary,
-          }}
-        >
-          <View
-            style={{
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: colors.secondary,
-            }}
-          >
-            <Text
-              style={{
-                marginLeft: 35,
-                color: parseInt(calories) < 0 ? "red" : "green",
-              }}
-            >
-              {parseInt(calories) < 0
-                ? calories * -1 + " Over"
-                : calories + " Remaining"}
-            </Text>
+            />
+            <View style={{ marginBottom: 50 }} />
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              LayoutAnimation.configureNext(
-                LayoutAnimation.create(
-                  200,
-                  LayoutAnimation.Types.linear,
-                  LayoutAnimation.Properties.opacity
-                )
-              );
-              setEditing(true);
-            }}
-            style={{
-              alignSelf: "center",
-              backgroundColor: colors.secondary,
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-            }}
-          >
-            <Entypo name="new-message" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
+        }
+        nav={props.navigation}
+      ></ScrollViewContainer>
+    </Animated.View>
   );
 };
 

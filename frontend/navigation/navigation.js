@@ -207,7 +207,7 @@ const MyDrawerNav = (props) => {
               name="Fitness Calories"
               component={Calories}
               options={{
-                headerTitle: "Calories",
+                headerTitle: "",
                 drawerLabel: ({ focused, color }) => (
                   <Text
                     style={{
