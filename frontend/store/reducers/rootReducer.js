@@ -68,6 +68,7 @@ const initialState = {
       Name: "Test Meal",
       Groceries: ["id1", "id2"],
       Calories: 0,
+      Protein: 0,
     },
   ],
   runningData: [{}],
@@ -435,6 +436,7 @@ const rootReducer = (state, action) => {
               Name: action.meal.Name,
               Groceries: action.meal.Groceries,
               Calories: action.meal.Calories,
+              Protein: action.meal.Protein,
             };
           }
           return meal;

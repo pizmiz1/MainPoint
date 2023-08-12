@@ -36,6 +36,7 @@ const GroceryMeals = (props) => {
       Name: "",
       Groceries: [uuid.v4()],
       Calories: 0,
+      Protein: 0,
     };
     dispatch(addMealAction(newMeal));
   };
@@ -261,6 +262,8 @@ const GroceryMeals = (props) => {
                       const updatedMeal = {
                         Name: mealName,
                         Groceries: groceryIds,
+                        Calories: props.cals,
+                        Protein: props.protein,
                       };
                       dispatch(updateMealAction(updatedMeal, props.index));
 
@@ -347,6 +350,8 @@ const GroceryMeals = (props) => {
                     <MealSwitchComp
                       mealName={item.Name}
                       groceries={item.Groceries}
+                      cals={item.Calories}
+                      protein={item.Protein}
                       index={index}
                     />
                   </View>

@@ -8,6 +8,7 @@ import {
   TextInput,
   Switch,
   Animated,
+  ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -24,40 +25,68 @@ const Calories = (props) => {
 
   const [switchedMeals, setSwitchedMeals] = useState([]);
   const [calories, setCalories] = useState(0);
-  const [bodyweight, setBodyweight] = useState(0);
-  const [lbsPerWeek, setLbsPerWeek] = useState(0);
+  const [protein, setProtein] = useState(0);
+  const [bodyweight, setBodyweight] = useState("");
+  const [lbsPerWeek, setLbsPerWeek] = useState("");
+  const [proteinPerLb, setProteinPerLb] = useState("");
+  const [calsFill, setCalsFill] = useState(0);
   const [calsTyped, setCalsTyped] = useState("");
+  const [proteinTyped, setProteinTyped] = useState("");
+  const [proteinFill, setProteinFill] = useState(0);
   const [editing, setEditing] = useState(false);
   const [logs, setLogs] = useState([]);
   const [logsSelected, setLogsSelected] = useState(null);
   const [mealsSelected, setMealsSelected] = useState(null);
 
-  const errorFade = useRef(new Animated.Value(0)).current;
+  const calsErrorFade = useRef(new Animated.Value(0)).current;
+  const proteinErrorFade = useRef(new Animated.Value(0)).current;
+  const changedLbsPer = useRef(false);
+  const changedProteinPer = useRef(false);
 
   useEffect(() => {
     const load = async () => {
       const savedCals = await AsyncStorage.getItem("Calories");
-      let foundCals;
+      let localCals;
       if (savedCals) {
-        foundCals = await JSON.parse(savedCals).data;
-        if (foundCals) {
-          setCalories(foundCals);
+        localCals = await JSON.parse(savedCals).data;
+        if (localCals) {
+          setCalories(localCals);
+        }
+      }
+
+      const savedProtein = await AsyncStorage.getItem("Protein");
+      let localProtein;
+      if (savedProtein) {
+        localProtein = await JSON.parse(savedProtein).data;
+        if (localProtein) {
+          setProtein(localProtein);
         }
       }
 
       const savedBodyweight = await AsyncStorage.getItem("Bodyweight");
+      let localBodyWeight;
       if (savedBodyweight) {
-        const transformed = await JSON.parse(savedBodyweight).data;
-        if (transformed) {
-          setBodyweight(transformed);
+        localBodyWeight = await JSON.parse(savedBodyweight).data;
+        if (localBodyWeight) {
+          setBodyweight(localBodyWeight);
         }
       }
 
       const savedLbsPerWeek = await AsyncStorage.getItem("LbsPerWeek");
+      let localLbsPerWeek;
       if (savedLbsPerWeek) {
-        const transformed = await JSON.parse(savedLbsPerWeek).data;
-        if (transformed) {
-          setLbsPerWeek(transformed);
+        localLbsPerWeek = await JSON.parse(savedLbsPerWeek).data;
+        if (localLbsPerWeek) {
+          setLbsPerWeek(localLbsPerWeek);
+        }
+      }
+
+      const savedProteinPerLb = await AsyncStorage.getItem("ProteinPerLb");
+      let localProteinPerLb;
+      if (savedProteinPerLb) {
+        localProteinPerLb = await JSON.parse(savedProteinPerLb).data;
+        if (localProteinPerLb) {
+          setProteinPerLb(localProteinPerLb);
         }
       }
 
@@ -96,30 +125,111 @@ const Calories = (props) => {
       } else {
         setLogsSelected(true);
       }
+
+      if (localBodyWeight === 0) {
+      }
+
+      setCalsFill(
+        (100 * localCals) /
+          (parseInt(localBodyWeight) * 15 - parseFloat(localLbsPerWeek) * 420)
+      );
+      setProteinFill(
+        (100 * localProtein) /
+          (parseInt(localBodyWeight) * parseFloat(localProteinPerLb))
+      );
     };
     load();
   }, []);
 
-  const calcCalsRemaining = () => {
-    return parseInt(bodyweight) * 15 - parseFloat(lbsPerWeek) * 420;
-  };
-
-  const subtractOrAddCals = async (subtract) => {
-    if (calsTyped === "") {
-      Animated.timing(errorFade, {
+  const subtractOrAddProtein = async (subtract, passedProtein) => {
+    if (proteinTyped === "" && passedProtein === undefined) {
+      Animated.timing(proteinErrorFade, {
         toValue: 1,
         duration: 200,
         useNativeDriver: true,
-      }).start();
+      }).start(() => {
+        Animated.timing(proteinErrorFade, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+          delay: 2000,
+        }).start();
+      });
+      return;
+    }
+    setProteinTyped("");
+    let newProtein;
+    if (subtract) {
+      if (passedProtein !== undefined) {
+        newProtein = parseInt(protein) - passedProtein;
+      } else {
+        newProtein = parseInt(protein) - parseInt(proteinTyped);
+      }
+    } else {
+      if (passedProtein !== undefined) {
+        newProtein = parseInt(protein) + passedProtein;
+      } else {
+        newProtein = parseInt(protein) + parseInt(proteinTyped);
+      }
+    }
+    setProteinFill(
+      (100 * newProtein) / (parseInt(bodyweight) * parseFloat(proteinPerLb))
+    );
+    setProtein(newProtein);
+    await AsyncStorage.setItem(
+      "Protein",
+      JSON.stringify({
+        data: newProtein,
+      })
+    );
+    const log = {
+      type: "protein",
+      cals: proteinTyped,
+    };
+    setLogs(logs.concat([log]));
+    await AsyncStorage.setItem(
+      "Logs",
+      JSON.stringify({
+        data: logs.concat([log]),
+      })
+    );
+  };
+
+  const subtractOrAddCals = async (subtract, cals) => {
+    if (calsTyped === "" && cals === undefined) {
+      Animated.timing(calsErrorFade, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start(() => {
+        Animated.timing(calsErrorFade, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+          delay: 2000,
+        }).start();
+      });
       return;
     }
     setCalsTyped("");
     let newCals;
     if (subtract) {
-      newCals = parseInt(calories) - parseInt(calsTyped);
+      if (cals !== undefined) {
+        newCals = parseInt(calories) - cals;
+      } else {
+        newCals = parseInt(calories) - parseInt(calsTyped);
+      }
     } else {
-      newCals = parseInt(calories) + parseInt(calsTyped);
+      if (cals !== undefined) {
+        newCals = parseInt(calories) + cals;
+      } else {
+        newCals = parseInt(calories) + parseInt(calsTyped);
+      }
     }
+    setCalsFill(
+      (100 * newCals) /
+        (parseInt(bodyweight) * 15 - parseFloat(lbsPerWeek) * 420)
+    );
     setCalories(newCals);
     await AsyncStorage.setItem(
       "Calories",
@@ -158,13 +268,16 @@ const Calories = (props) => {
           LayoutAnimation.Properties.opacity
         )
       );
-      if (calories === "") {
-        setCalories(0);
-      }
       await AsyncStorage.setItem(
         "Calories",
         JSON.stringify({
           data: calories,
+        })
+      );
+      await AsyncStorage.setItem(
+        "Protein",
+        JSON.stringify({
+          data: protein,
         })
       );
       await AsyncStorage.setItem(
@@ -179,6 +292,14 @@ const Calories = (props) => {
           data: lbsPerWeek,
         })
       );
+      changedLbsPer.current = false;
+      await AsyncStorage.setItem(
+        "ProteinPerLb",
+        JSON.stringify({
+          data: proteinPerLb,
+        })
+      );
+      changedProteinPer.current = false;
       const GroceryData = await AsyncStorage.getItem("Grocery Data");
       if (GroceryData) {
         const transformedGroceryData = await JSON.parse(GroceryData).data;
@@ -199,6 +320,9 @@ const Calories = (props) => {
     const [mealCals, updateMealCals] = useState(
       props.cals !== undefined ? props.cals.toString() : ""
     );
+    const [mealProtein, updateMealProtein] = useState(
+      props.protein !== undefined ? props.protein.toString() : ""
+    );
 
     const toggleSwitch = async () => {
       const alreadySwitched = switchedMeals.includes(props.index);
@@ -213,13 +337,8 @@ const Calories = (props) => {
         if (mealCals === "") {
           return;
         }
-        setCalories(parseInt(calories) + parseInt(mealCals));
-        await AsyncStorage.setItem(
-          "Calories",
-          JSON.stringify({
-            data: parseInt(calories) + parseInt(mealCals),
-          })
-        );
+        subtractOrAddCals(false, parseInt(mealCals));
+        subtractOrAddProtein(true, parseInt(mealProtein));
       } else {
         const test = switchedMeals.concat([props.index]);
         setSwitchedMeals(test);
@@ -232,13 +351,8 @@ const Calories = (props) => {
         if (mealCals === "") {
           return;
         }
-        setCalories(parseInt(calories) - parseInt(mealCals));
-        await AsyncStorage.setItem(
-          "Calories",
-          JSON.stringify({
-            data: parseInt(calories) - parseInt(mealCals),
-          })
-        );
+        subtractOrAddCals(true, parseInt(mealCals));
+        subtractOrAddProtein(false, parseInt(mealProtein));
       }
       const log = {
         type: alreadySwitched ? "add" : "subtract",
@@ -253,115 +367,124 @@ const Calories = (props) => {
       );
     };
 
+    const endEditing = async () => {
+      const oldCals = meals.filter((curr) => curr.Name === props.mealName)[0]
+        .Calories;
+      const oldProtein = meals.filter((curr) => curr.Name === props.mealName)[0]
+        .Protein;
+
+      const alreadySwitched = switchedMeals.includes(props.index);
+      let updateCals = mealCals;
+      if (mealCals === "") {
+        updateCals = 0;
+      }
+      let updateProtein = mealProtein;
+      if (mealProtein === "") {
+        updateProtein = 0;
+      }
+
+      if (alreadySwitched) {
+        setSwitchedMeals(switchedMeals.filter((curr) => curr !== props.index));
+        await AsyncStorage.setItem(
+          "Switched Meals",
+          JSON.stringify({
+            data: switchedMeals.filter((curr) => curr !== props.index),
+          })
+        );
+
+        subtractOrAddCals(false, parseInt(oldCals));
+        subtractOrAddProtein(true, parseInt(oldProtein));
+      }
+
+      const updatedMeal = {
+        Name: props.mealName,
+        Groceries: props.groceries,
+        Calories: parseInt(updateCals),
+        Protein: parseInt(updateProtein),
+      };
+      await dispatch(updateMealAction(updatedMeal, props.index));
+    };
+
     return (
-      <View
+      <ScrollView
         style={{
-          backgroundColor: "white",
-          borderRadius: 15,
-          marginLeft: 20,
-          marginRight: 20,
-          marginTop: 20,
-          padding: 15,
+          padding: 10,
         }}
       >
         <View
           style={{
+            flex: 1,
             flexDirection: "row",
-            //justifyContent: "space-between",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
           <Text
             style={{
               alignSelf: "center",
-              fontSize: 25,
-              width: "90%",
+              fontSize: 20,
+              //width: "90%",
               color: colors.textColors.headerText,
             }}
           >
             {props.mealName}
           </Text>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "flex-end",
-            }}
-          >
-            {editing ? (
-              <TextInput
-                value={mealCals}
-                onChangeText={updateMealCals}
-                onEndEditing={async () => {
-                  const oldCals = meals.filter(
-                    (curr) => curr.Name === props.mealName
-                  )[0].Calories;
-
-                  const alreadySwitched = switchedMeals.includes(props.index);
-                  if (alreadySwitched) {
-                    setSwitchedMeals(
-                      switchedMeals.filter((curr) => curr !== props.index)
-                    );
-                    await AsyncStorage.setItem(
-                      "Switched Meals",
-                      JSON.stringify({
-                        data: switchedMeals.filter(
-                          (curr) => curr !== props.index
-                        ),
-                      })
-                    );
-                    if (mealCals === "") {
-                      return;
-                    }
-                    setCalories(parseInt(calories) + parseInt(oldCals));
-                    await AsyncStorage.setItem(
-                      "Calories",
-                      JSON.stringify({
-                        data: parseInt(calories) + parseInt(oldCals),
-                      })
-                    );
-                    const log = {
-                      type: "add",
-                      cals: oldCals,
-                    };
-                    setLogs(logs.concat([log]));
-                    await AsyncStorage.setItem(
-                      "Logs",
-                      JSON.stringify({
-                        data: logs.concat([log]),
-                      })
-                    );
-                  }
-
-                  const updatedMeal = {
-                    Name: props.mealName,
-                    Groceries: props.groceries,
-                    Calories: parseInt(mealCals),
-                  };
-                  await dispatch(updateMealAction(updatedMeal, props.index));
-                }}
-                keyboardType="numeric"
-                maxLength={4}
-                style={{
-                  fontSize: 20,
-                  width: "250%",
-                  textAlign: "center",
-                }}
-              />
-            ) : (
-              <Switch
-                value={switchedMeals.includes(props.index)}
-                onValueChange={toggleSwitch}
-              />
-            )}
-          </View>
+          {editing ? (
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                //flex: 1,
+                width: "50%",
+              }}
+            >
+              <View>
+                <TextInput
+                  value={mealCals}
+                  onChangeText={updateMealCals}
+                  onEndEditing={endEditing}
+                  keyboardType="numeric"
+                  maxLength={4}
+                  style={{
+                    fontSize: 20,
+                    width: 60,
+                    textAlign: "center",
+                    color: "#46e7bd",
+                    fontWeight: "bold",
+                  }}
+                />
+              </View>
+              <View>
+                <TextInput
+                  value={mealProtein}
+                  onChangeText={updateMealProtein}
+                  onEndEditing={endEditing}
+                  keyboardType="numeric"
+                  maxLength={3}
+                  style={{
+                    fontSize: 20,
+                    width: 40,
+                    textAlign: "center",
+                    color: "#2ca3ee",
+                    fontWeight: "bold",
+                  }}
+                />
+              </View>
+            </View>
+          ) : (
+            <Switch
+              value={switchedMeals.includes(props.index)}
+              onValueChange={toggleSwitch}
+              style={{ marginTop: -3.6, marginBottom: -3.6 }}
+            />
+          )}
         </View>
-      </View>
+      </ScrollView>
     );
   };
 
   return (
-    <Animated.View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <ScrollViewContainer
         keyboardShouldPersistTaps={true}
         content={
@@ -394,7 +517,7 @@ const Calories = (props) => {
                   fontWeight: "bold",
                 }}
               >
-                Calories
+                Macros
               </Text>
               <TouchableOpacity onPress={handleCalorieEditing}>
                 {editing ? (
@@ -406,112 +529,261 @@ const Calories = (props) => {
             </View>
             <Card
               style={{ backgroundColor: colors.lightGrey }}
+              animating={mealsSelected || editing || logsSelected}
               content={
                 <View>
-                  <View style={{ alignItems: "center" }}>
-                    <AnimatedCircularProgress
-                      size={180}
-                      width={15}
-                      backgroundWidth={15}
-                      fill={(calories / calcCalsRemaining()) * 100}
-                      tintColor="#ff0000"
-                      tintColorSecondary="#00ff00"
-                      backgroundColor="#7d7a7a"
-                      arcSweepAngle={240}
-                      rotation={240}
-                      lineCap="round"
-                    >
-                      {(fill) => (
-                        <Text
-                          style={{
-                            textAlign: "center",
-                            color: "black",
-                            fontSize: 45,
-                          }}
-                        >
-                          {calories}
-                        </Text>
-                      )}
-                    </AnimatedCircularProgress>
-                  </View>
                   <View
                     style={{
-                      width: "100%",
                       alignItems: "center",
-                      borderRadius: 20,
-                      padding: 5,
                       flexDirection: "row",
-                      flex: 1,
                       justifyContent: "space-around",
-                      marginTop: -15,
                     }}
                   >
-                    <TouchableOpacity
-                      onPress={() => {
-                        subtractOrAddCals(true);
-                      }}
-                      style={{
-                        borderRadius: 20,
-                        alignSelf: "center",
-                        opacity: 1,
-                      }}
-                    >
-                      <AntDesign name="minuscircleo" size={27} color="red" />
-                    </TouchableOpacity>
+                    <View style={{ alignItems: "center" }}>
+                      <AnimatedCircularProgress
+                        size={140}
+                        width={10}
+                        backgroundWidth={10}
+                        fill={calsFill}
+                        tintColor="#46e7bd"
+                        backgroundColor="#7d7a7a"
+                        arcSweepAngle={240}
+                        rotation={240}
+                        lineCap="round"
+                      >
+                        {(fill) => (
+                          <View
+                            style={{ alignItems: "center", marginTop: -15 }}
+                          >
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: "black",
+                                fontSize: 35,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {calories}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 15,
+                                opacity: 0.5,
+                              }}
+                            >
+                              Calories
+                            </Text>
+                          </View>
+                        )}
+                      </AnimatedCircularProgress>
+                      <View
+                        style={{
+                          alignItems: "center",
+                          borderRadius: 20,
+                          //padding: 5,
+                          flexDirection: "row",
+                          flex: 1,
+                          justifyContent: "space-around",
+                          marginTop: -15,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => {
+                            subtractOrAddCals(true);
+                          }}
+                          style={{
+                            borderRadius: 20,
+                            alignSelf: "center",
+                            opacity:
+                              bodyweight !== "" && lbsPerWeek !== "" ? 1 : 0,
+                          }}
+                          disabled={!(bodyweight !== "" && lbsPerWeek !== "")}
+                        >
+                          <AntDesign
+                            name="minuscircleo"
+                            size={27}
+                            color="red"
+                          />
+                        </TouchableOpacity>
 
-                    <TextInput
-                      value={calsTyped}
-                      onChangeText={(text) => {
-                        errorFade.setValue(0);
-                        setCalsTyped(text);
-                      }}
-                      keyboardType="number-pad"
-                      maxLength={4}
-                      style={{
-                        fontSize: 30,
-                        textAlign: "center",
-                        width: "30%",
-                      }}
-                      placeholder="500"
-                      placeholderTextColor="#a1a6ab"
-                    />
+                        <TextInput
+                          value={calsTyped}
+                          onChangeText={(text) => {
+                            calsErrorFade.setValue(0);
+                            setCalsTyped(text);
+                          }}
+                          keyboardType="number-pad"
+                          maxLength={4}
+                          style={{
+                            fontSize: 25,
+                            textAlign: "center",
+                            width: "40%",
+                            opacity:
+                              bodyweight !== "" && lbsPerWeek !== "" ? 1 : 0,
+                          }}
+                          placeholder="500"
+                          placeholderTextColor="#a1a6ab"
+                          editable={bodyweight !== "" && lbsPerWeek !== ""}
+                        />
 
-                    <TouchableOpacity
-                      onPress={() => {
-                        subtractOrAddCals(false);
-                      }}
-                      style={{
-                        borderRadius: 20,
-                        alignSelf: "center",
-                        opacity: 1,
-                      }}
-                    >
-                      <AntDesign name="pluscircleo" size={27} color="green" />
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            subtractOrAddCals(false);
+                          }}
+                          style={{
+                            borderRadius: 20,
+                            alignSelf: "center",
+                            opacity:
+                              bodyweight !== "" && lbsPerWeek !== "" ? 1 : 0,
+                          }}
+                          disabled={!(bodyweight !== "" && lbsPerWeek !== "")}
+                        >
+                          <AntDesign
+                            name="pluscircleo"
+                            size={27}
+                            color="green"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      <Animated.View style={{ opacity: calsErrorFade }}>
+                        <Text
+                          style={{
+                            color: "red",
+                            alignSelf: "center",
+                          }}
+                        >
+                          Enter Amount
+                        </Text>
+                      </Animated.View>
+                    </View>
+                    <View style={{ alignItems: "center" }}>
+                      <AnimatedCircularProgress
+                        size={140}
+                        width={10}
+                        backgroundWidth={10}
+                        fill={proteinFill}
+                        tintColor="#2ca3ee"
+                        backgroundColor="#7d7a7a"
+                        arcSweepAngle={240}
+                        rotation={240}
+                        lineCap="round"
+                      >
+                        {(fill) => (
+                          <View
+                            style={{ alignItems: "center", marginTop: -15 }}
+                          >
+                            <Text
+                              style={{
+                                textAlign: "center",
+                                color: "black",
+                                fontSize: 35,
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {protein}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 15,
+                                opacity: 0.5,
+                              }}
+                            >
+                              Protein
+                            </Text>
+                          </View>
+                        )}
+                      </AnimatedCircularProgress>
+                      <View
+                        style={{
+                          alignItems: "center",
+                          borderRadius: 20,
+                          //padding: 5,
+                          flexDirection: "row",
+                          flex: 1,
+                          justifyContent: "space-around",
+                          marginTop: -15,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => {
+                            subtractOrAddProtein(true);
+                          }}
+                          style={{
+                            borderRadius: 20,
+                            alignSelf: "center",
+                            opacity:
+                              bodyweight !== "" && proteinPerLb !== "" ? 1 : 0,
+                          }}
+                          disabled={!(bodyweight !== "" && proteinPerLb !== "")}
+                        >
+                          <AntDesign
+                            name="minuscircleo"
+                            size={27}
+                            color="red"
+                          />
+                        </TouchableOpacity>
+
+                        <TextInput
+                          value={proteinTyped}
+                          onChangeText={(text) => {
+                            proteinErrorFade.setValue(0);
+                            setProteinTyped(text);
+                          }}
+                          keyboardType="number-pad"
+                          maxLength={3}
+                          style={{
+                            fontSize: 25,
+                            textAlign: "center",
+                            width: "40%",
+                            opacity:
+                              bodyweight !== "" && proteinPerLb !== "" ? 1 : 0,
+                          }}
+                          placeholder="25"
+                          placeholderTextColor="#a1a6ab"
+                          editable={bodyweight !== "" && proteinPerLb !== ""}
+                        />
+
+                        <TouchableOpacity
+                          onPress={() => {
+                            subtractOrAddProtein(false);
+                          }}
+                          style={{
+                            borderRadius: 20,
+                            alignSelf: "center",
+                            opacity:
+                              bodyweight !== "" && proteinPerLb !== "" ? 1 : 0,
+                          }}
+                          disabled={!(bodyweight !== "" && proteinPerLb !== "")}
+                        >
+                          <AntDesign
+                            name="pluscircleo"
+                            size={27}
+                            color="green"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      <Animated.View style={{ opacity: proteinErrorFade }}>
+                        <Text
+                          style={{
+                            color: "red",
+                            alignSelf: "center",
+                          }}
+                        >
+                          Enter Amount
+                        </Text>
+                      </Animated.View>
+                    </View>
                   </View>
-                  <Animated.View style={{ opacity: errorFade }}>
-                    <Text
-                      style={{
-                        color: "red",
-                        alignSelf: "center",
-                        marginTop: -5,
-                      }}
-                    >
-                      Enter Amount
-                    </Text>
-                  </Animated.View>
                   <TouchableOpacity
                     style={{ width: "100%", marginTop: 10 }}
                     onPress={async () => {
-                      if (mealsSelected) {
-                        LayoutAnimation.configureNext(
-                          LayoutAnimation.create(
-                            200,
-                            LayoutAnimation.Types.linear,
-                            LayoutAnimation.Properties.opacity
-                          )
-                        );
-                      }
+                      LayoutAnimation.configureNext(
+                        LayoutAnimation.create(
+                          200,
+                          LayoutAnimation.Types.linear,
+                          LayoutAnimation.Properties.opacity
+                        )
+                      );
                       setMealsSelected(!mealsSelected);
                       await AsyncStorage.setItem(
                         "Meals Selected",
@@ -556,20 +828,46 @@ const Calories = (props) => {
                       </View>
                     </View>
                   </TouchableOpacity>
-                  {mealsSelected
-                    ? meals.map((item, index) => {
+
+                  {mealsSelected ? (
+                    <ScrollView
+                      style={{
+                        backgroundColor: "white",
+                        width: "95%",
+                        alignSelf: "center",
+                        //flex: 1,
+                        padding: 5,
+                        borderRadius: 10,
+                        marginTop: 5,
+                        height: 200,
+                      }}
+                    >
+                      {meals.map((item, index) => {
                         return (
                           <View key={index}>
                             <MealSwitchComp
                               mealName={item.Name}
                               cals={item.Calories}
+                              protein={item.Protein}
                               groceries={item.Groceries}
                               index={index}
                             />
+                            {meals.length === index + 1 ? undefined : (
+                              <View
+                                style={{
+                                  borderColor: "#cfcfcf",
+                                  borderWidth: 0.5,
+                                  width: "95%",
+                                  alignSelf: "flex-end",
+                                }}
+                              />
+                            )}
                           </View>
                         );
-                      })
-                    : null}
+                      })}
+                    </ScrollView>
+                  ) : null}
+
                   {editing ? (
                     <View>
                       <View
@@ -616,16 +914,128 @@ const Calories = (props) => {
                             placeholderTextColor="#D4D4D4"
                           />
                         </View>
+                        <View style={{ alignItems: "center" }}>
+                          <Text>Protein Per Lb</Text>
+                          <TextInput
+                            value={proteinPerLb}
+                            onChangeText={setProteinPerLb}
+                            keyboardType="numeric"
+                            maxLength={3}
+                            style={{
+                              fontSize: 30,
+                              borderBottomColor: "grey",
+                              borderBottomWidth: 1,
+                              width: "90%",
+                              textAlign: "center",
+                            }}
+                            placeholder="1"
+                            placeholderTextColor="#D4D4D4"
+                          />
+                        </View>
                       </View>
                       <TouchableOpacity
                         onPress={async () => {
-                          setCalories(calcCalsRemaining());
-                          await AsyncStorage.setItem(
-                            "Calories",
-                            JSON.stringify({
-                              data: calcCalsRemaining(),
-                            })
+                          let stateCalories;
+                          let stateCalFill;
+                          let stateProtein;
+                          let stateProteinFill;
+
+                          const savedProteinPerLb = await AsyncStorage.getItem(
+                            "ProteinPerLb"
                           );
+                          let localProteinPerLb;
+                          if (savedProteinPerLb) {
+                            localProteinPerLb = await JSON.parse(
+                              savedProteinPerLb
+                            ).data;
+                          }
+
+                          const savedLbsPerWeek = await AsyncStorage.getItem(
+                            "LbsPerWeek"
+                          );
+                          let localLbsPerWeek;
+                          if (savedLbsPerWeek) {
+                            localLbsPerWeek = await JSON.parse(savedLbsPerWeek)
+                              .data;
+                          }
+
+                          if (bodyweight === "") {
+                            stateCalories = 0;
+                            stateCalFill = 0;
+                            changedLbsPer.current = true;
+                            stateProtein = 0;
+                            stateProteinFill = 0;
+                            changedProteinPer.current = true;
+                          } else if (lbsPerWeek === "") {
+                            stateCalories = 0;
+                            stateCalFill = 0;
+                            changedLbsPer.current = true;
+                            if (
+                              localProteinPerLb === proteinPerLb &&
+                              !changedProteinPer.current
+                            ) {
+                              stateProtein = protein;
+                              stateProteinFill =
+                                (100 * protein) /
+                                (parseInt(bodyweight) *
+                                  parseFloat(proteinPerLb));
+                            } else {
+                              changedProteinPer.current = true;
+                              stateProtein = 0;
+                              stateProteinFill = 0;
+                            }
+                          } else if (proteinPerLb === "") {
+                            if (
+                              localLbsPerWeek === lbsPerWeek &&
+                              !changedLbsPer.current
+                            ) {
+                              stateCalories = calories;
+                              stateCalFill = calsFill;
+                            } else {
+                              changedLbsPer.current = true;
+                              stateCalories =
+                                parseInt(bodyweight) * 15 -
+                                parseFloat(lbsPerWeek) * 420;
+                              stateCalFill = 100;
+                            }
+                            stateProtein = 0;
+                            stateProteinFill = 0;
+                            changedProteinPer.current = true;
+                          } else {
+                            if (
+                              localLbsPerWeek === lbsPerWeek &&
+                              !changedLbsPer.current
+                            ) {
+                              stateCalories = calories;
+                              stateCalFill = calsFill;
+                            } else {
+                              changedLbsPer.current = true;
+                              stateCalories =
+                                parseInt(bodyweight) * 15 -
+                                parseFloat(lbsPerWeek) * 420;
+                              stateCalFill = 100;
+                            }
+                            if (
+                              localProteinPerLb === proteinPerLb &&
+                              !changedProteinPer.current
+                            ) {
+                              stateProtein = protein;
+                              stateProteinFill =
+                                (100 * protein) /
+                                (parseInt(bodyweight) *
+                                  parseFloat(proteinPerLb));
+                            } else {
+                              changedProteinPer.current = true;
+                              stateProtein = 0;
+                              stateProteinFill = 0;
+                            }
+                          }
+
+                          setCalories(stateCalories);
+                          setProtein(stateProtein);
+                          setCalsFill(stateCalFill);
+                          setProteinFill(stateProteinFill);
+
                           setSwitchedMeals([]);
                           await AsyncStorage.setItem(
                             "Switched Meals",
@@ -633,6 +1043,7 @@ const Calories = (props) => {
                               data: [],
                             })
                           );
+
                           const log = {
                             type: "add",
                             cals: "Reset",
@@ -661,7 +1072,7 @@ const Calories = (props) => {
                             textAlign: "center",
                           }}
                         >
-                          Reset Cals
+                          Reset Macros
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -669,15 +1080,13 @@ const Calories = (props) => {
                     <View style={{ width: "100%" }}>
                       <TouchableOpacity
                         onPress={async () => {
-                          if (logsSelected) {
-                            LayoutAnimation.configureNext(
-                              LayoutAnimation.create(
-                                200,
-                                LayoutAnimation.Types.linear,
-                                LayoutAnimation.Properties.opacity
-                              )
-                            );
-                          }
+                          LayoutAnimation.configureNext(
+                            LayoutAnimation.create(
+                              200,
+                              LayoutAnimation.Types.linear,
+                              LayoutAnimation.Properties.opacity
+                            )
+                          );
                           setLogsSelected(!logsSelected);
                           await AsyncStorage.setItem(
                             "Logs Selected",
@@ -693,7 +1102,7 @@ const Calories = (props) => {
                             justifyContent: "space-between",
                             //flex: 1,
                             width: "100%",
-                            marginTop: 30,
+                            marginTop: 15,
                           }}
                         >
                           <Text
@@ -725,25 +1134,26 @@ const Calories = (props) => {
                       </TouchableOpacity>
                       {logsSelected && logs.length !== 0 ? (
                         <View>
-                          <View
+                          <ScrollView
                             style={{
                               backgroundColor: "white",
-                              width: "90%",
+                              width: "95%",
                               alignSelf: "center",
-                              flex: 1,
+                              //flex: 1,
                               padding: 5,
                               borderRadius: 10,
-                              marginTop: 20,
+                              marginTop: 5,
+                              height: 200,
                             }}
                           >
                             {logs.map((item, index) => {
                               const getTColor = () => {
                                 if (item.cals === "Reset") {
                                   return "black";
-                                } else if (item.type === "add") {
-                                  return "green";
+                                } else if (item.type === "protein") {
+                                  return "#2ca3ee";
                                 } else {
-                                  return "red";
+                                  return "#46e7bd";
                                 }
                               };
 
@@ -756,8 +1166,8 @@ const Calories = (props) => {
                                       alignItems: "center",
                                       flexDirection: "row",
                                       width: "100%",
-                                      marginTop: 10,
-                                      marginBottom: 10,
+                                      marginTop: 5,
+                                      marginBottom: 5,
                                       backgroundColor: "white",
                                     }}
                                   >
@@ -778,7 +1188,7 @@ const Calories = (props) => {
                                   {logs.length === index + 1 ? undefined : (
                                     <View
                                       style={{
-                                        borderColor: colors.lightGrey,
+                                        borderColor: "#cfcfcf",
                                         borderWidth: 0.5,
                                         width: "95%",
                                         alignSelf: "flex-end",
@@ -788,7 +1198,7 @@ const Calories = (props) => {
                                 </View>
                               );
                             })}
-                          </View>
+                          </ScrollView>
                           <TouchableOpacity
                             onPress={async () => {
                               setLogs([]);
@@ -825,12 +1235,12 @@ const Calories = (props) => {
                 </View>
               }
             />
-            <View style={{ marginBottom: 50 }} />
+            <View style={{ marginBottom: 250 }} />
           </View>
         }
         nav={props.navigation}
       ></ScrollViewContainer>
-    </Animated.View>
+    </View>
   );
 };
 

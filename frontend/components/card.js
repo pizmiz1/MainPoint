@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+import Animated, { Easing, Layout } from "react-native-reanimated";
 import { useSelector } from "react-redux";
 
 const Card = (props) => {
@@ -17,10 +18,11 @@ const Card = (props) => {
           width: 0,
           height: 2,
         },
-        shadowOpacity: 0.23,
+        shadowOpacity: props.animating ? 0 : 0.23,
         shadowRadius: 2.62,
         ...props.style,
       }}
+      layout={Layout.easing(Easing.linear)}
     >
       {props.content}
     </View>

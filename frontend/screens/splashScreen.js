@@ -79,6 +79,7 @@ const SplashScreen = (props) => {
 
             let myBodyWeight;
             let myLbsPerWeek;
+            let myProteinPerLb;
 
             const savedBodyweight = await AsyncStorage.getItem("Bodyweight");
             if (savedBodyweight) {
@@ -96,6 +97,16 @@ const SplashScreen = (props) => {
               }
             }
 
+            const savedProteinPerLb = await AsyncStorage.getItem(
+              "ProteinPerLb"
+            );
+            if (savedProteinPerLb) {
+              const transformed = await JSON.parse(savedProteinPerLb).data;
+              if (transformed) {
+                myProteinPerLb = transformed;
+              }
+            }
+
             if (savedBodyweight && savedLbsPerWeek) {
               await AsyncStorage.setItem(
                 "Calories",
@@ -103,6 +114,15 @@ const SplashScreen = (props) => {
                   data:
                     parseInt(myBodyWeight) * 15 -
                     parseFloat(myLbsPerWeek) * 420,
+                })
+              );
+            }
+
+            if (savedBodyweight && savedProteinPerLb) {
+              await AsyncStorage.setItem(
+                "Protein",
+                JSON.stringify({
+                  data: 0,
                 })
               );
             }
