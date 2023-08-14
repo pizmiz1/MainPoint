@@ -27,7 +27,7 @@ import RunningEdit from "../screens/fitness/runningEdit";
 import RunningDay from "../screens/fitness/runningDay";
 import RunningWeek from "../screens/fitness/runningWeek";
 import RunningTotal from "../screens/fitness/runningTotal";
-import Calories from "../screens/fitness/calories";
+import Macros from "../screens/fitness/macros";
 
 //components
 import SwitchIconComp from "../components/switchIconComp";
@@ -199,25 +199,6 @@ const MyDrawerNav = (props) => {
                     }}
                   >
                     Program
-                  </Text>
-                ),
-              }}
-            />
-            <MyDrawer.Screen
-              name="Fitness Calories"
-              component={Calories}
-              options={{
-                headerTitle: "",
-                drawerLabel: ({ focused, color }) => (
-                  <Text
-                    style={{
-                      fontWeight: focused ? "bold" : "normal",
-                      textDecorationLine: focused ? "underline" : "none",
-                      color,
-                      fontSize: 20,
-                    }}
-                  >
-                    Calories
                   </Text>
                 ),
               }}
@@ -439,6 +420,25 @@ const MyDrawerNav = (props) => {
                 }}
               >
                 List
+              </Text>
+            ),
+          }}
+        />
+        <MyDrawer.Screen
+          name="Grocery Macros"
+          component={Macros}
+          options={{
+            headerTitle: "",
+            drawerLabel: ({ focused, color }) => (
+              <Text
+                style={{
+                  fontWeight: focused ? "bold" : "normal",
+                  textDecorationLine: focused ? "underline" : "none",
+                  color,
+                  fontSize: 20,
+                }}
+              >
+                Macros
               </Text>
             ),
           }}

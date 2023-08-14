@@ -12,12 +12,13 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
-import { AntDesign, Entypo } from "@expo/vector-icons";
+import { AntDesign, Entypo, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { updateMealAction } from "../../store/actions/updateMeal";
 import Card from "../../components/card";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
+import { SearchBar } from "@rneui/themed";
 
-const Calories = (props) => {
+const Macros = (props) => {
   const dispatch = useDispatch();
 
   const colors = useSelector((state) => state.colors);
@@ -37,11 +38,19 @@ const Calories = (props) => {
   const [logs, setLogs] = useState([]);
   const [logsSelected, setLogsSelected] = useState(null);
   const [mealsSelected, setMealsSelected] = useState(null);
+  const [mealSearch, setMealSearch] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [filteredMeals, setFilteredMeals] = useState([]);
 
   const calsErrorFade = useRef(new Animated.Value(0)).current;
   const proteinErrorFade = useRef(new Animated.Value(0)).current;
   const changedLbsPer = useRef(false);
   const changedProteinPer = useRef(false);
+
+  useEffect(() => {
+    setFilteredMeals(meals);
+    searchMeals(mealSearch);
+  }, [meals]);
 
   useEffect(() => {
     const load = async () => {
@@ -126,8 +135,7 @@ const Calories = (props) => {
         setLogsSelected(true);
       }
 
-      if (localBodyWeight === 0) {
-      }
+      setFilteredMeals(meals);
 
       setCalsFill(
         (100 * localCals) /
@@ -184,9 +192,13 @@ const Calories = (props) => {
     );
     const log = {
       type: "protein",
-      cals: proteinTyped,
+      cals: passedProtein !== undefined ? passedProtein : proteinTyped,
     };
-    setLogs(logs.concat([log]));
+    if (proteinTyped !== "") {
+      setLogs(logs.concat([log]));
+    } else {
+      logs.push(log);
+    }
     await AsyncStorage.setItem(
       "Logs",
       JSON.stringify({
@@ -239,7 +251,7 @@ const Calories = (props) => {
     );
     const log = {
       type: subtract ? "sub" : "add",
-      cals: calsTyped,
+      cals: cals !== undefined ? cals : calsTyped,
     };
     setLogs(logs.concat([log]));
     await AsyncStorage.setItem(
@@ -315,7 +327,20 @@ const Calories = (props) => {
     }
   };
 
-  // COMPS
+  const searchMeals = (text) => {
+    if (text) {
+      const newMeals = meals.filter((curr) => {
+        const itemData = curr.Name ? curr.Name.toUpperCase() : "".toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredMeals(newMeals);
+    } else {
+      setFilteredMeals(meals);
+    }
+    setMealSearch(text);
+  };
+
   const MealSwitchComp = (props) => {
     const [mealCals, updateMealCals] = useState(
       props.cals !== undefined ? props.cals.toString() : ""
@@ -325,22 +350,26 @@ const Calories = (props) => {
     );
 
     const toggleSwitch = async () => {
-      const alreadySwitched = switchedMeals.includes(props.index);
+      const alreadySwitched = switchedMeals.includes(props.mealName);
       if (alreadySwitched) {
-        setSwitchedMeals(switchedMeals.filter((curr) => curr !== props.index));
+        subtractOrAddCals(false, parseInt(mealCals));
+        subtractOrAddProtein(true, parseInt(mealProtein));
+        setSwitchedMeals(
+          switchedMeals.filter((curr) => curr !== props.mealName)
+        );
         await AsyncStorage.setItem(
           "Switched Meals",
           JSON.stringify({
-            data: switchedMeals.filter((curr) => curr !== props.index),
+            data: switchedMeals.filter((curr) => curr !== props.mealName),
           })
         );
         if (mealCals === "") {
           return;
         }
-        subtractOrAddCals(false, parseInt(mealCals));
-        subtractOrAddProtein(true, parseInt(mealProtein));
       } else {
-        const test = switchedMeals.concat([props.index]);
+        subtractOrAddCals(true, parseInt(mealCals));
+        subtractOrAddProtein(false, parseInt(mealProtein));
+        const test = switchedMeals.concat([props.mealName]);
         setSwitchedMeals(test);
         await AsyncStorage.setItem(
           "Switched Meals",
@@ -351,8 +380,6 @@ const Calories = (props) => {
         if (mealCals === "") {
           return;
         }
-        subtractOrAddCals(true, parseInt(mealCals));
-        subtractOrAddProtein(false, parseInt(mealProtein));
       }
       const log = {
         type: alreadySwitched ? "add" : "subtract",
@@ -373,7 +400,7 @@ const Calories = (props) => {
       const oldProtein = meals.filter((curr) => curr.Name === props.mealName)[0]
         .Protein;
 
-      const alreadySwitched = switchedMeals.includes(props.index);
+      const alreadySwitched = switchedMeals.includes(props.mealName);
       let updateCals = mealCals;
       if (mealCals === "") {
         updateCals = 0;
@@ -384,11 +411,13 @@ const Calories = (props) => {
       }
 
       if (alreadySwitched) {
-        setSwitchedMeals(switchedMeals.filter((curr) => curr !== props.index));
+        setSwitchedMeals(
+          switchedMeals.filter((curr) => curr !== props.mealName)
+        );
         await AsyncStorage.setItem(
           "Switched Meals",
           JSON.stringify({
-            data: switchedMeals.filter((curr) => curr !== props.index),
+            data: switchedMeals.filter((curr) => curr !== props.mealName),
           })
         );
 
@@ -406,10 +435,13 @@ const Calories = (props) => {
     };
 
     return (
-      <ScrollView
+      <TouchableOpacity
         style={{
           padding: 10,
+          height: 45,
         }}
+        onPress={toggleSwitch}
+        disabled={editing}
       >
         <View
           style={{
@@ -423,9 +455,14 @@ const Calories = (props) => {
             style={{
               alignSelf: "center",
               fontSize: 20,
-              //width: "90%",
+              width: editing ? "50%" : undefined,
               color: colors.textColors.headerText,
+              opacity: switchedMeals.includes(props.mealName) ? 1 : 0.5,
+              fontWeight: switchedMeals.includes(props.mealName)
+                ? "bold"
+                : "normal",
             }}
+            numberOfLines={1}
           >
             {props.mealName}
           </Text>
@@ -471,21 +508,30 @@ const Calories = (props) => {
                 />
               </View>
             </View>
-          ) : (
-            <Switch
-              value={switchedMeals.includes(props.index)}
-              onValueChange={toggleSwitch}
-              style={{ marginTop: -3.6, marginBottom: -3.6 }}
+          ) : switchedMeals.includes(props.mealName) ? (
+            <Ionicons
+              name="ios-checkmark-circle"
+              size={26}
+              color="#3078cb"
+              style={{
+                padding: 0,
+                marginRight: -2,
+                marginBottom: -1,
+                marginTop: -1,
+              }}
             />
+          ) : (
+            <FontAwesome name="circle-thin" size={26} color="grey" />
           )}
         </View>
-      </ScrollView>
+      </TouchableOpacity>
     );
   };
 
   return (
     <View style={{ flex: 1 }}>
       <ScrollViewContainer
+        style={{ backgroundColor: colors.lightGrey }}
         keyboardShouldPersistTaps={true}
         content={
           <View
@@ -496,7 +542,7 @@ const Calories = (props) => {
               width: "90%",
               alignSelf: "center",
               //marginBottom: 65,
-              backgroundColor: colors.secondary,
+              backgroundColor: colors.lightGrey,
               marginTop: 20,
             }}
           >
@@ -528,7 +574,7 @@ const Calories = (props) => {
               </TouchableOpacity>
             </View>
             <Card
-              style={{ backgroundColor: colors.lightGrey }}
+              style={{ backgroundColor: "white" }}
               animating={mealsSelected || editing || logsSelected}
               content={
                 <View>
@@ -841,8 +887,33 @@ const Calories = (props) => {
                         marginTop: 5,
                         height: 200,
                       }}
+                      scrollEnabled={!searching}
                     >
-                      {meals.map((item, index) => {
+                      <SearchBar
+                        placeholder="Search Meals"
+                        onChangeText={searchMeals}
+                        value={mealSearch}
+                        lightTheme={true}
+                        containerStyle={{
+                          backgroundColor: "white",
+                          borderTopWidth: 0,
+                          borderBottomWidth: 0,
+                          width: "100%",
+                        }}
+                        inputContainerStyle={{
+                          borderRadius: 15,
+                          height: 30,
+                        }}
+                        platform="ios"
+                        showCancel={true}
+                        onFocus={() => {
+                          setSearching(true);
+                        }}
+                        onBlur={() => {
+                          setSearching(false);
+                        }}
+                      />
+                      {filteredMeals.map((item, index) => {
                         return (
                           <View key={index}>
                             <MealSwitchComp
@@ -852,7 +923,9 @@ const Calories = (props) => {
                               groceries={item.Groceries}
                               index={index}
                             />
-                            {meals.length === index + 1 ? undefined : (
+                            {filteredMeals.length === index + 1 ? (
+                              <View style={{ marginBottom: 10 }} />
+                            ) : (
                               <View
                                 style={{
                                   borderColor: "#cfcfcf",
@@ -1244,4 +1317,4 @@ const Calories = (props) => {
   );
 };
 
-export default Calories;
+export default Macros;
