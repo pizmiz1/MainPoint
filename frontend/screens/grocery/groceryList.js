@@ -385,7 +385,144 @@ const GroceryList = (props) => {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <View style={{ flex: 0.9 }}>
+      <View
+        style={{
+          backgroundColor: "white",
+          width: "100%",
+        }}
+      >
+        {editing ? (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              width: "90%",
+              marginTop: 30,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => {
+                setModalVisible(true);
+              }}
+              style={{
+                alignSelf: "center",
+                marginLeft: 10,
+              }}
+            >
+              <Ionicons name="add" size={30} color={colors.primary} />
+            </TouchableOpacity>
+            <View
+              style={{
+                width: "85%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  marginLeft: 5,
+                  fontSize: 20,
+                  fontWeight: "bold",
+                }}
+              >
+                List
+              </Text>
+              <Text
+                style={{
+                  marginLeft: 5,
+                  fontSize: 15,
+                  color: "#aaaaaa",
+                }}
+              >
+                {groceryList.length}{" "}
+                {groceryList.length !== 1 ? "Items" : "Item"}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={async () => {
+                LayoutAnimation.configureNext(
+                  LayoutAnimation.create(
+                    200,
+                    LayoutAnimation.Types.linear,
+                    LayoutAnimation.Properties.opacity
+                  )
+                );
+                setEditing(false);
+                const GroceryData = await AsyncStorage.getItem("Grocery Data");
+                if (GroceryData) {
+                  const transformedGroceryData = await JSON.parse(GroceryData)
+                    .data;
+                  transformedGroceryData.at(1).Groceries = groceryList;
+                  transformedGroceryData.at(0).AllGroceries = allGroceries;
+                  await AsyncStorage.setItem(
+                    "Grocery Data",
+                    JSON.stringify({
+                      data: transformedGroceryData,
+                    })
+                  );
+                }
+              }}
+              style={{ alignSelf: "center", marginLeft: 10 }}
+            >
+              <AntDesign name="check" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              width: "90%",
+              marginTop: 30,
+            }}
+          >
+            <View
+              style={{
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  marginLeft: 35,
+                  fontSize: 20,
+                  fontWeight: "bold",
+                }}
+              >
+                List
+              </Text>
+              <Text
+                style={{
+                  marginLeft: 35,
+                  fontSize: 15,
+                  color: "#aaaaaa",
+                }}
+              >
+                {groceryList.length}{" "}
+                {groceryList.length !== 1 ? "Items" : "Item"}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                LayoutAnimation.configureNext(
+                  LayoutAnimation.create(
+                    200,
+                    LayoutAnimation.Types.linear,
+                    LayoutAnimation.Properties.opacity
+                  )
+                );
+                setEditing(true);
+              }}
+              style={{ alignSelf: "center" }}
+            >
+              <Entypo name="new-message" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+
+      <View style={{ flex: 1 }}>
         <ScrollViewContainer
           content={
             <View
@@ -486,92 +623,6 @@ const GroceryList = (props) => {
           nav={props.navigation}
         />
       </View>
-      {editing ? (
-        <View
-          style={{
-            flex: 0.1,
-            flexDirection: "row",
-            alignItems: "center",
-            width: "90%",
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => {
-              setModalVisible(true);
-            }}
-            style={{
-              alignSelf: "center",
-              marginLeft: 15,
-            }}
-          >
-            <Ionicons name="add" size={30} color={colors.primary} />
-          </TouchableOpacity>
-          <View
-            style={{
-              width: "85%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ marginRight: 5 }}>{groceryList.length} Items</Text>
-          </View>
-          <TouchableOpacity
-            onPress={async () => {
-              LayoutAnimation.configureNext(
-                LayoutAnimation.create(
-                  200,
-                  LayoutAnimation.Types.linear,
-                  LayoutAnimation.Properties.opacity
-                )
-              );
-              setEditing(false);
-              const GroceryData = await AsyncStorage.getItem("Grocery Data");
-              if (GroceryData) {
-                const transformedGroceryData = await JSON.parse(GroceryData)
-                  .data;
-                transformedGroceryData.at(1).Groceries = groceryList;
-                transformedGroceryData.at(0).AllGroceries = allGroceries;
-                await AsyncStorage.setItem(
-                  "Grocery Data",
-                  JSON.stringify({
-                    data: transformedGroceryData,
-                  })
-                );
-              }
-            }}
-            style={{ alignSelf: "center" }}
-          >
-            <AntDesign name="check" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View
-          style={{
-            flex: 0.1,
-            flexDirection: "row",
-            alignItems: "center",
-            width: "90%",
-          }}
-        >
-          <View
-            style={{
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ marginLeft: 35 }}>{groceryList.length} Items</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => {
-              setEditing(true);
-            }}
-            style={{ alignSelf: "center" }}
-          >
-            <Entypo name="new-message" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 };

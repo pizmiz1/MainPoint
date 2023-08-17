@@ -38,14 +38,13 @@ const GroceryGroceries = (props) => {
   const [frozenList, setFrozenList] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newGroceryName, updateNewGroceryName] = useState("");
-  const [selectedCats, setSelectedCats] = useState([]);
-  const [editing, setEditing] = useState(false);
   const [newCat, setNewCat] = useState(null);
   const [typing, setTyping] = useState(false);
   const [groceryInvalid, setGroceryInvalid] = useState(false);
   const [catInvalid, setCatInvalid] = useState(false);
 
   const oldGrocery = useRef(null);
+  const selectedCats = useRef([]);
 
   const cats = [
     "Produce",
@@ -92,6 +91,25 @@ const GroceryGroceries = (props) => {
   useEffect(() => {
     setArrays();
   }, [allGroceries]);
+
+  useEffect(() => {
+    const saveData = async () => {
+      const GroceryData = await AsyncStorage.getItem("Grocery Data");
+      if (GroceryData) {
+        const transformedGroceryData = await JSON.parse(GroceryData).data;
+        transformedGroceryData.at(0).AllGroceries = allGroceries;
+        await AsyncStorage.setItem(
+          "Grocery Data",
+          JSON.stringify({
+            data: transformedGroceryData,
+          })
+        );
+      }
+    };
+    if (!props.editing) {
+      saveData();
+    }
+  }, [props.editing]);
 
   const dispatch = useDispatch();
 
@@ -156,10 +174,15 @@ const GroceryGroceries = (props) => {
         Category: "Produce",
       },
     ]);
+    const [selected, setSelected] = useState(false);
 
     useEffect(() => {
       if (props.groceries !== undefined) {
         setGroceries(props.groceries);
+      }
+      if (selectedCats.current.includes(props.catName)) {
+        props.expanding(selectedCats.current.length === 0);
+        setSelected(true);
       }
     }, []);
 
@@ -173,21 +196,22 @@ const GroceryGroceries = (props) => {
             borderRadius: 10,
             marginBottom: -10,
           }}
-          onPress={() => {
-            if (!selectedCats.includes(props.catName)) {
-              setSelectedCats(selectedCats.concat([props.catName]));
+          onPress={async () => {
+            if (selected) {
+              const idx = selectedCats.current.indexOf(props.catName);
+              selectedCats.current.splice(idx, 1);
             } else {
-              LayoutAnimation.configureNext(
-                LayoutAnimation.create(
-                  400,
-                  LayoutAnimation.Types.linear,
-                  LayoutAnimation.Properties.opacity
-                )
-              );
-              setSelectedCats(
-                selectedCats.filter((currCat) => props.catName !== currCat)
-              );
+              selectedCats.current.push(props.catName);
             }
+            props.expanding(selectedCats.current.length === 0);
+            LayoutAnimation.configureNext(
+              LayoutAnimation.create(
+                200,
+                LayoutAnimation.Types.linear,
+                LayoutAnimation.Properties.opacity
+              )
+            );
+            setSelected(!selected);
           }}
         >
           <Text
@@ -195,15 +219,13 @@ const GroceryGroceries = (props) => {
               fontSize: 20,
               marginBottom: 10,
               color: "white",
-              fontWeight: selectedCats.includes(props.catName)
-                ? "bold"
-                : "normal",
+              fontWeight: selected ? "bold" : "normal",
             }}
           >
             {props.catName}
           </Text>
         </TouchableOpacity>
-        {selectedCats.includes(props.catName) ? (
+        {selected ? (
           <View
             style={{
               alignItems: "flex-start",
@@ -219,9 +241,9 @@ const GroceryGroceries = (props) => {
                   <View key={index}>
                     <View style={{ flexDirection: "row", width: "100%" }}>
                       <TouchableOpacity
-                        style={{ flex: editing ? 0 : 1 }}
+                        style={{ flex: props.editing ? 0 : 1 }}
                         onPress={() => props.selectGrocery(item)}
-                        disabled={!editing}
+                        disabled={!props.editing}
                       >
                         <Text
                           style={{
@@ -233,7 +255,7 @@ const GroceryGroceries = (props) => {
                           {item.Name}
                         </Text>
                       </TouchableOpacity>
-                      {editing ? (
+                      {props.editing ? (
                         <View
                           style={{
                             justifyContent: "center",
@@ -276,7 +298,7 @@ const GroceryGroceries = (props) => {
         ) : null}
         <View
           style={{
-            marginBottom: selectedCats.includes(props.catName) ? 0 : 15,
+            marginBottom: selected ? 0 : 15,
           }}
         />
       </View>
@@ -545,12 +567,43 @@ const GroceryGroceries = (props) => {
         </TouchableWithoutFeedback>
       </Modal>
 
+      <View
+        style={{
+          flex: 0.1,
+          flexDirection: "row",
+          alignItems: "center",
+          width: "90%",
+        }}
+      >
+        <View
+          style={{
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ marginLeft: 35 }}>{allGroceries.length} Items</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            setModalVisible(true);
+          }}
+          style={{
+            alignSelf: "center",
+            opacity: props.editing ? 1 : 0,
+          }}
+          disabled={!props.editing}
+        >
+          <Ionicons name="add" size={30} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+
       <View style={{ flex: 0.9 }}>
         <ScrollViewContainer
           content={
             <View
               style={{
-                backgroundColor: colors.lightGrey,
+                backgroundColor: "white",
                 marginBottom: 20,
               }}
             >
@@ -560,6 +613,8 @@ const GroceryGroceries = (props) => {
                   groceries={produceList}
                   remove={removeGrocery}
                   selectGrocery={changeGrocery}
+                  editing={props.editing}
+                  expanding={props.expanding}
                 />
               ) : undefined}
               {fishList.length !== 0 ? (
@@ -568,6 +623,8 @@ const GroceryGroceries = (props) => {
                   groceries={fishList}
                   remove={removeGrocery}
                   selectGrocery={changeGrocery}
+                  editing={props.editing}
+                  expanding={props.expanding}
                 />
               ) : undefined}
               {meatList.length !== 0 ? (
@@ -576,6 +633,8 @@ const GroceryGroceries = (props) => {
                   groceries={meatList}
                   remove={removeGrocery}
                   selectGrocery={changeGrocery}
+                  editing={props.editing}
+                  expanding={props.expanding}
                 />
               ) : undefined}
               {grainsList.length !== 0 ? (
@@ -584,6 +643,8 @@ const GroceryGroceries = (props) => {
                   groceries={grainsList}
                   remove={removeGrocery}
                   selectGrocery={changeGrocery}
+                  editing={props.editing}
+                  expanding={props.expanding}
                 />
               ) : undefined}
               {dairyList.length !== 0 ? (
@@ -592,6 +653,8 @@ const GroceryGroceries = (props) => {
                   groceries={dairyList}
                   remove={removeGrocery}
                   selectGrocery={changeGrocery}
+                  editing={props.editing}
+                  expanding={props.expanding}
                 />
               ) : undefined}
               {condimentsList.length !== 0 ? (
@@ -600,6 +663,8 @@ const GroceryGroceries = (props) => {
                   groceries={condimentsList}
                   remove={removeGrocery}
                   selectGrocery={changeGrocery}
+                  editing={props.editing}
+                  expanding={props.expanding}
                 />
               ) : undefined}
               {snacksList.length !== 0 ? (
@@ -608,6 +673,8 @@ const GroceryGroceries = (props) => {
                   groceries={snacksList}
                   remove={removeGrocery}
                   selectGrocery={changeGrocery}
+                  editing={props.editing}
+                  expanding={props.expanding}
                 />
               ) : undefined}
               {frozenList.length !== 0 ? (
@@ -616,6 +683,8 @@ const GroceryGroceries = (props) => {
                   groceries={frozenList}
                   remove={removeGrocery}
                   selectGrocery={changeGrocery}
+                  editing={props.editing}
+                  expanding={props.expanding}
                 />
               ) : undefined}
               {nonFoodList.length !== 0 ? (
@@ -624,99 +693,16 @@ const GroceryGroceries = (props) => {
                   groceries={nonFoodList}
                   remove={removeGrocery}
                   selectGrocery={changeGrocery}
+                  editing={props.editing}
+                  expanding={props.expanding}
                 />
               ) : undefined}
             </View>
           }
-          style={{ backgroundColor: colors.lightGrey }}
+          style={{ backgroundColor: "white" }}
           nav={props.navigation}
         />
       </View>
-      {editing ? (
-        <View
-          style={{
-            flex: 0.1,
-            flexDirection: "row",
-            alignItems: "center",
-            width: "90%",
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => {
-              setModalVisible(true);
-            }}
-            style={{
-              alignSelf: "center",
-              marginLeft: 15,
-            }}
-          >
-            <Ionicons name="add" size={30} color={colors.primary} />
-          </TouchableOpacity>
-          <View
-            style={{
-              width: "85%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ marginRight: 5 }}>{allGroceries.length} Items</Text>
-          </View>
-          <TouchableOpacity
-            onPress={async () => {
-              LayoutAnimation.configureNext(
-                LayoutAnimation.create(
-                  200,
-                  LayoutAnimation.Types.linear,
-                  LayoutAnimation.Properties.opacity
-                )
-              );
-              setEditing(false);
-              const GroceryData = await AsyncStorage.getItem("Grocery Data");
-              if (GroceryData) {
-                const transformedGroceryData = await JSON.parse(GroceryData)
-                  .data;
-                transformedGroceryData.at(0).AllGroceries = allGroceries;
-                await AsyncStorage.setItem(
-                  "Grocery Data",
-                  JSON.stringify({
-                    data: transformedGroceryData,
-                  })
-                );
-              }
-            }}
-            style={{ alignSelf: "center" }}
-          >
-            <AntDesign name="check" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View
-          style={{
-            flex: 0.1,
-            flexDirection: "row",
-            alignItems: "center",
-            width: "90%",
-          }}
-        >
-          <View
-            style={{
-              width: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ marginLeft: 35 }}>{allGroceries.length} Items</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => {
-              setEditing(true);
-            }}
-            style={{ alignSelf: "center" }}
-          >
-            <Entypo name="new-message" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 };

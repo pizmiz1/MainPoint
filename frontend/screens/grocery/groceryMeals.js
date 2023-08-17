@@ -17,12 +17,16 @@ import { removeGroceryAction } from "../../store/actions/removeGrocery";
 import { updateMealAction } from "../../store/actions/updateMeal";
 import uuid from "react-native-uuid";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SearchBar } from "@rneui/themed";
+import SwitchIconComp from "./../../components/switchIconComp";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
 
 const GroceryMeals = (props) => {
   const [editing, setEditing] = useState(false);
+  const [mealSearch, setMealSearch] = useState("");
+  const [filteredMeals, setFilteredMeals] = useState([]);
 
   const colors = useSelector((state) => state.colors);
   const meals = useSelector((state) => state.meals);
@@ -40,6 +44,25 @@ const GroceryMeals = (props) => {
     };
     dispatch(addMealAction(newMeal));
   };
+
+  const searchMeals = (text) => {
+    if (text) {
+      const newMeals = meals.filter((curr) => {
+        const itemData = curr.Name ? curr.Name.toUpperCase() : "".toUpperCase();
+        const textData = text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+      });
+      setFilteredMeals(newMeals);
+    } else {
+      setFilteredMeals(meals);
+    }
+    setMealSearch(text);
+  };
+
+  useEffect(() => {
+    setFilteredMeals(meals);
+    searchMeals(mealSearch);
+  }, [meals]);
 
   const MealSwitchComp = (props) => {
     const [isEnabled, setIsEnabled] = useState(false);
@@ -109,12 +132,26 @@ const GroceryMeals = (props) => {
         Name: "",
         Category: "",
       };
+      LayoutAnimation.configureNext(
+        LayoutAnimation.create(
+          200,
+          LayoutAnimation.Types.linear,
+          LayoutAnimation.Properties.opacity
+        )
+      );
       setGroceries([...groceries, newGrocery]);
     };
 
     const removeGrocery = (index) => {
       let data = [...groceries];
       data.splice(index, 1);
+      LayoutAnimation.configureNext(
+        LayoutAnimation.create(
+          200,
+          LayoutAnimation.Types.linear,
+          LayoutAnimation.Properties.opacity
+        )
+      );
       setGroceries(data);
     };
 
@@ -265,14 +302,16 @@ const GroceryMeals = (props) => {
                         Calories: props.cals,
                         Protein: props.protein,
                       };
-                      dispatch(updateMealAction(updatedMeal, props.index));
 
                       LayoutAnimation.configureNext(
                         LayoutAnimation.create(
                           200,
                           LayoutAnimation.Types.linear,
                           LayoutAnimation.Properties.opacity
-                        )
+                        ),
+                        () => {
+                          dispatch(updateMealAction(updatedMeal, props.index));
+                        }
                       );
                       setShowDetails(false);
                     }
@@ -340,11 +379,122 @@ const GroceryMeals = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 0.9 }}>
+      <View
+        style={{
+          backgroundColor: "white",
+          width: "100%",
+        }}
+      >
+        <View
+          style={{
+            justifyContent: "space-between",
+            flexDirection: "row",
+            alignItems: "center",
+            marginTop: 30,
+          }}
+        >
+          <SwitchIconComp
+            props={props}
+            style={{ marginRight: 0, marginLeft: 13.5 }}
+          />
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              marginRight: 15,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+              }}
+            >
+              Meals
+            </Text>
+            <Text
+              style={{
+                fontSize: 15,
+                color: "#aaaaaa",
+              }}
+            >
+              {meals.length} {meals.length !== 1 ? "Meals" : "Meal"}
+            </Text>
+          </View>
+          {editing ? (
+            <TouchableOpacity
+              onPress={async () => {
+                const GroceryData = await AsyncStorage.getItem("Grocery Data");
+                if (GroceryData) {
+                  const transformedGroceryData = await JSON.parse(GroceryData)
+                    .data;
+                  transformedGroceryData.at(2).Meals = meals;
+                  await AsyncStorage.setItem(
+                    "Grocery Data",
+                    JSON.stringify({
+                      data: transformedGroceryData,
+                    })
+                  );
+                }
+                LayoutAnimation.configureNext(
+                  LayoutAnimation.create(
+                    200,
+                    LayoutAnimation.Types.linear,
+                    LayoutAnimation.Properties.opacity
+                  )
+                );
+                setEditing(false);
+              }}
+              style={{ alignSelf: "center", marginRight: 13.5 }}
+            >
+              <AntDesign name="check" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => {
+                LayoutAnimation.configureNext(
+                  LayoutAnimation.create(
+                    200,
+                    LayoutAnimation.Types.linear,
+                    LayoutAnimation.Properties.opacity
+                  )
+                );
+                setEditing(true);
+              }}
+              style={{
+                alignSelf: "center",
+                marginRight: 13.5,
+              }}
+            >
+              <Entypo name="new-message" size={24} color={colors.primary} />
+            </TouchableOpacity>
+          )}
+        </View>
+        <SearchBar
+          placeholder="Search Meals"
+          onChangeText={searchMeals}
+          value={mealSearch}
+          lightTheme={true}
+          containerStyle={{
+            backgroundColor: colors.lightGrey,
+            borderTopWidth: 0,
+            borderBottomWidth: 0,
+            width: "100%",
+          }}
+          inputContainerStyle={{
+            borderRadius: 15,
+            height: 30,
+            marginTop: 5,
+          }}
+          platform="ios"
+          showCancel={true}
+        />
+      </View>
+      <View style={{ flex: 1 }}>
         <ScrollViewContainer
           content={
-            <View style={{ backgroundColor: colors.lightGrey }}>
-              {meals.map((item, index) => {
+            <View style={{ backgroundColor: colors.lightGrey, marginTop: -15 }}>
+              {filteredMeals.map((item, index) => {
                 return (
                   <View key={index}>
                     <MealSwitchComp
@@ -360,7 +510,7 @@ const GroceryMeals = (props) => {
               {editing ? (
                 <TouchableOpacity
                   onPress={addMeal}
-                  style={{ flex: 1, alignItems: "center", marginTop: 30 }}
+                  style={{ flex: 1, alignItems: "center", marginTop: 20 }}
                 >
                   <Text style={{ fontSize: 30, color: "green" }}>Add</Text>
                 </TouchableOpacity>
@@ -371,55 +521,6 @@ const GroceryMeals = (props) => {
           nav={props.navigation}
           style={{ backgroundColor: colors.lightGrey }}
         />
-      </View>
-      <View
-        style={{
-          flex: 0.1,
-          flexDirection: "row",
-          alignItems: "center",
-          width: "90%",
-        }}
-      >
-        <View
-          style={{
-            width: "100%",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ marginLeft: 35 }}>{meals.length} Meals</Text>
-        </View>
-        {editing ? (
-          <TouchableOpacity
-            onPress={async () => {
-              const GroceryData = await AsyncStorage.getItem("Grocery Data");
-              if (GroceryData) {
-                const transformedGroceryData = await JSON.parse(GroceryData)
-                  .data;
-                transformedGroceryData.at(2).Meals = meals;
-                await AsyncStorage.setItem(
-                  "Grocery Data",
-                  JSON.stringify({
-                    data: transformedGroceryData,
-                  })
-                );
-              }
-              setEditing(false);
-            }}
-            style={{ alignSelf: "center" }}
-          >
-            <AntDesign name="check" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => {
-              setEditing(true);
-            }}
-            style={{ alignSelf: "center" }}
-          >
-            <Entypo name="new-message" size={24} color={colors.primary} />
-          </TouchableOpacity>
-        )}
       </View>
     </View>
   );

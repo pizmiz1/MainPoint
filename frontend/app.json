@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": true,
       "userInterfaceStyle": "automatic",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "bundleIdentifier": "com.Linedo.MainPoint"
     },
     "android": {

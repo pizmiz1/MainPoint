@@ -25,7 +25,10 @@ const SwitchIconComp = (props) => {
   };
 
   return (
-    <TouchableOpacity style={{ marginRight: 15 }} onPress={handlePress}>
+    <TouchableOpacity
+      style={{ ...props.style, marginRight: 15 }}
+      onPress={handlePress}
+    >
       <FontAwesome name="exchange" size={24} color="black" />
     </TouchableOpacity>
   );

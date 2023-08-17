@@ -17,8 +17,9 @@ import { updateMealAction } from "../../store/actions/updateMeal";
 import Card from "../../components/card";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { SearchBar } from "@rneui/themed";
+import GroceryGroceries from "./groceryGroceries";
 
-const Macros = (props) => {
+const GroceryMacros = (props) => {
   const dispatch = useDispatch();
 
   const colors = useSelector((state) => state.colors);
@@ -41,6 +42,8 @@ const Macros = (props) => {
   const [mealSearch, setMealSearch] = useState("");
   const [searching, setSearching] = useState(false);
   const [filteredMeals, setFilteredMeals] = useState([]);
+  const [groceriesEditing, setGroceriesEditing] = useState(false);
+  const [expanding, setExpanding] = useState(false);
 
   const calsErrorFade = useRef(new Animated.Value(0)).current;
   const proteinErrorFade = useRef(new Animated.Value(0)).current;
@@ -529,7 +532,7 @@ const Macros = (props) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginTop: 40 }}>
       <ScrollViewContainer
         style={{ backgroundColor: colors.lightGrey }}
         keyboardShouldPersistTaps={true}
@@ -543,7 +546,7 @@ const Macros = (props) => {
               alignSelf: "center",
               //marginBottom: 65,
               backgroundColor: colors.lightGrey,
-              marginTop: 20,
+              //marginTop: 20,
             }}
           >
             <View
@@ -1308,7 +1311,57 @@ const Macros = (props) => {
                 </View>
               }
             />
-            <View style={{ marginBottom: 250 }} />
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "100%",
+                marginBottom: 10,
+                alignItems: "flex-end",
+                marginTop: 30,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 30,
+                  fontWeight: "bold",
+                }}
+              >
+                Groceries
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setGroceriesEditing(!groceriesEditing);
+                }}
+              >
+                {groceriesEditing ? (
+                  <AntDesign name="check" size={24} color="#3078cb" />
+                ) : (
+                  <Entypo name="new-message" size={24} color="#3078cb" />
+                )}
+              </TouchableOpacity>
+            </View>
+            <Card
+              style={{ backgroundColor: "white" }}
+              animating={groceriesEditing || expanding}
+              content={
+                <View>
+                  <GroceryGroceries
+                    navigation={props.navigation}
+                    editing={groceriesEditing}
+                    expanding={(doneExpanding) => {
+                      if (doneExpanding) {
+                        setExpanding(false);
+                      } else {
+                        setExpanding(true);
+                      }
+                    }}
+                  />
+                </View>
+              }
+            />
+            <View style={{ marginBottom: 25 }} />
           </View>
         }
         nav={props.navigation}
@@ -1317,4 +1370,4 @@ const Macros = (props) => {
   );
 };
 
-export default Macros;
+export default GroceryMacros;

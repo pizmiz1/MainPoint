@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment/moment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -15,6 +17,7 @@ import SplashScreen from "../screens/splashScreen";
 import GroceryList from "../screens/grocery/groceryList";
 import GroceryMeals from "../screens/grocery/groceryMeals";
 import GroceryGroceries from "../screens/grocery/groceryGroceries";
+import GroceryMacros from "../screens/grocery/groceryMacros";
 
 //fitness screens
 import FitnessDay from "../screens/fitness/fitnessDay";
@@ -22,18 +25,19 @@ import FitnessWeek from "../screens/fitness/fitnessWeek";
 import FitnessEdit from "../screens/fitness/fitnessEdit";
 import FitnessMaxes from "../screens/fitness/fitnessMaxes";
 import FitnessDailyFood from "../screens/fitness/fitnessDailyFood";
-import FitnessNotes from "../screens/fitness/fitnessNotes";
 import RunningEdit from "../screens/fitness/runningEdit";
 import RunningDay from "../screens/fitness/runningDay";
 import RunningWeek from "../screens/fitness/runningWeek";
 import RunningTotal from "../screens/fitness/runningTotal";
-import Macros from "../screens/fitness/macros";
 
 //components
 import SwitchIconComp from "../components/switchIconComp";
 
-//Grocery Nav
+//Drawer Nav
 const MyDrawer = createDrawerNavigator();
+
+//Tab Nav
+const MyTab = createMaterialBottomTabNavigator();
 
 const MyDrawerNav = (props) => {
   let myInitialRoute = props.route.params;
@@ -334,25 +338,6 @@ const MyDrawerNav = (props) => {
               }}
             />
             <MyDrawer.Screen
-              name="Fitness Notes"
-              component={FitnessNotes}
-              options={{
-                headerTitle: "Notes",
-                drawerLabel: ({ focused, color }) => (
-                  <Text
-                    style={{
-                      fontWeight: focused ? "bold" : "normal",
-                      textDecorationLine: focused ? "underline" : "none",
-                      color,
-                      fontSize: 20,
-                    }}
-                  >
-                    Notes
-                  </Text>
-                ),
-              }}
-            />
-            <MyDrawer.Screen
               name="Fitness Week"
               component={FitnessWeek}
               options={{
@@ -368,22 +353,21 @@ const MyDrawerNav = (props) => {
     );
   } else {
     return (
-      <MyDrawer.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: colors.secondary,
-          },
-          headerTintColor: colors.textColors.headerText,
-          headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
-          headerShadowVisible: false,
-          drawerStyle: { backgroundColor: colors.primary },
-          drawerActiveBackgroundColor: colors.primary,
-          drawerActiveTintColor: "white",
-          drawerInactiveTintColor: "white",
-          headerRight: () => SwitchIconComp(props),
-        }}
-        useLegacyImplementation={true}
+      <MyTab.Navigator
+        shifting={true}
         initialRouteName={myInitialRoute}
+        activeColor={colors.primary}
+        inactiveColor="#717171"
+        barStyle={{
+          backgroundColor: "white",
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 3,
+          },
+          shadowOpacity: 0.27,
+          shadowRadius: 4.65,
+        }}
         screenListeners={async (state) => {
           const lastRoute = await AsyncStorage.getItem("Last Route");
           if (lastRoute) {
@@ -405,83 +389,51 @@ const MyDrawerNav = (props) => {
           );
         }}
       >
-        <MyDrawer.Screen
+        <MyTab.Screen
+          name="Grocery Macros"
+          component={GroceryMacros}
+          options={{
+            tabBarLabel: "Macros",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="calculator" size={24} color={color} />
+            ),
+            tabBarColor: "#1f65ff",
+          }}
+        />
+        <MyTab.Screen
           name="Grocery List"
           component={GroceryList}
           options={{
-            headerTitle: "List",
-            drawerLabel: ({ focused, color }) => (
-              <Text
-                style={{
-                  fontWeight: focused ? "bold" : "normal",
-                  textDecorationLine: focused ? "underline" : "none",
-                  color,
-                  fontSize: 20,
-                }}
-              >
-                List
-              </Text>
+            tabBarLabel: "List",
+            tabBarIcon: ({ color }) => (
+              <Ionicons name="ios-list" size={24} color={color} />
             ),
+            tabBarColor: "#6518f3",
           }}
         />
-        <MyDrawer.Screen
-          name="Grocery Macros"
-          component={Macros}
-          options={{
-            headerTitle: "",
-            drawerLabel: ({ focused, color }) => (
-              <Text
-                style={{
-                  fontWeight: focused ? "bold" : "normal",
-                  textDecorationLine: focused ? "underline" : "none",
-                  color,
-                  fontSize: 20,
-                }}
-              >
-                Macros
-              </Text>
-            ),
-          }}
-        />
-        <MyDrawer.Screen
+        <MyTab.Screen
           name="Grocery Meals"
           component={GroceryMeals}
           options={{
-            headerTitle: "Meals",
-            drawerLabel: ({ focused, color }) => (
-              <Text
-                style={{
-                  fontWeight: focused ? "bold" : "normal",
-                  textDecorationLine: focused ? "underline" : "none",
-                  color,
-                  fontSize: 20,
-                }}
-              >
-                Meals
-              </Text>
+            tabBarLabel: "Meals",
+            tabBarIcon: ({ color }) => (
+              <MaterialCommunityIcons
+                name="food-turkey"
+                size={24}
+                color={color}
+              />
             ),
+            tabBarColor: "#016d6a",
           }}
         />
-        <MyDrawer.Screen
+        {/* <MyTab.Screen
           name="Grocery Groceries"
           component={GroceryGroceries}
           options={{
-            headerTitle: "Groceries",
-            drawerLabel: ({ focused, color }) => (
-              <Text
-                style={{
-                  fontWeight: focused ? "bold" : "normal",
-                  textDecorationLine: focused ? "underline" : "none",
-                  color,
-                  fontSize: 20,
-                }}
-              >
-                Groceries
-              </Text>
-            ),
+            tabBarLabel: "Groceries",
           }}
-        />
-      </MyDrawer.Navigator>
+        /> */}
+      </MyTab.Navigator>
     );
   }
 };
