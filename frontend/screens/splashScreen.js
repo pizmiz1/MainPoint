@@ -241,30 +241,23 @@ const SplashScreen = (props) => {
           dispatch(updatePower(transformedPower.power));
         }
 
-        let transformedMyInitialRoute;
-
         const mode = await AsyncStorage.getItem("Mode");
         if (!mode) {
-          dispatch(switchMode("Grocery", props));
+          dispatch(switchMode("Grocery"));
         } else {
           const transformedMode = JSON.parse(mode);
           if (transformedMode.mode === "Fitness") {
-            dispatch(switchMode("Fitness", props));
-            const myInitialRoute = await AsyncStorage.getItem(
-              "Last Fitness Route"
-            );
-            if (myInitialRoute) {
-              transformedMyInitialRoute = await JSON.parse(myInitialRoute).data;
-            }
+            dispatch(switchMode("Fitness"));
           } else {
-            const myInitialRoute = await AsyncStorage.getItem(
-              "Last Grocery Route"
-            );
-            if (myInitialRoute) {
-              transformedMyInitialRoute = await JSON.parse(myInitialRoute).data;
-            }
-            dispatch(switchMode("Grocery", props));
+            dispatch(switchMode("Grocery"));
           }
+        }
+
+        let transformedMyInitialRoute;
+
+        const myInitialRoute = await AsyncStorage.getItem("Last Route");
+        if (myInitialRoute) {
+          transformedMyInitialRoute = await JSON.parse(myInitialRoute).data;
         }
 
         if (transformedMyInitialRoute) {

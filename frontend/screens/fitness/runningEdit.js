@@ -23,6 +23,7 @@ import { updateRunning } from "../../store/actions/updateRunning";
 import { updateRunningStartDate } from "../../store/actions/updateRunningStartDate";
 import moment from "moment";
 import Constants from "expo-constants";
+import RunningTotal from "./runningTotal";
 
 import ScrollViewContainer from "../../components/scrollViewContainer";
 
@@ -623,7 +624,7 @@ const RunningEdit = (props) => {
               >
                 Start Date
               </Text>
-              <DateTimePicker
+              {/* <DateTimePicker
                 value={chosenDate}
                 onChange={async (event, date) => {
                   setChosenDate(date);
@@ -651,9 +652,10 @@ const RunningEdit = (props) => {
                   Constants.executionEnvironment === "storeClient" ? 300 : 0
                 }
                 disabled={dateSelectOpen}
-              />
+              /> */}
             </TouchableOpacity>
           </View>
+          <RunningTotal props={props} />
         </View>
       }
       nav={props.navigation}

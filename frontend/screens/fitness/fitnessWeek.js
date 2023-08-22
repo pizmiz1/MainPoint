@@ -11,7 +11,6 @@ import moment from "moment";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
-import BottomNavigationTab from "../../components/bottomNavTab";
 
 const FitnessWeek = (props) => {
   const colors = useSelector((state) => state.colors);
@@ -418,24 +417,21 @@ const FitnessWeek = (props) => {
           </View>
         </View>
       )}
-      <View style={{ flex: 0.9 }}>
-        <ScrollViewContainer
-          content={
-            <View>
-              <View style={{ marginTop: 20 }} />
-              <DayComponent day="Monday" exersizes={mondayExersizes} />
-              <DayComponent day="Tuesday" exersizes={tuesdayExersizes} />
-              <DayComponent day="Wednesday" exersizes={wednesdayExersizes} />
-              <DayComponent day="Thursday" exersizes={thursdayExersizes} />
-              <DayComponent day="Friday" exersizes={fridayExersizes} />
-              <DayComponent day="Saturday" exersizes={saturdayExersizes} />
-              <DayComponent day="Sunday" exersizes={sundayExersizes} />
-            </View>
-          }
-          nav={props.navigation}
-        />
-      </View>
-      <BottomNavigationTab screenName="WEEK" {...props} />
+      <ScrollViewContainer
+        content={
+          <View>
+            <View style={{ marginTop: 20 }} />
+            <DayComponent day="Monday" exersizes={mondayExersizes} />
+            <DayComponent day="Tuesday" exersizes={tuesdayExersizes} />
+            <DayComponent day="Wednesday" exersizes={wednesdayExersizes} />
+            <DayComponent day="Thursday" exersizes={thursdayExersizes} />
+            <DayComponent day="Friday" exersizes={fridayExersizes} />
+            <DayComponent day="Saturday" exersizes={saturdayExersizes} />
+            <DayComponent day="Sunday" exersizes={sundayExersizes} />
+          </View>
+        }
+        nav={props.navigation}
+      />
     </View>
   );
 };

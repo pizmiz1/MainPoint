@@ -133,7 +133,7 @@ const RunningTotal = (props) => {
               </View>
             )
           }
-          nav={props.navigation}
+          nav={props.props.navigation}
         ></ScrollViewContainer>
       </View>
       {editing ? (

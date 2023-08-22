@@ -219,7 +219,7 @@ const fitnessColors = {
     headerText: "white",
     drawerText: "white",
   },
-  darkGrey: "#1c1c1e",
+  darkGrey: "#1c1c1c",
   lightGrey: "#3b4043",
 };
 
@@ -230,7 +230,7 @@ const runningColors = {
     headerText: "black",
     drawerText: "black",
   },
-  darkGrey: "#1c1c1e",
+  darkGrey: "#1c1c1c",
   lightGrey: "#f2f1f6",
 };
 

@@ -5,7 +5,6 @@ import {
 } from "@react-navigation/drawer";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { switchMode } from "../store/actions/switchMode";
 import { FontAwesome } from "@expo/vector-icons";
 
@@ -18,9 +17,9 @@ const SwitchIconComp = (props) => {
 
   const handlePress = () => {
     if (mode === "Fitness") {
-      dispatch(switchMode("Grocery", props));
+      dispatch(switchMode("Grocery"));
     } else {
-      dispatch(switchMode("Fitness", props));
+      dispatch(switchMode("Fitness"));
     }
   };
 

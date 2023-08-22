@@ -8,6 +8,7 @@ import { NotifierWrapper } from "react-native-notifier";
 import { setJSExceptionHandler } from "react-native-exception-handler";
 import Constants from "expo-constants";
 import { Provider as PaperProvider } from "react-native-paper";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 //files
 import MyNavigator from "./navigation/navigation";
@@ -29,19 +30,21 @@ const store = createStore(rootReducer, applyMiddleware(thunk));
 
 const App = () => {
   return (
-    <PaperProvider
-      theme={{
-        colors: {
-          secondaryContainer: "transparent",
-        },
-      }}
-    >
-      <NotifierWrapper>
-        <Provider store={store}>
-          <MyNavigator />
-        </Provider>
-      </NotifierWrapper>
-    </PaperProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PaperProvider
+        theme={{
+          colors: {
+            secondaryContainer: "transparent",
+          },
+        }}
+      >
+        <NotifierWrapper>
+          <Provider store={store}>
+            <MyNavigator />
+          </Provider>
+        </NotifierWrapper>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 };
 

@@ -6,17 +6,22 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  FontAwesome,
+  FontAwesome5,
+} from "@expo/vector-icons";
 import moment from "moment/moment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //shared screens
 import SplashScreen from "../screens/splashScreen";
+import SwapScreen from "../screens/swapScreen";
 
 //grocery screens
 import GroceryList from "../screens/grocery/groceryList";
 import GroceryMeals from "../screens/grocery/groceryMeals";
-import GroceryGroceries from "../screens/grocery/groceryGroceries";
 import GroceryMacros from "../screens/grocery/groceryMacros";
 
 //fitness screens
@@ -48,30 +53,6 @@ const MyDrawerNav = (props) => {
   const shakeCrossed = useSelector((state) => state.shakeCrossed);
   const yogurtCrossed = useSelector((state) => state.yogurtCrossed);
   const barCrossed = useSelector((state) => state.barCrossed);
-
-  // Working But Slow
-  //
-  // useEffect(() => {
-  //   const tester = async () => {
-  //     if (mode === "Fitness") {
-  //       let transformedMyInitialRoute;
-  //       const myInitialRoute = await AsyncStorage.getItem(
-  //         "Initial Fitness Route"
-  //       );
-  //       if (myInitialRoute) {
-  //         transformedMyInitialRoute = await JSON.parse(myInitialRoute).data;
-  //       }
-  //       if (transformedMyInitialRoute.includes("Edit")) {
-  //         if (!running) {
-  //           props.navigation.navigate("Fitness Edit");
-  //         } else {
-  //           props.navigation.navigate("Fitness Running Edit");
-  //         }
-  //       }
-  //     }
-  //   };
-  //   tester();
-  // }, [running]);
 
   const determineValue = () => {
     if (!shakeCrossed && !yogurtCrossed && !barCrossed) {
@@ -147,37 +128,22 @@ const MyDrawerNav = (props) => {
 
   if (mode === "Fitness") {
     return (
-      <MyDrawer.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: colors.secondary,
-          },
-          headerTintColor: colors.textColors.headerText,
-          headerTitleStyle: { fontSize: 20, fontWeight: "bold" },
-          headerShadowVisible: false,
-          drawerStyle: {
-            backgroundColor: running ? colors.primary : bColor(),
-          },
-          drawerActiveBackgroundColor: running ? colors.primary : bColor(),
-          drawerActiveTintColor: colors.textColors.headerText,
-          drawerInactiveTintColor: colors.textColors.headerText,
-          headerRight: () => SwitchIconComp(props),
-        }}
-        useLegacyImplementation={true}
+      <MyTab.Navigator
+        shifting={true}
         initialRouteName={myInitialRoute}
+        activeColor={colors.primary}
+        inactiveColor="#717171"
+        barStyle={{
+          backgroundColor: running ? colors.lightGrey : colors.secondary,
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 3,
+          },
+          shadowOpacity: 0.27,
+          shadowRadius: 4.65,
+        }}
         screenListeners={async (state) => {
-          const lastRoute = await AsyncStorage.getItem("Last Route");
-          if (lastRoute) {
-            const transformed = await JSON.parse(lastRoute).data;
-            if (!transformed.includes("Grocery")) {
-              await AsyncStorage.setItem(
-                "Last Fitness Route",
-                JSON.stringify({
-                  data: state.route.name,
-                })
-              );
-            }
-          }
           await AsyncStorage.setItem(
             "Last Route",
             JSON.stringify({
@@ -186,170 +152,62 @@ const MyDrawerNav = (props) => {
           );
         }}
       >
-        {running ? (
-          <MyDrawer.Group>
-            <MyDrawer.Screen
-              name="Fitness Running Day"
-              component={RunningDay}
-              options={{
-                headerTitle: dayDisp,
-                drawerLabel: ({ focused, color }) => (
-                  <Text
-                    style={{
-                      fontWeight: focused ? "bold" : "normal",
-                      textDecorationLine: focused ? "underline" : "none",
-                      color,
-                      fontSize: 20,
-                    }}
-                  >
-                    Program
-                  </Text>
-                ),
-              }}
-            />
-            <MyDrawer.Screen
-              name="Fitness Running Edit"
-              component={RunningEdit}
-              options={{
-                headerTitle: "Edit",
-                drawerLabel: ({ focused, color }) => (
-                  <Text
-                    style={{
-                      fontWeight: focused ? "bold" : "normal",
-                      textDecorationLine: focused ? "underline" : "none",
-                      color,
-                      fontSize: 20,
-                    }}
-                  >
-                    Edit
-                  </Text>
-                ),
-              }}
-            />
-            <MyDrawer.Screen
-              name="Fitness Running Total"
-              component={RunningTotal}
-              options={{
-                headerTitle: "Total",
-                drawerLabel: ({ focused, color }) => (
-                  <Text
-                    style={{
-                      fontWeight: focused ? "bold" : "normal",
-                      textDecorationLine: focused ? "underline" : "none",
-                      color,
-                      fontSize: 20,
-                    }}
-                  >
-                    Total
-                  </Text>
-                ),
-              }}
-            />
-            <MyDrawer.Screen
-              name="Fitness Running Week"
-              component={RunningWeek}
-              options={{
-                headerTitle: "Week of " + weekDisp,
-                drawerItemStyle: {
-                  display: "none",
-                },
-              }}
-            />
-          </MyDrawer.Group>
-        ) : (
-          <MyDrawer.Group>
-            <MyDrawer.Screen
-              name="Fitness Day"
-              component={FitnessDay}
-              options={{
-                headerTitle: dayDisp,
-                drawerLabel: ({ focused, color }) => (
-                  <Text
-                    style={{
-                      fontWeight: focused ? "bold" : "normal",
-                      textDecorationLine: focused ? "underline" : "none",
-                      color,
-                      fontSize: 20,
-                    }}
-                  >
-                    Program
-                  </Text>
-                ),
-              }}
-            />
-            <MyDrawer.Screen
-              name="Fitness Edit"
-              component={FitnessEdit}
-              options={{
-                headerTitle: "",
-                drawerLabel: ({ focused, color }) => (
-                  <Text
-                    style={{
-                      fontWeight: focused ? "bold" : "normal",
-                      textDecorationLine: focused ? "underline" : "none",
-                      color,
-                      fontSize: 20,
-                    }}
-                  >
-                    Edit
-                  </Text>
-                ),
-              }}
-            />
-            <MyDrawer.Screen
-              name="Fitness Daily Food"
-              component={FitnessDailyFood}
-              options={{
-                headerTitle: dayDisp,
-                headerStyle: {
-                  backgroundColor: color,
-                },
-                drawerLabel: ({ focused, color }) => (
-                  <Text
-                    style={{
-                      fontWeight: focused ? "bold" : "normal",
-                      textDecorationLine: focused ? "underline" : "none",
-                      color,
-                      fontSize: 20,
-                    }}
-                  >
-                    Daily Food
-                  </Text>
-                ),
-              }}
-            />
-            <MyDrawer.Screen
-              name="Fitness Maxes"
-              component={FitnessMaxes}
-              options={{
-                headerTitle: "Maxes",
-                drawerLabel: ({ focused, color }) => (
-                  <Text
-                    style={{
-                      fontWeight: focused ? "bold" : "normal",
-                      textDecorationLine: focused ? "underline" : "none",
-                      color,
-                      fontSize: 20,
-                    }}
-                  >
-                    Maxes
-                  </Text>
-                ),
-              }}
-            />
-            <MyDrawer.Screen
-              name="Fitness Week"
-              component={FitnessWeek}
-              options={{
-                headerTitle: "Week of " + weekDisp,
-                drawerItemStyle: {
-                  display: "none",
-                },
-              }}
-            />
-          </MyDrawer.Group>
-        )}
-      </MyDrawer.Navigator>
+        <MyTab.Group>
+          <MyTab.Screen
+            name={running ? "Fitness Running Day" : "Fitness Day"}
+            component={running ? RunningDay : FitnessDay}
+            options={{
+              tabBarLabel: "Day",
+              tabBarIcon: ({ focused, color }) => (
+                <Ionicons
+                  name={focused ? "ios-sunny" : "ios-sunny-outline"}
+                  color={color}
+                  size={24}
+                />
+              ),
+            }}
+          />
+          <MyTab.Screen
+            name={running ? "Fitness Running Week" : "Fitness Week"}
+            component={running ? RunningWeek : FitnessWeek}
+            options={{
+              tabBarLabel: "Week",
+              tabBarIcon: ({ focused, color }) => (
+                <Ionicons
+                  name={focused ? "ios-calendar" : "ios-calendar-outline"}
+                  size={24}
+                  color={color}
+                />
+              ),
+            }}
+          />
+          <MyTab.Screen
+            name={running ? "Fitness Running Edit" : "Fitness Edit"}
+            component={running ? RunningEdit : FitnessEdit}
+            options={{
+              tabBarLabel: "Edit",
+              tabBarIcon: ({ focused, color }) => (
+                <Ionicons
+                  name={focused ? "ios-settings" : "ios-settings-outline"}
+                  size={24}
+                  color={color}
+                />
+              ),
+            }}
+          />
+          <MyTab.Screen
+            name="Swap"
+            component={SwapScreen}
+            options={{
+              tabBarLabel: "Swap",
+              tabBarIcon: ({ color }) => (
+                <FontAwesome name="exchange" size={24} color={color} />
+              ),
+              unmountOnBlur: true,
+            }}
+          />
+        </MyTab.Group>
+      </MyTab.Navigator>
     );
   } else {
     return (
@@ -369,18 +227,6 @@ const MyDrawerNav = (props) => {
           shadowRadius: 4.65,
         }}
         screenListeners={async (state) => {
-          const lastRoute = await AsyncStorage.getItem("Last Route");
-          if (lastRoute) {
-            const transformed = await JSON.parse(lastRoute).data;
-            if (!transformed.includes("Fitness")) {
-              await AsyncStorage.setItem(
-                "Last Grocery Route",
-                JSON.stringify({
-                  data: state.route.name,
-                })
-              );
-            }
-          }
           await AsyncStorage.setItem(
             "Last Route",
             JSON.stringify({
@@ -390,25 +236,27 @@ const MyDrawerNav = (props) => {
         }}
       >
         <MyTab.Screen
+          name="Grocery List"
+          component={GroceryList}
+          options={{
+            tabBarLabel: "List",
+            tabBarIcon: ({ focused, color }) => (
+              <Ionicons
+                name={focused ? "ios-list" : "ios-list-outline"}
+                size={24}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <MyTab.Screen
           name="Grocery Macros"
           component={GroceryMacros}
           options={{
             tabBarLabel: "Macros",
             tabBarIcon: ({ color }) => (
-              <Ionicons name="calculator" size={24} color={color} />
+              <FontAwesome name="balance-scale" size={24} color={color} />
             ),
-            tabBarColor: "#1f65ff",
-          }}
-        />
-        <MyTab.Screen
-          name="Grocery List"
-          component={GroceryList}
-          options={{
-            tabBarLabel: "List",
-            tabBarIcon: ({ color }) => (
-              <Ionicons name="ios-list" size={24} color={color} />
-            ),
-            tabBarColor: "#6518f3",
           }}
         />
         <MyTab.Screen
@@ -423,16 +271,19 @@ const MyDrawerNav = (props) => {
                 color={color}
               />
             ),
-            tabBarColor: "#016d6a",
           }}
         />
-        {/* <MyTab.Screen
-          name="Grocery Groceries"
-          component={GroceryGroceries}
+        <MyTab.Screen
+          name="Swap"
+          component={SwapScreen}
           options={{
-            tabBarLabel: "Groceries",
+            tabBarLabel: "Swap",
+            tabBarIcon: ({ color }) => (
+              <FontAwesome name="exchange" size={24} color={color} />
+            ),
+            unmountOnBlur: true,
           }}
-        /> */}
+        />
       </MyTab.Navigator>
     );
   }

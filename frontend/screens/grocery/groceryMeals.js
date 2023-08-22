@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Text,
   Switch,
@@ -18,7 +18,11 @@ import { updateMealAction } from "../../store/actions/updateMeal";
 import uuid from "react-native-uuid";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SearchBar } from "@rneui/themed";
-import SwitchIconComp from "./../../components/switchIconComp";
+import DraggableFlatList, {
+  ScaleDecorator,
+  NestableDraggableFlatList,
+  RenderItemParams,
+} from "react-native-draggable-flatlist";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -71,23 +75,6 @@ const GroceryMeals = (props) => {
     const [groceries, setGroceries] = useState(
       allGroceries.filter((curr) => props.groceries.includes(curr.id))
     );
-
-    useEffect(() => {
-      const test = async () => {
-        const GroceryData = await AsyncStorage.getItem("Grocery Data");
-        if (GroceryData) {
-          const transformedGroceryData = await JSON.parse(GroceryData).data;
-          transformedGroceryData.at(1).Groceries = groceryList;
-          await AsyncStorage.setItem(
-            "Grocery Data",
-            JSON.stringify({
-              data: transformedGroceryData,
-            })
-          );
-        }
-      };
-      test();
-    }, []);
 
     const toggleSwitch = async () => {
       if (!isEnabled) {
@@ -377,6 +364,26 @@ const GroceryMeals = (props) => {
     );
   };
 
+  const renderItem = (test) => {
+    return (
+      <ScaleDecorator>
+        <TouchableOpacity
+          onLongPress={test.drag}
+          disabled={test.isActive || editing || mealSearch !== ""}
+          key={test.getIndex()}
+        >
+          <MealSwitchComp
+            mealName={test.item.Name}
+            groceries={test.item.Groceries}
+            cals={test.item.Calories}
+            protein={test.item.Protein}
+            index={test.getIndex()}
+          />
+        </TouchableOpacity>
+      </ScaleDecorator>
+    );
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -387,21 +394,17 @@ const GroceryMeals = (props) => {
       >
         <View
           style={{
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             flexDirection: "row",
             alignItems: "center",
             marginTop: 30,
           }}
         >
-          <SwitchIconComp
-            props={props}
-            style={{ marginRight: 0, marginLeft: 13.5 }}
-          />
           <View
             style={{
               justifyContent: "center",
               alignItems: "center",
-              marginRight: 15,
+              marginRight: 110,
             }}
           >
             <Text
@@ -445,7 +448,7 @@ const GroceryMeals = (props) => {
                 );
                 setEditing(false);
               }}
-              style={{ alignSelf: "center", marginRight: 13.5 }}
+              style={{ alignSelf: "center", marginRight: 25 }}
             >
               <AntDesign name="check" size={24} color={colors.primary} />
             </TouchableOpacity>
@@ -463,7 +466,7 @@ const GroceryMeals = (props) => {
               }}
               style={{
                 alignSelf: "center",
-                marginRight: 13.5,
+                marginRight: 25,
               }}
             >
               <Entypo name="new-message" size={24} color={colors.primary} />
@@ -492,21 +495,34 @@ const GroceryMeals = (props) => {
       </View>
       <View style={{ flex: 1 }}>
         <ScrollViewContainer
+          isNestable={true}
           content={
             <View style={{ backgroundColor: colors.lightGrey, marginTop: -15 }}>
-              {filteredMeals.map((item, index) => {
-                return (
-                  <View key={index}>
-                    <MealSwitchComp
-                      mealName={item.Name}
-                      groceries={item.Groceries}
-                      cals={item.Calories}
-                      protein={item.Protein}
-                      index={index}
-                    />
-                  </View>
-                );
-              })}
+              <NestableDraggableFlatList
+                data={filteredMeals}
+                onDragEnd={async ({ data }) => {
+                  setFilteredMeals(data);
+                  console.log(data);
+                  const GroceryData = await AsyncStorage.getItem(
+                    "Grocery Data"
+                  );
+                  if (GroceryData) {
+                    let transformedGroceryData = await JSON.parse(GroceryData)
+                      .data;
+                    transformedGroceryData.at(2).Meals = data;
+                    await AsyncStorage.setItem(
+                      "Grocery Data",
+                      JSON.stringify({
+                        data: transformedGroceryData,
+                      })
+                    );
+                  }
+                }}
+                keyExtractor={(item, index) => {
+                  return item.Name + index;
+                }}
+                renderItem={renderItem}
+              />
               {editing ? (
                 <TouchableOpacity
                   onPress={addMeal}

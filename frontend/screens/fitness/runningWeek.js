@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
-import BottomNavigationTab from "../../components/bottomNavTab";
 import moment from "moment/moment";
 import { Feather } from "@expo/vector-icons";
 
@@ -152,57 +151,45 @@ const RunningWeek = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ flex: 0.9 }}>
-        <ScrollViewContainer
-          content={
-            <View style={{ flex: 1, backgroundColor: colors.secondary }}>
-              {determineWeekNum() < 0 ||
-              determineWeekNum() > runningData.length ? (
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text style={{ fontSize: 40 }}>
-                    Program is over or has not started.
-                  </Text>
-                  <Text style={{ fontSize: 50 }}>😎 😎 😎</Text>
-                </View>
-              ) : myRunningWeek !== undefined ? (
-                <View>
-                  <DayComponent day={"Mon"} miles={myRunningWeek.mondayMiles} />
-                  <DayComponent
-                    day={"Tue"}
-                    miles={myRunningWeek.tuesdayMiles}
-                  />
-                  <DayComponent
-                    day={"Wed"}
-                    miles={myRunningWeek.wednesdayMiles}
-                  />
-                  <DayComponent
-                    day={"Thu"}
-                    miles={myRunningWeek.thursdayMiles}
-                  />
-                  <DayComponent day={"Fri"} miles={myRunningWeek.fridayMiles} />
-                  <DayComponent
-                    day={"Sat"}
-                    miles={myRunningWeek.saturdayMiles}
-                  />
-                  <DayComponent day={"Sun"} miles={myRunningWeek.sundayMiles} />
-                </View>
-              ) : (
-                <View>
-                  <Text>Unable To Get Running Data</Text>
-                </View>
-              )}
-            </View>
-          }
-          nav={props.navigation}
-        ></ScrollViewContainer>
-      </View>
-      <BottomNavigationTab screenName="WEEK" {...props} />
+      <ScrollViewContainer
+        content={
+          <View style={{ flex: 1, backgroundColor: colors.secondary }}>
+            {determineWeekNum() < 0 ||
+            determineWeekNum() > runningData.length ? (
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontSize: 40 }}>
+                  Program is over or has not started.
+                </Text>
+                <Text style={{ fontSize: 50 }}>😎 😎 😎</Text>
+              </View>
+            ) : myRunningWeek !== undefined ? (
+              <View>
+                <DayComponent day={"Mon"} miles={myRunningWeek.mondayMiles} />
+                <DayComponent day={"Tue"} miles={myRunningWeek.tuesdayMiles} />
+                <DayComponent
+                  day={"Wed"}
+                  miles={myRunningWeek.wednesdayMiles}
+                />
+                <DayComponent day={"Thu"} miles={myRunningWeek.thursdayMiles} />
+                <DayComponent day={"Fri"} miles={myRunningWeek.fridayMiles} />
+                <DayComponent day={"Sat"} miles={myRunningWeek.saturdayMiles} />
+                <DayComponent day={"Sun"} miles={myRunningWeek.sundayMiles} />
+              </View>
+            ) : (
+              <View>
+                <Text>Unable To Get Running Data</Text>
+              </View>
+            )}
+          </View>
+        }
+        nav={props.navigation}
+      ></ScrollViewContainer>
     </View>
   );
 };
