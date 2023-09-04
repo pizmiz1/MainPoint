@@ -103,25 +103,6 @@ const GroceryList = (props) => {
   };
 
   const CategoryComponent = (props) => {
-    const [groceries, setGroceries] = useState([
-      {
-        id: uuid.v4(),
-        Name: "Broccoli",
-        Category: "Produce",
-      },
-      {
-        id: uuid.v4(),
-        Name: "Cabbage",
-        Category: "Produce",
-      },
-    ]);
-
-    useEffect(() => {
-      if (props.groceries !== undefined) {
-        setGroceries(props.groceries);
-      }
-    }, []);
-
     const backgroundColor = () => {
       switch (props.catName) {
         case "Produce": {
@@ -182,7 +163,7 @@ const GroceryList = (props) => {
           }}
         >
           <View style={{ width: "94%", marginLeft: 20 }}>
-            {groceries.map((item, index) => {
+            {props.groceries.map((item, index) => {
               const crossGroceryOff = async () => {
                 if (!crossedGroceries.includes(item.id)) {
                   setCrossedGroceries(crossedGroceries.concat([item.id]));
@@ -253,7 +234,7 @@ const GroceryList = (props) => {
                       </View>
                     ) : undefined}
                   </View>
-                  {groceries.length === index + 1 ? undefined : (
+                  {props.groceries.length === index + 1 ? undefined : (
                     <View
                       style={{
                         borderColor: colors.darkGrey,
