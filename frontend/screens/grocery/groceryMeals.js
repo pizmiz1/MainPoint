@@ -92,20 +92,6 @@ const GroceryMeals = (props) => {
             );
             if (grocery) {
               await dispatch(addGroceryAction(grocery));
-              const GroceryData = await AsyncStorage.getItem("Grocery Data");
-              if (GroceryData) {
-                const transformedGroceryData = await JSON.parse(GroceryData)
-                  .data;
-                transformedGroceryData.at(1).Groceries = groceryList.concat([
-                  grocery,
-                ]);
-                await AsyncStorage.setItem(
-                  "Grocery Data",
-                  JSON.stringify({
-                    data: transformedGroceryData,
-                  })
-                );
-              }
             }
           }
         }
@@ -122,23 +108,28 @@ const GroceryMeals = (props) => {
             );
             if (grocery) {
               await dispatch(removeGroceryAction(grocery));
-              const GroceryData = await AsyncStorage.getItem("Grocery Data");
-              if (GroceryData) {
-                const transformedGroceryData = await JSON.parse(GroceryData)
-                  .data;
-                transformedGroceryData.at(1).Groceries = groceryList.filter(
-                  (item) => item.id !== grocery.id
-                );
-                await AsyncStorage.setItem(
-                  "Grocery Data",
-                  JSON.stringify({
-                    data: transformedGroceryData,
-                  })
-                );
-              }
             }
           }
         }
+      }
+
+      const GroceryData = await AsyncStorage.getItem("Grocery Data");
+      if (GroceryData) {
+        const transformedGroceryData = await JSON.parse(GroceryData).data;
+        if (!isEnabled) {
+          transformedGroceryData.at(1).Groceries =
+            groceryList.concat(groceries);
+        } else {
+          transformedGroceryData.at(1).Groceries = groceryList.filter(
+            (item) => !groceries.includes(item)
+          );
+        }
+        await AsyncStorage.setItem(
+          "Grocery Data",
+          JSON.stringify({
+            data: transformedGroceryData,
+          })
+        );
       }
       setIsEnabled(!isEnabled);
     };
