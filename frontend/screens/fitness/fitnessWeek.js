@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { View, Text, TouchableOpacity, LayoutAnimation } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  LayoutAnimation,
+  StyleSheet,
+} from "react-native";
 import {
   AntDesign,
   MaterialCommunityIcons,
@@ -8,6 +14,7 @@ import {
 } from "@expo/vector-icons";
 import { updatePower } from "../../store/actions/updatePower";
 import moment from "moment";
+import { BlurView } from "expo-blur";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -19,6 +26,24 @@ const FitnessWeek = (props) => {
   const maxBench = useSelector((state) => state.maxBench);
   const maxSquat = useSelector((state) => state.maxSquat);
   const maxOHP = useSelector((state) => state.maxOHP);
+
+  let weekDisp;
+  const dayDisp = moment().format("dddd");
+  if (dayDisp === "Tuesday") {
+    weekDisp = moment().subtract(1, "days").format("MMM Do");
+  } else if (dayDisp === "Wednesday") {
+    weekDisp = moment().subtract(2, "days").format("MMM Do");
+  } else if (dayDisp === "Thursday") {
+    weekDisp = moment().subtract(3, "days").format("MMM Do");
+  } else if (dayDisp === "Friday") {
+    weekDisp = moment().subtract(4, "days").format("MMM Do");
+  } else if (dayDisp === "Saturday") {
+    weekDisp = moment().subtract(5, "days").format("MMM Do");
+  } else if (dayDisp === "Sunday") {
+    weekDisp = moment().subtract(6, "days").format("MMM Do");
+  } else {
+    weekDisp = moment().format("MMM Do");
+  }
 
   const dispatch = useDispatch();
 
@@ -86,19 +111,9 @@ const FitnessWeek = (props) => {
   const DayComponent = (props) => {
     const [selected, setSelected] = useState(true);
     const [mainLiftIndexs, setMainLiftIndexs] = useState([]);
-    const [isRestDay, setIsRestDay] = useState(false);
-    const [exersizes, setExersizes] = useState([]);
-
-    const currDay = moment().format("dddd");
-
-    useEffect(() => {
-      if (props.exersizes !== undefined) {
-        setExersizes(props.exersizes);
-      }
-      if (props.exersizes.at(0).exersize === "Rest") {
-        setIsRestDay(true);
-      }
-    }, []);
+    const [isRestDay, setIsRestDay] = useState(
+      props.exersizes.at(0) === "Rest"
+    );
 
     return (
       <View>
@@ -168,7 +183,7 @@ const FitnessWeek = (props) => {
                 marginTop: 20,
               }}
             >
-              {exersizes.map((item, index) => {
+              {props.exersizes.map((item, index) => {
                 if (!mainLiftIndexs.includes(index)) {
                   if (
                     item.exersize === "Squat" ||
@@ -259,7 +274,7 @@ const FitnessWeek = (props) => {
                           : item.weight}
                       </Text>
                     </View>
-                    {exersizes.length === index + 1 ? undefined : (
+                    {props.exersizes.length === index + 1 ? undefined : (
                       <View
                         style={{
                           borderColor: colors.lightGrey,
@@ -420,7 +435,7 @@ const FitnessWeek = (props) => {
       <ScrollViewContainer
         content={
           <View>
-            <View style={{ marginTop: 20 }} />
+            <View style={{ marginTop: 80 }} />
             <DayComponent day="Monday" exersizes={mondayExersizes} />
             <DayComponent day="Tuesday" exersizes={tuesdayExersizes} />
             <DayComponent day="Wednesday" exersizes={wednesdayExersizes} />
@@ -432,6 +447,27 @@ const FitnessWeek = (props) => {
         }
         nav={props.navigation}
       />
+      <BlurView
+        intensity={40}
+        style={{
+          width: "100%",
+          height: "12%",
+          justifyContent: "flex-end",
+          ...StyleSheet.absoluteFillObject,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: colors.textColors.headerText,
+            alignSelf: "center",
+            marginBottom: 10,
+          }}
+        >
+          {weekDisp}
+        </Text>
+      </BlurView>
     </View>
   );
 };

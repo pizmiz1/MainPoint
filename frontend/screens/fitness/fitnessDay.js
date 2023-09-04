@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
@@ -13,6 +13,7 @@ import ScrollViewContainer from "../../components/scrollViewContainer";
 const FitnessDay = (props) => {
   const [mainLiftIndexs, setMainLiftIndexs] = useState([]);
   const [selectedIndexs, setSelectedIndexs] = useState([]);
+  const [blur, setBlur] = useState(0);
 
   const colors = useSelector((state) => state.colors);
   const power = useSelector((state) => state.power);
@@ -105,31 +106,10 @@ const FitnessDay = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <BlurView
-        intensity={100}
-        tint="dark"
-        style={{
-          width: "100%",
-          height: "12%",
-          justifyContent: "flex-end",
-          alignItems: "center",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 20,
-            marginBottom: 10,
-            fontWeight: "bold",
-            color: colors.textColors.headerText,
-          }}
-        >
-          {dayDisp}
-        </Text>
-      </BlurView>
       <ScrollViewContainer
         content={
           exersizes.at(0).exersize === "Rest" ? (
-            <View style={{ marginTop: 30 }}>
+            <View style={{ marginTop: 100 }}>
               <MaskedView
                 style={{ height: "50%" }}
                 maskElement={
@@ -156,7 +136,7 @@ const FitnessDay = (props) => {
               </View>
             </View>
           ) : (
-            <View style={{ marginTop: 30 }}>
+            <View style={{ marginTop: 100 }}>
               <View
                 style={{
                   flex: 1,
@@ -332,7 +312,40 @@ const FitnessDay = (props) => {
           )
         }
         nav={props.navigation}
+        onScroll={(pos) => {
+          if (
+            pos.nativeEvent.contentOffset.y < 40 &&
+            pos.nativeEvent.contentOffset.y > 0
+          ) {
+            setBlur(pos.nativeEvent.contentOffset.y);
+          } else if (pos.nativeEvent.contentOffset.y > 40) {
+            setBlur(40);
+          } else if (pos.nativeEvent.contentOffset.y < 0) {
+            setBlur(0);
+          }
+        }}
       />
+      <BlurView
+        intensity={blur}
+        style={{
+          width: "100%",
+          height: "12%",
+          justifyContent: "flex-end",
+          ...StyleSheet.absoluteFillObject,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: colors.textColors.headerText,
+            alignSelf: "center",
+            marginBottom: 10,
+          }}
+        >
+          {dayDisp}
+        </Text>
+      </BlurView>
     </View>
   );
 };

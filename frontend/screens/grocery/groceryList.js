@@ -10,6 +10,7 @@ import {
   ActionSheetIOS,
   Alert,
   LayoutAnimation,
+  StyleSheet,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import uuid from "react-native-uuid";
@@ -17,6 +18,7 @@ import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { removeGroceryAction } from "../../store/actions/removeGrocery";
 import { addGroceryAction } from "../../store/actions/addGrocery";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BlurView } from "expo-blur";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -41,6 +43,8 @@ const GroceryList = (props) => {
   const [clearVisible, setClearVisible] = useState(false);
   const [editing, setEditing] = useState(false);
   const [groceryNotFound, setGroceryNotFound] = useState(false);
+  const [blur, setBlur] = useState(0);
+  const [backgroundTrig, setBackgroundTrig] = useState(0);
 
   const setArrays = () => {
     setProduceList(
@@ -385,11 +389,134 @@ const GroceryList = (props) => {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <View
+      <View style={{ flex: 1 }}>
+        <ScrollViewContainer
+          content={
+            <View
+              style={{
+                backgroundColor: colors.lightGrey,
+                marginBottom: 20,
+                marginTop: 80,
+              }}
+            >
+              {editing ? (
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    marginTop: 10,
+                    opacity: clearVisible ? 1 : 0,
+                  }}
+                  onPress={async () => {
+                    const tempArr = groceryList;
+                    tempArr.forEach((currGrocery) => {
+                      removeGrocery(currGrocery);
+                    });
+                    setCrossedGroceries([]);
+                    await AsyncStorage.setItem(
+                      "Crossed Groceries",
+                      JSON.stringify({
+                        data: [],
+                      })
+                    );
+                  }}
+                  disabled={!clearVisible}
+                >
+                  <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
+                </TouchableOpacity>
+              ) : undefined}
+              {produceList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Produce"}
+                  groceries={produceList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {fishList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Fish"}
+                  groceries={fishList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {meatList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Meat"}
+                  groceries={meatList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {grainsList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Grains"}
+                  groceries={grainsList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {dairyList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Dairy"}
+                  groceries={dairyList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {condimentsList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Condiments"}
+                  groceries={condimentsList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {snacksList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Snacks"}
+                  groceries={snacksList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {frozenList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Frozen"}
+                  groceries={frozenList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+              {nonFoodList.length !== 0 ? (
+                <CategoryComponent
+                  catName={"Non Food"}
+                  groceries={nonFoodList}
+                  remove={removeGrocery}
+                />
+              ) : undefined}
+            </View>
+          }
+          style={{ backgroundColor: colors.lightGrey }}
+          onScroll={(pos) => {
+            setBackgroundTrig(pos.nativeEvent.contentOffset.y);
+            if (
+              pos.nativeEvent.contentOffset.y < 40 &&
+              pos.nativeEvent.contentOffset.y > 0
+            ) {
+              setBlur(pos.nativeEvent.contentOffset.y);
+            } else if (pos.nativeEvent.contentOffset.y > 40) {
+              setBlur(40);
+            } else if (pos.nativeEvent.contentOffset.y <= 0) {
+              setBlur(0);
+            }
+          }}
+          nav={props.navigation}
+        />
+      </View>
+
+      <BlurView
         style={{
-          backgroundColor: "white",
           width: "100%",
+          height: "12%",
+          ...StyleSheet.absoluteFillObject,
+          backgroundColor:
+            backgroundTrig > 100 ? "rgba(255, 255, 255, .7)" : null,
         }}
+        intensity={blur}
       >
         {editing ? (
           <View
@@ -520,109 +647,7 @@ const GroceryList = (props) => {
             </TouchableOpacity>
           </View>
         )}
-      </View>
-
-      <View style={{ flex: 1 }}>
-        <ScrollViewContainer
-          content={
-            <View
-              style={{ backgroundColor: colors.lightGrey, marginBottom: 20 }}
-            >
-              {editing ? (
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    marginTop: 10,
-                    opacity: clearVisible ? 1 : 0,
-                  }}
-                  onPress={async () => {
-                    const tempArr = groceryList;
-                    tempArr.forEach((currGrocery) => {
-                      removeGrocery(currGrocery);
-                    });
-                    setCrossedGroceries([]);
-                    await AsyncStorage.setItem(
-                      "Crossed Groceries",
-                      JSON.stringify({
-                        data: [],
-                      })
-                    );
-                  }}
-                  disabled={!clearVisible}
-                >
-                  <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
-                </TouchableOpacity>
-              ) : undefined}
-              {produceList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Produce"}
-                  groceries={produceList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {fishList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Fish"}
-                  groceries={fishList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {meatList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Meat"}
-                  groceries={meatList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {grainsList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Grains"}
-                  groceries={grainsList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {dairyList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Dairy"}
-                  groceries={dairyList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {condimentsList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Condiments"}
-                  groceries={condimentsList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {snacksList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Snacks"}
-                  groceries={snacksList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {frozenList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Frozen"}
-                  groceries={frozenList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {nonFoodList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Non Food"}
-                  groceries={nonFoodList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-            </View>
-          }
-          style={{ backgroundColor: colors.lightGrey }}
-          nav={props.navigation}
-        />
-      </View>
+      </BlurView>
     </View>
   );
 };

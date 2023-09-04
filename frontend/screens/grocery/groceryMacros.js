@@ -9,6 +9,7 @@ import {
   Switch,
   Animated,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -532,7 +533,7 @@ const GroceryMacros = (props) => {
   };
 
   return (
-    <View style={{ flex: 1, marginTop: 40 }}>
+    <SafeAreaView style={{ flex: 1, marginTop: 0 }}>
       <ScrollViewContainer
         style={{ backgroundColor: colors.lightGrey }}
         keyboardShouldPersistTaps={true}
@@ -1366,7 +1367,7 @@ const GroceryMacros = (props) => {
         }
         nav={props.navigation}
       ></ScrollViewContainer>
-    </View>
+    </SafeAreaView>
   );
 };
 

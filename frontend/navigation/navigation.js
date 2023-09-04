@@ -4,7 +4,6 @@ import { StatusBar, Animated } from "react-native";
 import { useSelector } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import {
   Ionicons,
@@ -34,12 +33,6 @@ import RunningEdit from "../screens/fitness/runningEdit";
 import RunningDay from "../screens/fitness/runningDay";
 import RunningWeek from "../screens/fitness/runningWeek";
 import RunningTotal from "../screens/fitness/runningTotal";
-
-//components
-import SwitchIconComp from "../components/switchIconComp";
-
-//Drawer Nav
-const MyDrawer = createDrawerNavigator();
 
 //Tab Nav
 const MyTab = createMaterialBottomTabNavigator();

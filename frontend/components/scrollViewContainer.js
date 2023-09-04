@@ -20,6 +20,8 @@ const ScrollViewContainer = (props) => {
       }
       contentContainerStyle={{ flexGrow: 1 }}
       scrollEnabled={!props.scrollDisabled}
+      scrollEventThrottle={16}
+      onScroll={props.onScroll}
     >
       {props.content}
     </NestableScrollContainer>
@@ -35,6 +37,8 @@ const ScrollViewContainer = (props) => {
       }
       contentContainerStyle={{ flexGrow: 1 }}
       scrollEnabled={!props.scrollDisabled}
+      scrollEventThrottle={16}
+      onScroll={props.onScroll}
     >
       {props.content}
     </ScrollView>

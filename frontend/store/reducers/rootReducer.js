@@ -49,6 +49,7 @@ const initialState = {
   shakeCrossed: false,
   yogurtCrossed: false,
   barCrossed: false,
+  blur: 0,
   groceryList: [
     {
       id: uuid.v4(),

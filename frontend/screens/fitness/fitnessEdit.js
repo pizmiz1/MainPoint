@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Switch,
   LayoutAnimation,
+  SafeAreaView,
 } from "react-native";
 import uuid from "react-native-uuid";
 import { updateExersizes } from "../../store/actions/updateExersizes";
@@ -577,7 +578,7 @@ const FitnessEdit = (props) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.secondary }}>
       {!biweekly ? null : (
         <View
           style={{
@@ -1053,7 +1054,7 @@ const FitnessEdit = (props) => {
         }
         nav={props.navigation}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

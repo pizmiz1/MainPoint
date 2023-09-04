@@ -7,6 +7,7 @@ import {
   LayoutAnimation,
   TextInput,
   Alert,
+  StyleSheet,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
@@ -23,6 +24,7 @@ import DraggableFlatList, {
   NestableDraggableFlatList,
   RenderItemParams,
 } from "react-native-draggable-flatlist";
+import { BlurView } from "expo-blur";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -90,6 +92,20 @@ const GroceryMeals = (props) => {
             );
             if (grocery) {
               await dispatch(addGroceryAction(grocery));
+              const GroceryData = await AsyncStorage.getItem("Grocery Data");
+              if (GroceryData) {
+                const transformedGroceryData = await JSON.parse(GroceryData)
+                  .data;
+                transformedGroceryData.at(1).Groceries = groceryList.concat([
+                  grocery,
+                ]);
+                await AsyncStorage.setItem(
+                  "Grocery Data",
+                  JSON.stringify({
+                    data: transformedGroceryData,
+                  })
+                );
+              }
             }
           }
         }
@@ -106,6 +122,20 @@ const GroceryMeals = (props) => {
             );
             if (grocery) {
               await dispatch(removeGroceryAction(grocery));
+              const GroceryData = await AsyncStorage.getItem("Grocery Data");
+              if (GroceryData) {
+                const transformedGroceryData = await JSON.parse(GroceryData)
+                  .data;
+                transformedGroceryData.at(1).Groceries = groceryList.filter(
+                  (item) => item.id !== grocery.id
+                );
+                await AsyncStorage.setItem(
+                  "Grocery Data",
+                  JSON.stringify({
+                    data: transformedGroceryData,
+                  })
+                );
+              }
             }
           }
         }
@@ -386,11 +416,77 @@ const GroceryMeals = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <View
+      <View style={{ flex: 1 }}>
+        <ScrollViewContainer
+          isNestable={true}
+          content={
+            <View style={{ backgroundColor: colors.lightGrey, marginTop: 80 }}>
+              <SearchBar
+                placeholder="Search Meals"
+                onChangeText={searchMeals}
+                value={mealSearch}
+                lightTheme={true}
+                containerStyle={{
+                  backgroundColor: colors.lightGrey,
+                  borderTopWidth: 0,
+                  borderBottomWidth: 0,
+                  width: "100%",
+                }}
+                inputContainerStyle={{
+                  borderRadius: 15,
+                  height: 30,
+                  marginTop: 5,
+                }}
+                platform="ios"
+                showCancel={true}
+              />
+              <NestableDraggableFlatList
+                data={filteredMeals}
+                onDragEnd={async ({ data }) => {
+                  setFilteredMeals(data);
+                  const GroceryData = await AsyncStorage.getItem(
+                    "Grocery Data"
+                  );
+                  if (GroceryData) {
+                    let transformedGroceryData = await JSON.parse(GroceryData)
+                      .data;
+                    transformedGroceryData.at(2).Meals = data;
+                    await AsyncStorage.setItem(
+                      "Grocery Data",
+                      JSON.stringify({
+                        data: transformedGroceryData,
+                      })
+                    );
+                  }
+                }}
+                keyExtractor={(item, index) => {
+                  return item.Name + index;
+                }}
+                renderItem={renderItem}
+                style={{ marginTop: -10 }}
+              />
+              {editing ? (
+                <TouchableOpacity
+                  onPress={addMeal}
+                  style={{ flex: 1, alignItems: "center", marginTop: 20 }}
+                >
+                  <Text style={{ fontSize: 30, color: "green" }}>Add</Text>
+                </TouchableOpacity>
+              ) : undefined}
+              <View style={{ marginTop: 150 }} />
+            </View>
+          }
+          nav={props.navigation}
+          style={{ backgroundColor: colors.lightGrey }}
+        />
+      </View>
+      <BlurView
         style={{
-          backgroundColor: "white",
           width: "100%",
+          height: "12%",
+          ...StyleSheet.absoluteFillObject,
         }}
+        intensity={70}
       >
         <View
           style={{
@@ -473,71 +569,7 @@ const GroceryMeals = (props) => {
             </TouchableOpacity>
           )}
         </View>
-        <SearchBar
-          placeholder="Search Meals"
-          onChangeText={searchMeals}
-          value={mealSearch}
-          lightTheme={true}
-          containerStyle={{
-            backgroundColor: colors.lightGrey,
-            borderTopWidth: 0,
-            borderBottomWidth: 0,
-            width: "100%",
-          }}
-          inputContainerStyle={{
-            borderRadius: 15,
-            height: 30,
-            marginTop: 5,
-          }}
-          platform="ios"
-          showCancel={true}
-        />
-      </View>
-      <View style={{ flex: 1 }}>
-        <ScrollViewContainer
-          isNestable={true}
-          content={
-            <View style={{ backgroundColor: colors.lightGrey, marginTop: -15 }}>
-              <NestableDraggableFlatList
-                data={filteredMeals}
-                onDragEnd={async ({ data }) => {
-                  setFilteredMeals(data);
-                  console.log(data);
-                  const GroceryData = await AsyncStorage.getItem(
-                    "Grocery Data"
-                  );
-                  if (GroceryData) {
-                    let transformedGroceryData = await JSON.parse(GroceryData)
-                      .data;
-                    transformedGroceryData.at(2).Meals = data;
-                    await AsyncStorage.setItem(
-                      "Grocery Data",
-                      JSON.stringify({
-                        data: transformedGroceryData,
-                      })
-                    );
-                  }
-                }}
-                keyExtractor={(item, index) => {
-                  return item.Name + index;
-                }}
-                renderItem={renderItem}
-              />
-              {editing ? (
-                <TouchableOpacity
-                  onPress={addMeal}
-                  style={{ flex: 1, alignItems: "center", marginTop: 20 }}
-                >
-                  <Text style={{ fontSize: 30, color: "green" }}>Add</Text>
-                </TouchableOpacity>
-              ) : undefined}
-              <View style={{ marginTop: 150 }} />
-            </View>
-          }
-          nav={props.navigation}
-          style={{ backgroundColor: colors.lightGrey }}
-        />
-      </View>
+      </BlurView>
     </View>
   );
 };
