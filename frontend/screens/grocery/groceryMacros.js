@@ -19,6 +19,7 @@ import Card from "../../components/card";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { SearchBar } from "@rneui/themed";
 import GroceryGroceries from "./groceryGroceries";
+import uuid from "react-native-uuid";
 
 const GroceryMacros = (props) => {
   const dispatch = useDispatch();
@@ -40,6 +41,7 @@ const GroceryMacros = (props) => {
   const [logs, setLogs] = useState([]);
   const [logsSelected, setLogsSelected] = useState(null);
   const [mealsSelected, setMealsSelected] = useState(null);
+  const [dailiesSelected, setDailiesSelected] = useState(null);
   const [mealSearch, setMealSearch] = useState("");
   const [searching, setSearching] = useState(false);
   const [filteredMeals, setFilteredMeals] = useState([]);
@@ -50,6 +52,33 @@ const GroceryMacros = (props) => {
   const proteinErrorFade = useRef(new Animated.Value(0)).current;
   const changedLbsPer = useRef(false);
   const changedProteinPer = useRef(false);
+
+  const dailyMeals = [
+    {
+      Name: "Shake",
+      Groceries: [uuid.v4()],
+      Calories: 270,
+      Protein: 50,
+    },
+    {
+      Name: "Oatmeal",
+      Groceries: [uuid.v4()],
+      Calories: 340,
+      Protein: 30,
+    },
+    {
+      Name: "Yogurt",
+      Groceries: [uuid.v4()],
+      Calories: 250,
+      Protein: 20,
+    },
+    {
+      Name: "Bar",
+      Groceries: [uuid.v4()],
+      Calories: 280,
+      Protein: 20,
+    },
+  ];
 
   useEffect(() => {
     setFilteredMeals(meals);
@@ -127,6 +156,16 @@ const GroceryMacros = (props) => {
         }
       } else {
         setMealsSelected(true);
+      }
+
+      const dailiesSelected = await AsyncStorage.getItem("Dailies Selected");
+      if (dailiesSelected) {
+        const transformed = await JSON.parse(dailiesSelected).data;
+        if (transformed) {
+          setDailiesSelected(transformed);
+        }
+      } else {
+        setDailiesSelected(true);
       }
 
       const logsSelected = await AsyncStorage.getItem("Logs Selected");
@@ -893,30 +932,6 @@ const GroceryMacros = (props) => {
                       }}
                       scrollEnabled={!searching}
                     >
-                      <SearchBar
-                        placeholder="Search Meals"
-                        onChangeText={searchMeals}
-                        value={mealSearch}
-                        lightTheme={true}
-                        containerStyle={{
-                          backgroundColor: "white",
-                          borderTopWidth: 0,
-                          borderBottomWidth: 0,
-                          width: "100%",
-                        }}
-                        inputContainerStyle={{
-                          borderRadius: 15,
-                          height: 30,
-                        }}
-                        platform="ios"
-                        showCancel={true}
-                        onFocus={() => {
-                          setSearching(true);
-                        }}
-                        onBlur={() => {
-                          setSearching(false);
-                        }}
-                      />
                       {filteredMeals.map((item, index) => {
                         return (
                           <View key={index}>
@@ -1012,11 +1027,6 @@ const GroceryMacros = (props) => {
                       </View>
                       <TouchableOpacity
                         onPress={async () => {
-                          let stateCalories;
-                          let stateCalFill;
-                          let stateProtein;
-                          let stateProteinFill;
-
                           const savedProteinPerLb = await AsyncStorage.getItem(
                             "ProteinPerLb"
                           );
@@ -1036,82 +1046,21 @@ const GroceryMacros = (props) => {
                               .data;
                           }
 
-                          if (bodyweight === "") {
-                            stateCalories = 0;
-                            stateCalFill = 0;
-                            changedLbsPer.current = true;
-                            stateProtein = 0;
-                            stateProteinFill = 0;
-                            changedProteinPer.current = true;
-                          } else if (lbsPerWeek === "") {
-                            stateCalories = 0;
-                            stateCalFill = 0;
-                            changedLbsPer.current = true;
-                            if (
-                              localProteinPerLb === proteinPerLb &&
-                              !changedProteinPer.current
-                            ) {
-                              stateProtein = protein;
-                              stateProteinFill =
-                                (100 * protein) /
-                                (parseInt(bodyweight) *
-                                  parseFloat(proteinPerLb));
-                            } else {
-                              changedProteinPer.current = true;
-                              stateProtein = 0;
-                              stateProteinFill = 0;
-                            }
-                          } else if (proteinPerLb === "") {
-                            if (
-                              localLbsPerWeek === lbsPerWeek &&
-                              !changedLbsPer.current
-                            ) {
-                              stateCalories = calories;
-                              stateCalFill = calsFill;
-                            } else {
-                              changedLbsPer.current = true;
-                              stateCalories =
-                                parseInt(bodyweight) * 15 -
-                                parseFloat(lbsPerWeek) * 420;
-                              stateCalFill = 100;
-                            }
-                            stateProtein = 0;
-                            stateProteinFill = 0;
-                            changedProteinPer.current = true;
-                          } else {
-                            if (
-                              localLbsPerWeek === lbsPerWeek &&
-                              !changedLbsPer.current
-                            ) {
-                              stateCalories = calories;
-                              stateCalFill = calsFill;
-                            } else {
-                              changedLbsPer.current = true;
-                              stateCalories =
-                                parseInt(bodyweight) * 15 -
-                                parseFloat(lbsPerWeek) * 420;
-                              stateCalFill = 100;
-                            }
-                            if (
-                              localProteinPerLb === proteinPerLb &&
-                              !changedProteinPer.current
-                            ) {
-                              stateProtein = protein;
-                              stateProteinFill =
-                                (100 * protein) /
-                                (parseInt(bodyweight) *
-                                  parseFloat(proteinPerLb));
-                            } else {
-                              changedProteinPer.current = true;
-                              stateProtein = 0;
-                              stateProteinFill = 0;
-                            }
+                          if (
+                            bodyweight === "" ||
+                            lbsPerWeek === "" ||
+                            proteinPerLb === ""
+                          ) {
+                            return;
                           }
 
-                          setCalories(stateCalories);
-                          setProtein(stateProtein);
-                          setCalsFill(stateCalFill);
-                          setProteinFill(stateProteinFill);
+                          setCalories(
+                            parseInt(bodyweight) * 15 -
+                              parseFloat(lbsPerWeek) * 420
+                          );
+                          setProtein(0);
+                          setCalsFill(100);
+                          setProteinFill(0);
 
                           setSwitchedMeals([]);
                           await AsyncStorage.setItem(
@@ -1156,6 +1105,102 @@ const GroceryMacros = (props) => {
                   ) : (
                     <View style={{ width: "100%" }}>
                       <TouchableOpacity
+                        style={{ width: "100%", marginTop: 10 }}
+                        onPress={async () => {
+                          LayoutAnimation.configureNext(
+                            LayoutAnimation.create(
+                              200,
+                              LayoutAnimation.Types.linear,
+                              LayoutAnimation.Properties.opacity
+                            )
+                          );
+                          setDailiesSelected(!dailiesSelected);
+                          await AsyncStorage.setItem(
+                            "Dailies Selected",
+                            JSON.stringify({
+                              data: !dailiesSelected,
+                            })
+                          );
+                        }}
+                      >
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            //flex: 1,
+                            width: "100%",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 25,
+                              color: colors.textColors.headerText,
+                              fontWeight: dailiesSelected ? "bold" : "normal",
+                              marginLeft: 20,
+                            }}
+                          >
+                            Dailies
+                          </Text>
+                          <View
+                            style={{
+                              //alignSelf: "center",
+                              marginTop: 5,
+                              //justifyContent: "center",
+                              //flex: 1,
+                              marginRight: 10,
+                            }}
+                          >
+                            <AntDesign
+                              name={dailiesSelected ? "arrowup" : "arrowdown"}
+                              color={"black"}
+                              size={20}
+                            />
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+
+                      {dailiesSelected ? (
+                        <View
+                          style={{
+                            backgroundColor: "white",
+                            width: "95%",
+                            alignSelf: "center",
+                            //flex: 1,
+                            padding: 5,
+                            borderRadius: 10,
+                            marginTop: 5,
+                            height: 200,
+                          }}
+                        >
+                          {dailyMeals.map((item, index) => {
+                            return (
+                              <View key={index}>
+                                <MealSwitchComp
+                                  mealName={item.Name}
+                                  cals={item.Calories}
+                                  protein={item.Protein}
+                                  groceries={item.Groceries}
+                                  index={index}
+                                />
+                                {dailyMeals.length === index + 1 ? (
+                                  <View style={{ marginBottom: 10 }} />
+                                ) : (
+                                  <View
+                                    style={{
+                                      borderColor: "#cfcfcf",
+                                      borderWidth: 0.5,
+                                      width: "95%",
+                                      alignSelf: "flex-end",
+                                    }}
+                                  />
+                                )}
+                              </View>
+                            );
+                          })}
+                        </View>
+                      ) : null}
+
+                      <TouchableOpacity
                         onPress={async () => {
                           LayoutAnimation.configureNext(
                             LayoutAnimation.create(
@@ -1179,7 +1224,7 @@ const GroceryMacros = (props) => {
                             justifyContent: "space-between",
                             //flex: 1,
                             width: "100%",
-                            marginTop: 15,
+                            marginTop: 10,
                           }}
                         >
                           <Text

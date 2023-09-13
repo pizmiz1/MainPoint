@@ -41,7 +41,6 @@ const GroceryList = (props) => {
   const [newGroceryName, updateNewGroceryName] = useState("");
   const [crossedGroceries, setCrossedGroceries] = useState([]);
   const [clearVisible, setClearVisible] = useState(false);
-  const [editing, setEditing] = useState(false);
   const [groceryNotFound, setGroceryNotFound] = useState(false);
   const [blur, setBlur] = useState(0);
   const [backgroundTrig, setBackgroundTrig] = useState(0);
@@ -100,6 +99,7 @@ const GroceryList = (props) => {
 
   const removeGrocery = async (passedGrocery) => {
     await dispatch(removeGroceryAction(passedGrocery, false));
+    saveGroceries(2, passedGrocery);
   };
 
   const CategoryComponent = (props) => {
@@ -192,8 +192,8 @@ const GroceryList = (props) => {
                 <View key={index}>
                   <View style={{ flexDirection: "row", width: "100%" }}>
                     <TouchableOpacity
-                      onPress={editing ? undefined : crossGroceryOff}
-                      style={{ flex: editing ? 0 : 1 }}
+                      onPress={crossGroceryOff}
+                      style={{ flex: 0 }}
                     >
                       <Text
                         style={{
@@ -209,30 +209,24 @@ const GroceryList = (props) => {
                         {item.Name}
                       </Text>
                     </TouchableOpacity>
-                    {editing ? (
-                      <View
+                    <View
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "flex-end",
+                        flex: 1,
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => {
+                          props.remove(item);
+                        }}
                         style={{
-                          justifyContent: "center",
-                          alignItems: "flex-end",
-                          flex: 1,
+                          marginRight: 10,
                         }}
                       >
-                        <TouchableOpacity
-                          onPress={() => {
-                            props.remove(item);
-                          }}
-                          style={{
-                            marginRight: 10,
-                          }}
-                        >
-                          <AntDesign
-                            name="minuscircleo"
-                            size={20}
-                            color="red"
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    ) : undefined}
+                        <AntDesign name="minuscircleo" size={20} color="red" />
+                      </TouchableOpacity>
+                    </View>
                   </View>
                   {props.groceries.length === index + 1 ? undefined : (
                     <View
@@ -251,6 +245,57 @@ const GroceryList = (props) => {
         </View>
       </View>
     );
+  };
+
+  const saveGroceries = async (type, grocery) => {
+    switch (type) {
+      case 0: {
+        const GroceryData = await AsyncStorage.getItem("Grocery Data");
+        if (GroceryData) {
+          const transformedGroceryData = await JSON.parse(GroceryData).data;
+          transformedGroceryData.at(1).Groceries = [];
+          transformedGroceryData.at(0).AllGroceries = allGroceries;
+          await AsyncStorage.setItem(
+            "Grocery Data",
+            JSON.stringify({
+              data: transformedGroceryData,
+            })
+          );
+        }
+      }
+      case 1: {
+        const GroceryData = await AsyncStorage.getItem("Grocery Data");
+        if (GroceryData) {
+          const transformedGroceryData = await JSON.parse(GroceryData).data;
+          transformedGroceryData.at(1).Groceries = groceryList.concat([
+            grocery,
+          ]);
+          transformedGroceryData.at(0).AllGroceries = allGroceries;
+          await AsyncStorage.setItem(
+            "Grocery Data",
+            JSON.stringify({
+              data: transformedGroceryData,
+            })
+          );
+        }
+      }
+      case 2: {
+        const GroceryData = await AsyncStorage.getItem("Grocery Data");
+        if (GroceryData) {
+          const transformedGroceryData = await JSON.parse(GroceryData).data;
+          transformedGroceryData.at(1).Groceries = groceryList.filter(
+            (currGrocery) => currGrocery.Name !== grocery.Name
+          );
+          transformedGroceryData.at(0).AllGroceries = allGroceries;
+          await AsyncStorage.setItem(
+            "Grocery Data",
+            JSON.stringify({
+              data: transformedGroceryData,
+            })
+          );
+        }
+      }
+    }
   };
 
   const addGrocery = () => {
@@ -278,6 +323,7 @@ const GroceryList = (props) => {
       updateNewGroceryName("");
       setModalVisible(false);
       dispatch(addGroceryAction(newGrocery));
+      saveGroceries(1, newGrocery);
     } else {
       setGroceryNotFound(true);
       return;
@@ -380,32 +426,31 @@ const GroceryList = (props) => {
                 marginTop: 80,
               }}
             >
-              {editing ? (
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    marginTop: 10,
-                    opacity: clearVisible ? 1 : 0,
-                  }}
-                  onPress={async () => {
-                    const tempArr = groceryList;
-                    tempArr.forEach((currGrocery) => {
-                      removeGrocery(currGrocery);
-                    });
-                    setCrossedGroceries([]);
-                    await AsyncStorage.setItem(
-                      "Crossed Groceries",
-                      JSON.stringify({
-                        data: [],
-                      })
-                    );
-                  }}
-                  disabled={!clearVisible}
-                >
-                  <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
-                </TouchableOpacity>
-              ) : undefined}
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  marginTop: 10,
+                  opacity: clearVisible ? 1 : 0,
+                }}
+                onPress={async () => {
+                  const tempArr = groceryList;
+                  tempArr.forEach((currGrocery) => {
+                    removeGrocery(currGrocery);
+                  });
+                  saveGroceries(0);
+                  setCrossedGroceries([]);
+                  await AsyncStorage.setItem(
+                    "Crossed Groceries",
+                    JSON.stringify({
+                      data: [],
+                    })
+                  );
+                }}
+                disabled={!clearVisible}
+              >
+                <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
+              </TouchableOpacity>
               {produceList.length !== 0 ? (
                 <CategoryComponent
                   catName={"Produce"}
@@ -499,135 +544,49 @@ const GroceryList = (props) => {
         }}
         intensity={blur}
       >
-        {editing ? (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            width: "90%",
+            marginTop: 30,
+          }}
+        >
           <View
             style={{
-              flexDirection: "row",
+              width: "100%",
+              justifyContent: "center",
               alignItems: "center",
-              width: "90%",
-              marginTop: 30,
             }}
           >
-            <TouchableOpacity
-              onPress={() => {
-                setModalVisible(true);
-              }}
+            <Text
               style={{
-                alignSelf: "center",
-                marginLeft: 10,
+                marginLeft: 35,
+                fontSize: 20,
+                fontWeight: "bold",
               }}
             >
-              <Ionicons name="add" size={30} color={colors.primary} />
-            </TouchableOpacity>
-            <View
+              List
+            </Text>
+            <Text
               style={{
-                width: "85%",
-                justifyContent: "center",
-                alignItems: "center",
+                marginLeft: 35,
+                fontSize: 15,
+                color: "#aaaaaa",
               }}
             >
-              <Text
-                style={{
-                  marginLeft: 5,
-                  fontSize: 20,
-                  fontWeight: "bold",
-                }}
-              >
-                List
-              </Text>
-              <Text
-                style={{
-                  marginLeft: 5,
-                  fontSize: 15,
-                  color: "#aaaaaa",
-                }}
-              >
-                {groceryList.length}{" "}
-                {groceryList.length !== 1 ? "Items" : "Item"}
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={async () => {
-                LayoutAnimation.configureNext(
-                  LayoutAnimation.create(
-                    200,
-                    LayoutAnimation.Types.linear,
-                    LayoutAnimation.Properties.opacity
-                  )
-                );
-                setEditing(false);
-                const GroceryData = await AsyncStorage.getItem("Grocery Data");
-                if (GroceryData) {
-                  const transformedGroceryData = await JSON.parse(GroceryData)
-                    .data;
-                  transformedGroceryData.at(1).Groceries = groceryList;
-                  transformedGroceryData.at(0).AllGroceries = allGroceries;
-                  await AsyncStorage.setItem(
-                    "Grocery Data",
-                    JSON.stringify({
-                      data: transformedGroceryData,
-                    })
-                  );
-                }
-              }}
-              style={{ alignSelf: "center", marginLeft: 10 }}
-            >
-              <AntDesign name="check" size={24} color={colors.primary} />
-            </TouchableOpacity>
+              {groceryList.length} {groceryList.length !== 1 ? "Items" : "Item"}
+            </Text>
           </View>
-        ) : (
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              width: "90%",
-              marginTop: 30,
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisible(true);
             }}
+            style={{ alignSelf: "center" }}
           >
-            <View
-              style={{
-                width: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{
-                  marginLeft: 35,
-                  fontSize: 20,
-                  fontWeight: "bold",
-                }}
-              >
-                List
-              </Text>
-              <Text
-                style={{
-                  marginLeft: 35,
-                  fontSize: 15,
-                  color: "#aaaaaa",
-                }}
-              >
-                {groceryList.length}{" "}
-                {groceryList.length !== 1 ? "Items" : "Item"}
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => {
-                LayoutAnimation.configureNext(
-                  LayoutAnimation.create(
-                    200,
-                    LayoutAnimation.Types.linear,
-                    LayoutAnimation.Properties.opacity
-                  )
-                );
-                setEditing(true);
-              }}
-              style={{ alignSelf: "center" }}
-            >
-              <Entypo name="new-message" size={24} color={colors.primary} />
-            </TouchableOpacity>
-          </View>
-        )}
+            <Ionicons name="add" size={30} color={colors.primary} />
+          </TouchableOpacity>
+        </View>
       </BlurView>
     </View>
   );

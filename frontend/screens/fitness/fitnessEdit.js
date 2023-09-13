@@ -23,6 +23,8 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
+import FitnessMaxes from "./fitnessMaxes";
+import Card from "../../components/card";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -672,384 +674,399 @@ const FitnessEdit = (props) => {
               day="Sunday"
               exersizes={power ? sundayExersizes : sundayExersizesB}
             />
-            <View style={{ backgroundColor: "black" }}>
-              <View
+            <View style={{ width: "90%", alignSelf: "center", marginTop: 20 }}>
+              <Text
                 style={{
-                  flexDirection: "row",
-                  backgroundColor: "#1c1c1e",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderRadius: 15,
-                  marginLeft: 20,
-                  marginRight: 20,
-                  marginTop: 20,
-                  padding: 15,
+                  fontSize: 30,
+                  color: "white",
+                  fontWeight: "bold",
                 }}
               >
-                <Text
-                  style={{
-                    fontSize: 20,
-                    color: "white",
-                  }}
-                >
-                  Running
-                </Text>
-                <Switch
-                  onValueChange={() => {
-                    dispatch(switchRunning(!running));
-                  }}
-                  value={running}
-                  ios_backgroundColor={colors.darkGrey}
-                />
-              </View>
-            </View>
-            <View style={{ backgroundColor: "black" }}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  backgroundColor: "#1c1c1e",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderRadius: 15,
-                  marginLeft: 20,
-                  marginRight: 20,
-                  marginTop: 20,
-                  padding: 15,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 20,
-                    color: "white",
-                  }}
-                >
-                  Biweekly
-                </Text>
-                <Switch
-                  onValueChange={() => {
-                    LayoutAnimation.configureNext(
-                      LayoutAnimation.create(
-                        200,
-                        LayoutAnimation.Types.linear,
-                        LayoutAnimation.Properties.opacity
-                      )
-                    );
-                    dispatch(toggleBiweekly());
-                  }}
-                  value={biweekly}
-                  ios_backgroundColor={colors.darkGrey}
-                />
-              </View>
-            </View>
-            <View style={{ backgroundColor: "black" }}>
-              <View
-                style={{
-                  backgroundColor: "#1c1c1e",
-                  borderRadius: 15,
-                  marginLeft: 20,
-                  marginRight: 20,
-                  marginTop: 20,
-                  padding: 15,
-                  flex: 1,
-                }}
-              >
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: "space-between",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={() => {
-                      LayoutAnimation.configureNext(
-                        LayoutAnimation.create(
-                          200,
-                          LayoutAnimation.Types.linear,
-                          LayoutAnimation.Properties.opacity
-                        )
-                      );
-                      setSwitchSelected(!switchSelected);
-                    }}
-                    style={{ flex: 1 }}
-                  >
+                Options
+              </Text>
+              <Card
+                style={{ backgroundColor: "#1c1c1e" }}
+                content={
+                  <View>
                     <View
                       style={{
                         flexDirection: "row",
-                        justifyContent: "center",
-                        flex: 1,
-                        width: "100%",
+                        backgroundColor: "#1c1c1e",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginLeft: 20,
+                        marginTop: 10,
+                        marginRight: 20,
+                        padding: 15,
                       }}
                     >
                       <Text
                         style={{
                           fontSize: 20,
-                          color: colors.textColors.headerText,
-                          fontWeight: switchSelected ? "bold" : "normal",
+                          color: "white",
                         }}
                       >
-                        Switch Days
+                        Running
                       </Text>
+                      <Switch
+                        onValueChange={() => {
+                          dispatch(switchRunning(!running));
+                        }}
+                        value={running}
+                        ios_backgroundColor={colors.darkGrey}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        backgroundColor: "#1c1c1e",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginLeft: 20,
+                        marginTop: 10,
+                        marginRight: 20,
+                        padding: 15,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          color: "white",
+                        }}
+                      >
+                        Biweekly
+                      </Text>
+                      <Switch
+                        onValueChange={() => {
+                          LayoutAnimation.configureNext(
+                            LayoutAnimation.create(
+                              200,
+                              LayoutAnimation.Types.linear,
+                              LayoutAnimation.Properties.opacity
+                            )
+                          );
+                          dispatch(toggleBiweekly());
+                        }}
+                        value={biweekly}
+                        ios_backgroundColor={colors.darkGrey}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        backgroundColor: "#1c1c1e",
+                        marginLeft: 20,
+                        marginRight: 20,
+                        marginTop: 10,
+                        padding: 15,
+                        flex: 1,
+                        marginBottom: 20,
+                      }}
+                    >
                       <View
                         style={{
-                          alignItems: "flex-end",
-                          alignSelf: "flex-end",
-                          marginBottom: 3,
                           flex: 1,
+                          justifyContent: "space-between",
+                          flexDirection: "row",
+                          alignItems: "center",
                         }}
                       >
-                        <AntDesign
-                          name={switchSelected ? "arrowup" : "arrowdown"}
-                          color={"white"}
-                          size={20}
-                        />
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-                {switchSelected ? (
-                  <View style={{ marginTop: 20 }}>
-                    <View
-                      style={{
-                        backgroundColor: "#1c1c1e",
-                        flex: 1,
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <DropDownPicker
-                        open={open}
-                        value={value}
-                        items={items}
-                        setOpen={setOpen}
-                        setValue={setValue}
-                        setItems={setItems}
-                        theme="DARK"
-                        multiple={false}
-                        mode="SIMPLE"
-                        placeholder="Select a day"
-                        dropDownDirection="TOP"
-                      />
-                    </View>
-                    <View
-                      style={{
-                        backgroundColor: "#1c1c1e",
-                        flex: 1,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginTop: 10,
-                      }}
-                    >
-                      <DropDownPicker
-                        open={open2}
-                        value={value2}
-                        items={items2}
-                        setOpen={setOpen2}
-                        setValue={setValue2}
-                        setItems={setItems2}
-                        theme="DARK"
-                        multiple={false}
-                        mode="SIMPLE"
-                        placeholder="Select a day"
-                        dropDownDirection="BOTTOM"
-                      />
-                    </View>
-
-                    {value !== null && value2 !== null && !open && !open2 ? (
-                      !submitLoading ? (
                         <TouchableOpacity
-                          onPress={async () => {
-                            setSubmitLoading(true);
-                            let day1;
-                            let day2;
-                            let day1exersizes;
-                            let day2exersizes;
-                            switch (value) {
-                              case "monday":
-                                day1 = 0;
-                                if (power) {
-                                  day1exersizes = mondayExersizes;
-                                } else {
-                                  day1exersizes = mondayExersizesB;
-                                }
-                                break;
-                              case "tuesday":
-                                day1 = 1;
-                                if (power) {
-                                  day1exersizes = tuesdayExersizes;
-                                } else {
-                                  day1exersizes = tuesdayExersizesB;
-                                }
-                                break;
-                              case "wednesday":
-                                day1 = 2;
-                                if (power) {
-                                  day1exersizes = wednesdayExersizes;
-                                } else {
-                                  day1exersizes = wednesdayExersizesB;
-                                }
-                                break;
-                              case "thursday":
-                                day1 = 3;
-                                if (power) {
-                                  day1exersizes = thursdayExersizes;
-                                } else {
-                                  day1exersizes = thursdayExersizesB;
-                                }
-                                break;
-                              case "friday":
-                                day1 = 4;
-                                if (power) {
-                                  day1exersizes = fridayExersizes;
-                                } else {
-                                  day1exersizes = fridayExersizesB;
-                                }
-                                break;
-                              case "saturday":
-                                day1 = 5;
-                                if (power) {
-                                  day1exersizes = saturdayExersizes;
-                                } else {
-                                  day1exersizes = saturdayExersizesB;
-                                }
-                                break;
-                              case "sunday":
-                                day1 = 6;
-                                if (power) {
-                                  day1exersizes = sundayExersizes;
-                                } else {
-                                  day1exersizes = sundayExersizesB;
-                                }
-                                break;
-                              default:
-                                break;
-                            }
-
-                            switch (value2) {
-                              case "monday":
-                                day2 = 0;
-                                if (power) {
-                                  day2exersizes = mondayExersizes;
-                                } else {
-                                  day2exersizes = mondayExersizesB;
-                                }
-                                break;
-                              case "tuesday":
-                                day2 = 1;
-                                if (power) {
-                                  day2exersizes = tuesdayExersizes;
-                                } else {
-                                  day2exersizes = tuesdayExersizesB;
-                                }
-                                break;
-                              case "wednesday":
-                                day2 = 2;
-                                if (power) {
-                                  day2exersizes = wednesdayExersizes;
-                                } else {
-                                  day2exersizes = wednesdayExersizesB;
-                                }
-                                break;
-                              case "thursday":
-                                day2 = 3;
-                                if (power) {
-                                  day2exersizes = thursdayExersizes;
-                                } else {
-                                  day2exersizes = thursdayExersizesB;
-                                }
-                                break;
-                              case "friday":
-                                day2 = 4;
-                                if (power) {
-                                  day2exersizes = fridayExersizes;
-                                } else {
-                                  day2exersizes = fridayExersizesB;
-                                }
-                                break;
-                              case "saturday":
-                                day2 = 5;
-                                if (power) {
-                                  day2exersizes = saturdayExersizes;
-                                } else {
-                                  day2exersizes = saturdayExersizesB;
-                                }
-                                break;
-                              case "sunday":
-                                day2 = 6;
-                                if (power) {
-                                  day2exersizes = sundayExersizes;
-                                } else {
-                                  day2exersizes = sundayExersizesB;
-                                }
-                                break;
-                              default:
-                                break;
-                            }
-                            const worked1 = await dispatch(
-                              updateExersizes(day1, power, day2exersizes)
+                          onPress={() => {
+                            LayoutAnimation.configureNext(
+                              LayoutAnimation.create(
+                                200,
+                                LayoutAnimation.Types.linear,
+                                LayoutAnimation.Properties.opacity
+                              )
                             );
-                            const worked2 = await dispatch(
-                              updateExersizes(day2, power, day1exersizes)
-                            );
-                            if (worked1 && worked2) {
-                              Notifier.showNotification({
-                                title: "Success!",
-                                description:
-                                  "Your program was updated successfully.",
-                                Component: NotifierComponents.Alert,
-                                componentProps: {
-                                  alertType: "success",
-                                },
-                              });
-                            } else {
-                              Notifier.showNotification({
-                                title: "Failure",
-                                description: "Your program failed to update.",
-                                Component: NotifierComponents.Alert,
-                                componentProps: {
-                                  alertType: "error",
-                                },
-                              });
-                            }
-                            setSubmitLoading(false);
-                            setSwitchSelected(false);
-                            setValue(null);
-                            setValue2(null);
+                            setSwitchSelected(!switchSelected);
                           }}
-                          style={{
-                            borderWidth: 1,
-                            borderColor: "grey",
-                            padding: 5,
-                            borderRadius: 20,
-                            width: "50%",
-                            alignSelf: "center",
-                            backgroundColor: colors.primary,
-                            marginTop: 20,
-                          }}
+                          style={{ flex: 1 }}
                         >
-                          <Text
+                          <View
                             style={{
-                              color: "white",
-                              fontSize: 20,
-                              textAlign: "center",
+                              flexDirection: "row",
+                              justifyContent: "center",
+                              flex: 1,
+                              width: "100%",
                             }}
                           >
-                            Switch
-                          </Text>
+                            <Text
+                              style={{
+                                fontSize: 20,
+                                color: colors.textColors.headerText,
+                                fontWeight: switchSelected ? "bold" : "normal",
+                              }}
+                            >
+                              Switch Days
+                            </Text>
+                            <View
+                              style={{
+                                alignItems: "flex-end",
+                                alignSelf: "flex-end",
+                                marginBottom: 3,
+                                flex: 1,
+                              }}
+                            >
+                              <AntDesign
+                                name={switchSelected ? "arrowup" : "arrowdown"}
+                                color={"white"}
+                                size={20}
+                              />
+                            </View>
+                          </View>
                         </TouchableOpacity>
-                      ) : (
-                        <ActivityIndicator
-                          size="large"
-                          style={{ marginTop: 20 }}
-                        />
-                      )
-                    ) : null}
+                      </View>
+                      {switchSelected ? (
+                        <View style={{ marginTop: 20 }}>
+                          <View
+                            style={{
+                              backgroundColor: "#1c1c1e",
+                              flex: 1,
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <DropDownPicker
+                              open={open}
+                              value={value}
+                              items={items}
+                              setOpen={setOpen}
+                              setValue={setValue}
+                              setItems={setItems}
+                              theme="DARK"
+                              multiple={false}
+                              mode="SIMPLE"
+                              placeholder="Select a day"
+                              dropDownDirection="TOP"
+                            />
+                          </View>
+                          <View
+                            style={{
+                              backgroundColor: "#1c1c1e",
+                              flex: 1,
+                              alignItems: "center",
+                              justifyContent: "center",
+                              marginTop: 10,
+                            }}
+                          >
+                            <DropDownPicker
+                              open={open2}
+                              value={value2}
+                              items={items2}
+                              setOpen={setOpen2}
+                              setValue={setValue2}
+                              setItems={setItems2}
+                              theme="DARK"
+                              multiple={false}
+                              mode="SIMPLE"
+                              placeholder="Select a day"
+                              dropDownDirection="BOTTOM"
+                            />
+                          </View>
+
+                          {value !== null &&
+                          value2 !== null &&
+                          !open &&
+                          !open2 ? (
+                            !submitLoading ? (
+                              <TouchableOpacity
+                                onPress={async () => {
+                                  setSubmitLoading(true);
+                                  let day1;
+                                  let day2;
+                                  let day1exersizes;
+                                  let day2exersizes;
+                                  switch (value) {
+                                    case "monday":
+                                      day1 = 0;
+                                      if (power) {
+                                        day1exersizes = mondayExersizes;
+                                      } else {
+                                        day1exersizes = mondayExersizesB;
+                                      }
+                                      break;
+                                    case "tuesday":
+                                      day1 = 1;
+                                      if (power) {
+                                        day1exersizes = tuesdayExersizes;
+                                      } else {
+                                        day1exersizes = tuesdayExersizesB;
+                                      }
+                                      break;
+                                    case "wednesday":
+                                      day1 = 2;
+                                      if (power) {
+                                        day1exersizes = wednesdayExersizes;
+                                      } else {
+                                        day1exersizes = wednesdayExersizesB;
+                                      }
+                                      break;
+                                    case "thursday":
+                                      day1 = 3;
+                                      if (power) {
+                                        day1exersizes = thursdayExersizes;
+                                      } else {
+                                        day1exersizes = thursdayExersizesB;
+                                      }
+                                      break;
+                                    case "friday":
+                                      day1 = 4;
+                                      if (power) {
+                                        day1exersizes = fridayExersizes;
+                                      } else {
+                                        day1exersizes = fridayExersizesB;
+                                      }
+                                      break;
+                                    case "saturday":
+                                      day1 = 5;
+                                      if (power) {
+                                        day1exersizes = saturdayExersizes;
+                                      } else {
+                                        day1exersizes = saturdayExersizesB;
+                                      }
+                                      break;
+                                    case "sunday":
+                                      day1 = 6;
+                                      if (power) {
+                                        day1exersizes = sundayExersizes;
+                                      } else {
+                                        day1exersizes = sundayExersizesB;
+                                      }
+                                      break;
+                                    default:
+                                      break;
+                                  }
+
+                                  switch (value2) {
+                                    case "monday":
+                                      day2 = 0;
+                                      if (power) {
+                                        day2exersizes = mondayExersizes;
+                                      } else {
+                                        day2exersizes = mondayExersizesB;
+                                      }
+                                      break;
+                                    case "tuesday":
+                                      day2 = 1;
+                                      if (power) {
+                                        day2exersizes = tuesdayExersizes;
+                                      } else {
+                                        day2exersizes = tuesdayExersizesB;
+                                      }
+                                      break;
+                                    case "wednesday":
+                                      day2 = 2;
+                                      if (power) {
+                                        day2exersizes = wednesdayExersizes;
+                                      } else {
+                                        day2exersizes = wednesdayExersizesB;
+                                      }
+                                      break;
+                                    case "thursday":
+                                      day2 = 3;
+                                      if (power) {
+                                        day2exersizes = thursdayExersizes;
+                                      } else {
+                                        day2exersizes = thursdayExersizesB;
+                                      }
+                                      break;
+                                    case "friday":
+                                      day2 = 4;
+                                      if (power) {
+                                        day2exersizes = fridayExersizes;
+                                      } else {
+                                        day2exersizes = fridayExersizesB;
+                                      }
+                                      break;
+                                    case "saturday":
+                                      day2 = 5;
+                                      if (power) {
+                                        day2exersizes = saturdayExersizes;
+                                      } else {
+                                        day2exersizes = saturdayExersizesB;
+                                      }
+                                      break;
+                                    case "sunday":
+                                      day2 = 6;
+                                      if (power) {
+                                        day2exersizes = sundayExersizes;
+                                      } else {
+                                        day2exersizes = sundayExersizesB;
+                                      }
+                                      break;
+                                    default:
+                                      break;
+                                  }
+                                  const worked1 = await dispatch(
+                                    updateExersizes(day1, power, day2exersizes)
+                                  );
+                                  const worked2 = await dispatch(
+                                    updateExersizes(day2, power, day1exersizes)
+                                  );
+                                  if (worked1 && worked2) {
+                                    Notifier.showNotification({
+                                      title: "Success!",
+                                      description:
+                                        "Your program was updated successfully.",
+                                      Component: NotifierComponents.Alert,
+                                      componentProps: {
+                                        alertType: "success",
+                                      },
+                                    });
+                                  } else {
+                                    Notifier.showNotification({
+                                      title: "Failure",
+                                      description:
+                                        "Your program failed to update.",
+                                      Component: NotifierComponents.Alert,
+                                      componentProps: {
+                                        alertType: "error",
+                                      },
+                                    });
+                                  }
+                                  setSubmitLoading(false);
+                                  setSwitchSelected(false);
+                                  setValue(null);
+                                  setValue2(null);
+                                }}
+                                style={{
+                                  borderWidth: 1,
+                                  borderColor: "grey",
+                                  padding: 5,
+                                  borderRadius: 20,
+                                  width: "50%",
+                                  alignSelf: "center",
+                                  backgroundColor: colors.primary,
+                                  marginTop: 20,
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    color: "white",
+                                    fontSize: 20,
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  Switch
+                                </Text>
+                              </TouchableOpacity>
+                            ) : (
+                              <ActivityIndicator
+                                size="large"
+                                style={{ marginTop: 20 }}
+                              />
+                            )
+                          ) : null}
+                        </View>
+                      ) : null}
+                    </View>
                   </View>
-                ) : null}
-              </View>
+                }
+              />
             </View>
-            <View style={{ marginBottom: 300 }} />
+            <FitnessMaxes props={props} />
+            <View style={{ marginBottom: 160 }} />
           </View>
         }
         nav={props.navigation}
