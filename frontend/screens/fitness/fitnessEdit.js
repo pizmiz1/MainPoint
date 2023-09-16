@@ -10,6 +10,7 @@ import {
   Switch,
   LayoutAnimation,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import uuid from "react-native-uuid";
 import { updateExersizes } from "../../store/actions/updateExersizes";
@@ -710,7 +711,22 @@ const FitnessEdit = (props) => {
                       </Text>
                       <Switch
                         onValueChange={() => {
-                          dispatch(switchRunning(!running));
+                          Alert.alert(
+                            "Beta",
+                            "Running mode is in beta, some features may not work as expected!",
+                            [
+                              {
+                                text: "Ok",
+                                onPress: () => {
+                                  dispatch(switchRunning(!running));
+                                },
+                              },
+                              {
+                                text: "Cancel",
+                                style: "cancel",
+                              },
+                            ]
+                          );
                         }}
                         value={running}
                         ios_backgroundColor={colors.darkGrey}
