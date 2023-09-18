@@ -7,10 +7,13 @@ export const getGroceries = () => (dispatch) => {
       const GroceryData = await AsyncStorage.getItem("Grocery Data");
       if (GroceryData) {
         const transformedGroceryData = await JSON.parse(GroceryData).data;
+        const nonNulls = transformedGroceryData
+          .at(1)
+          .Groceries.filter((x) => x !== null);
         dispatch({
           type: GET_GROCERIES,
           all: false,
-          groceries: transformedGroceryData.at(1).Groceries,
+          groceries: nonNulls,
         });
         dispatch({
           type: GET_GROCERIES,

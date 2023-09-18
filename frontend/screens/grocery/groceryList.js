@@ -262,6 +262,7 @@ const GroceryList = (props) => {
             })
           );
         }
+        break;
       }
       case 1: {
         const GroceryData = await AsyncStorage.getItem("Grocery Data");
@@ -278,6 +279,7 @@ const GroceryList = (props) => {
             })
           );
         }
+        break;
       }
       case 2: {
         const GroceryData = await AsyncStorage.getItem("Grocery Data");
@@ -294,6 +296,7 @@ const GroceryList = (props) => {
             })
           );
         }
+        break;
       }
     }
   };
@@ -436,7 +439,7 @@ const GroceryList = (props) => {
                 onPress={async () => {
                   const tempArr = groceryList;
                   tempArr.forEach((currGrocery) => {
-                    removeGrocery(currGrocery);
+                    dispatch(removeGroceryAction(currGrocery, false));
                   });
                   saveGroceries(0);
                   setCrossedGroceries([]);
