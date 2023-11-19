@@ -17,9 +17,6 @@ import { AntDesign, Entypo, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { updateMealAction } from "../../store/actions/updateMeal";
 import Card from "../../components/card";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
-import { SearchBar } from "@rneui/themed";
-import GroceryGroceries from "./groceryGroceries";
-import uuid from "react-native-uuid";
 
 const GroceryMacros = (props) => {
   const dispatch = useDispatch();
@@ -41,44 +38,13 @@ const GroceryMacros = (props) => {
   const [logs, setLogs] = useState([]);
   const [logsSelected, setLogsSelected] = useState(null);
   const [mealsSelected, setMealsSelected] = useState(null);
-  const [dailiesSelected, setDailiesSelected] = useState(null);
   const [mealSearch, setMealSearch] = useState("");
-  const [searching, setSearching] = useState(false);
   const [filteredMeals, setFilteredMeals] = useState([]);
-  const [groceriesEditing, setGroceriesEditing] = useState(false);
-  const [expanding, setExpanding] = useState(false);
 
   const calsErrorFade = useRef(new Animated.Value(0)).current;
   const proteinErrorFade = useRef(new Animated.Value(0)).current;
   const changedLbsPer = useRef(false);
   const changedProteinPer = useRef(false);
-
-  const dailyMeals = [
-    {
-      Name: "Shake",
-      Groceries: [uuid.v4()],
-      Calories: 270,
-      Protein: 50,
-    },
-    {
-      Name: "Oatmeal",
-      Groceries: [uuid.v4()],
-      Calories: 340,
-      Protein: 30,
-    },
-    {
-      Name: "Yogurt",
-      Groceries: [uuid.v4()],
-      Calories: 250,
-      Protein: 20,
-    },
-    {
-      Name: "Bar",
-      Groceries: [uuid.v4()],
-      Calories: 280,
-      Protein: 20,
-    },
-  ];
 
   useEffect(() => {
     setFilteredMeals(meals);
@@ -156,16 +122,6 @@ const GroceryMacros = (props) => {
         }
       } else {
         setMealsSelected(true);
-      }
-
-      const dailiesSelected = await AsyncStorage.getItem("Dailies Selected");
-      if (dailiesSelected) {
-        const transformed = await JSON.parse(dailiesSelected).data;
-        if (transformed) {
-          setDailiesSelected(transformed);
-        }
-      } else {
-        setDailiesSelected(true);
       }
 
       const logsSelected = await AsyncStorage.getItem("Logs Selected");
@@ -586,7 +542,7 @@ const GroceryMacros = (props) => {
               alignSelf: "center",
               //marginBottom: 65,
               backgroundColor: colors.lightGrey,
-              //marginTop: 20,
+              marginTop: 50,
             }}
           >
             <View
@@ -602,7 +558,6 @@ const GroceryMacros = (props) => {
               <Text
                 style={{
                   fontSize: 30,
-
                   fontWeight: "bold",
                 }}
               >
@@ -930,7 +885,6 @@ const GroceryMacros = (props) => {
                         marginTop: 5,
                         height: 200,
                       }}
-                      scrollEnabled={!searching}
                     >
                       {filteredMeals.map((item, index) => {
                         return (
@@ -1105,102 +1059,6 @@ const GroceryMacros = (props) => {
                   ) : (
                     <View style={{ width: "100%" }}>
                       <TouchableOpacity
-                        style={{ width: "100%", marginTop: 10 }}
-                        onPress={async () => {
-                          LayoutAnimation.configureNext(
-                            LayoutAnimation.create(
-                              200,
-                              LayoutAnimation.Types.linear,
-                              LayoutAnimation.Properties.opacity
-                            )
-                          );
-                          setDailiesSelected(!dailiesSelected);
-                          await AsyncStorage.setItem(
-                            "Dailies Selected",
-                            JSON.stringify({
-                              data: !dailiesSelected,
-                            })
-                          );
-                        }}
-                      >
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            //flex: 1,
-                            width: "100%",
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 25,
-                              color: colors.textColors.headerText,
-                              fontWeight: dailiesSelected ? "bold" : "normal",
-                              marginLeft: 20,
-                            }}
-                          >
-                            Dailies
-                          </Text>
-                          <View
-                            style={{
-                              //alignSelf: "center",
-                              marginTop: 5,
-                              //justifyContent: "center",
-                              //flex: 1,
-                              marginRight: 10,
-                            }}
-                          >
-                            <AntDesign
-                              name={dailiesSelected ? "arrowup" : "arrowdown"}
-                              color={"black"}
-                              size={20}
-                            />
-                          </View>
-                        </View>
-                      </TouchableOpacity>
-
-                      {dailiesSelected ? (
-                        <View
-                          style={{
-                            backgroundColor: "white",
-                            width: "95%",
-                            alignSelf: "center",
-                            //flex: 1,
-                            padding: 5,
-                            borderRadius: 10,
-                            marginTop: 5,
-                            height: 200,
-                          }}
-                        >
-                          {dailyMeals.map((item, index) => {
-                            return (
-                              <View key={index}>
-                                <MealSwitchComp
-                                  mealName={item.Name}
-                                  cals={item.Calories}
-                                  protein={item.Protein}
-                                  groceries={item.Groceries}
-                                  index={index}
-                                />
-                                {dailyMeals.length === index + 1 ? (
-                                  <View style={{ marginBottom: 10 }} />
-                                ) : (
-                                  <View
-                                    style={{
-                                      borderColor: "#cfcfcf",
-                                      borderWidth: 0.5,
-                                      width: "95%",
-                                      alignSelf: "flex-end",
-                                    }}
-                                  />
-                                )}
-                              </View>
-                            );
-                          })}
-                        </View>
-                      ) : null}
-
-                      <TouchableOpacity
                         onPress={async () => {
                           LayoutAnimation.configureNext(
                             LayoutAnimation.create(
@@ -1357,57 +1215,6 @@ const GroceryMacros = (props) => {
                 </View>
               }
             />
-            <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                width: "100%",
-                marginBottom: 10,
-                alignItems: "flex-end",
-                marginTop: 30,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 30,
-                  fontWeight: "bold",
-                }}
-              >
-                Groceries
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setGroceriesEditing(!groceriesEditing);
-                }}
-              >
-                {groceriesEditing ? (
-                  <AntDesign name="check" size={24} color="#3078cb" />
-                ) : (
-                  <Entypo name="new-message" size={24} color="#3078cb" />
-                )}
-              </TouchableOpacity>
-            </View>
-            <Card
-              style={{ backgroundColor: "white" }}
-              animating={groceriesEditing || expanding}
-              content={
-                <View>
-                  <GroceryGroceries
-                    navigation={props.navigation}
-                    editing={groceriesEditing}
-                    expanding={(doneExpanding) => {
-                      if (doneExpanding) {
-                        setExpanding(false);
-                      } else {
-                        setExpanding(true);
-                      }
-                    }}
-                  />
-                </View>
-              }
-            />
-            <View style={{ marginBottom: 25 }} />
           </View>
         }
         nav={props.navigation}

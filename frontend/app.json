@@ -2,7 +2,7 @@
   "expo": {
     "name": "MainPoint",
     "slug": "MainPoint",
-    "version": "1.1",
+    "version": "2.0",
     "orientation": "portrait",
     "icon": "./assets/Logo/MainLogo.jpg",
     "userInterfaceStyle": "automatic",
@@ -13,7 +13,7 @@
     "ios": {
       "supportsTablet": true,
       "userInterfaceStyle": "automatic",
-      "buildNumber": "12",
+      "buildNumber": "1",
       "bundleIdentifier": "com.Linedo.MainPoint"
     },
     "android": {

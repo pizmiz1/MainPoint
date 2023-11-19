@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Text,
   View,
@@ -19,6 +19,8 @@ import { removeGroceryAction } from "../../store/actions/removeGrocery";
 import { addGroceryAction } from "../../store/actions/addGrocery";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BlurView } from "expo-blur";
+import SelectDropdown from "react-native-select-dropdown";
+import { addNewGroceryAction } from "../../store/actions/addNewGrocery";
 
 //components
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -41,9 +43,13 @@ const GroceryList = (props) => {
   const [newGroceryName, updateNewGroceryName] = useState("");
   const [crossedGroceries, setCrossedGroceries] = useState([]);
   const [clearVisible, setClearVisible] = useState(false);
-  const [groceryNotFound, setGroceryNotFound] = useState(false);
   const [blur, setBlur] = useState(0);
   const [backgroundTrig, setBackgroundTrig] = useState(0);
+  const [addingNewGrocery, setAddingNewGrocery] = useState(false);
+  const [newCat, setNewCat] = useState(null);
+  const [catInvalid, setCatInvalid] = useState(false);
+
+  const oldGrocery = useRef(null);
 
   const setArrays = () => {
     setProduceList(
@@ -73,6 +79,62 @@ const GroceryList = (props) => {
     setFrozenList(
       groceryList.filter((currGrocery) => currGrocery.Category === "Frozen")
     );
+  };
+
+  const cats = [
+    "Produce",
+    "Fish",
+    "Meat",
+    "Grain",
+    "Dairy",
+    "Condiment",
+    "Snack",
+    "Frozen",
+    "Non Food",
+  ];
+
+  const backgroundColor = (cat) => {
+    switch (cat) {
+      case "Produce": {
+        return "green";
+      }
+      case "Fish": {
+        return colors.primary;
+      }
+      case "Meat": {
+        return "red";
+      }
+      case "Grains": {
+        return "tan";
+      }
+      case "Grain": {
+        return "tan";
+      }
+      case "Dairy": {
+        return "teal";
+      }
+      case "Condiments": {
+        return "#f5ce42";
+      }
+      case "Condiment": {
+        return "#f5ce42";
+      }
+      case "Snacks": {
+        return "#f27e1f";
+      }
+      case "Snack": {
+        return "#f27e1f";
+      }
+      case "Non Food": {
+        return "grey";
+      }
+      case "Frozen": {
+        return "#3b5b73";
+      }
+      default: {
+        return "#EFEFEF";
+      }
+    }
   };
 
   useEffect(() => {
@@ -192,8 +254,18 @@ const GroceryList = (props) => {
                 <View key={index}>
                   <View style={{ flexDirection: "row", width: "100%" }}>
                     <TouchableOpacity
-                      onPress={crossGroceryOff}
-                      style={{ flex: 0 }}
+                      onLongPress={async () => {
+                        oldGrocery.current = item;
+                        updateNewGroceryName(item.Name);
+                        setCatInvalid(false);
+                        setNewCat(item.Category);
+                        setAddingNewGrocery(true);
+                        setModalVisible(true);
+                      }}
+                      onPress={() => {
+                        crossGroceryOff();
+                      }}
+                      style={{ flex: 1, width: "100%" }}
                     >
                       <Text
                         style={{
@@ -213,7 +285,6 @@ const GroceryList = (props) => {
                       style={{
                         justifyContent: "center",
                         alignItems: "flex-end",
-                        flex: 1,
                       }}
                     >
                       <TouchableOpacity
@@ -298,10 +369,55 @@ const GroceryList = (props) => {
         }
         break;
       }
+      case 3: {
+        const GroceryData = await AsyncStorage.getItem("Grocery Data");
+        if (GroceryData) {
+          const transformedGroceryData = await JSON.parse(GroceryData).data;
+          transformedGroceryData.at(1).Groceries = groceryList.concat([
+            grocery,
+          ]);
+          transformedGroceryData.at(0).AllGroceries = allGroceries.concat([
+            grocery,
+          ]);
+          await AsyncStorage.setItem(
+            "Grocery Data",
+            JSON.stringify({
+              data: transformedGroceryData,
+            })
+          );
+        }
+        break;
+      }
+      case 4: {
+        const GroceryData = await AsyncStorage.getItem("Grocery Data");
+        if (GroceryData) {
+          const transformedGroceryData = await JSON.parse(GroceryData).data;
+
+          const myGroceryListIndex = groceryList.findIndex(
+            (curr) => curr.id === oldGrocery.current.id
+          );
+          groceryList[myGroceryListIndex] = grocery;
+          transformedGroceryData.at(1).Groceries = groceryList;
+
+          const myGroceryIndex = allGroceries.findIndex(
+            (curr) => curr.id === oldGrocery.current.id
+          );
+          allGroceries[myGroceryIndex] = grocery;
+          transformedGroceryData.at(0).AllGroceries = allGroceries;
+          await AsyncStorage.setItem(
+            "Grocery Data",
+            JSON.stringify({
+              data: transformedGroceryData,
+            })
+          );
+          oldGrocery.current = null;
+        }
+        break;
+      }
     }
   };
 
-  const addGrocery = () => {
+  const addGrocery = async () => {
     let newGrocery = {
       id: uuid.v4(),
       Name: newGroceryName,
@@ -312,25 +428,85 @@ const GroceryList = (props) => {
       (currGrocery) => currGrocery.Name === newGroceryName
     );
 
-    if (existingGrocery) {
+    if (existingGrocery && oldGrocery.current === null) {
       const existingGroceryInList = groceryList.find(
         (currGrocery) => currGrocery.Name === newGroceryName
       );
       if (existingGroceryInList) {
+        updateNewGroceryName("");
+        setModalVisible(false);
+        setAddingNewGrocery(false);
+        setNewCat(null);
+        setCatInvalid(false);
         setModalVisible(false);
         return;
       }
 
       newGrocery.Category = existingGrocery.Category;
       newGrocery.id = existingGrocery.id;
-      updateNewGroceryName("");
-      setModalVisible(false);
       dispatch(addGroceryAction(newGrocery));
       saveGroceries(1, newGrocery);
     } else {
-      setGroceryNotFound(true);
-      return;
+      if (!addingNewGrocery) {
+        LayoutAnimation.configureNext(
+          LayoutAnimation.create(
+            200,
+            LayoutAnimation.Types.linear,
+            LayoutAnimation.Properties.opacity
+          )
+        );
+        setAddingNewGrocery(true);
+        return;
+      }
+      if (newCat === null) {
+        LayoutAnimation.configureNext(
+          LayoutAnimation.create(
+            200,
+            LayoutAnimation.Types.linear,
+            LayoutAnimation.Properties.opacity
+          )
+        );
+        setCatInvalid(true);
+        return;
+      }
+
+      if (newGroceryName === "") {
+        return;
+      }
+
+      newGrocery.Category = newCat;
+
+      if (oldGrocery.current !== null) {
+        if (
+          newGrocery.Category === oldGrocery.current.Category &&
+          newGrocery.Name === oldGrocery.current.Name
+        ) {
+          updateNewGroceryName("");
+          setModalVisible(false);
+          setAddingNewGrocery(false);
+          setNewCat(null);
+          setCatInvalid(false);
+          return;
+        }
+
+        dispatch(removeGroceryAction(oldGrocery.current, true));
+        dispatch(removeGroceryAction(oldGrocery.current, false));
+      }
+
+      dispatch(addNewGroceryAction(newGrocery));
+      dispatch(addGroceryAction(newGrocery));
+      if (oldGrocery.current !== null) {
+        saveGroceries(4, newGrocery);
+      } else {
+        saveGroceries(3, newGrocery);
+      }
     }
+
+    updateNewGroceryName("");
+    setModalVisible(false);
+    setAddingNewGrocery(false);
+    setNewCat(null);
+    setCatInvalid(false);
   };
 
   return (
@@ -347,7 +523,7 @@ const GroceryList = (props) => {
           >
             <View
               style={{
-                marginBottom: 40,
+                marginBottom: addingNewGrocery ? 80 : 40,
                 backgroundColor: "white",
                 borderRadius: 20,
                 padding: 35,
@@ -361,23 +537,31 @@ const GroceryList = (props) => {
                 shadowRadius: 4,
                 elevation: 5,
                 width: "60%",
-                height: "20%",
+                height: addingNewGrocery ? "25%" : "20%",
               }}
             >
               <TextInput
                 value={newGroceryName}
                 placeholder="Name"
                 onChangeText={(text) => {
-                  setGroceryNotFound(false);
+                  if (catInvalid) {
+                    LayoutAnimation.configureNext(
+                      LayoutAnimation.create(
+                        200,
+                        LayoutAnimation.Types.linear,
+                        LayoutAnimation.Properties.opacity
+                      )
+                    );
+                    setCatInvalid(false);
+                  }
                   updateNewGroceryName(text);
                 }}
                 style={{
-                  borderBottomWidth: 1,
                   padding: 5,
-                  borderBottomColor: colors.darkGrey,
                   color: "black",
                   fontSize: 15,
                   width: "90%",
+                  marginTop: addingNewGrocery ? -15 : 0,
                 }}
                 textAlign="center"
                 placeholderTextColor={colors.darkerGrey}
@@ -388,29 +572,112 @@ const GroceryList = (props) => {
                 blurOnSubmit={false}
                 autoCapitalize="words"
               />
-              <Text style={{ color: "red", opacity: groceryNotFound ? 1 : 0 }}>
-                Grocery Not Found
-              </Text>
+              {addingNewGrocery ? (
+                <View style={{ marginTop: 5 }}>
+                  <SelectDropdown
+                    data={cats}
+                    disabled={!addingNewGrocery}
+                    onSelect={(selectedItem) => {
+                      setNewCat(selectedItem);
+                      setCatInvalid(false);
+                    }}
+                    defaultValue={newCat !== null ? newCat : null}
+                    buttonStyle={{ borderRadius: 8, backgroundColor: "white" }}
+                    renderCustomizedButtonChild={(selectedItem, index) => {
+                      return (
+                        <View
+                          style={{
+                            width: "100%",
+                            //height: 40,
+                            flex: 1,
+                            backgroundColor: backgroundColor(selectedItem),
+                            borderRadius: 8,
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: newCat === null ? "black" : "white",
+                              textAlign: "center",
+                              fontWeight: "bold",
+                              fontSize: 18,
+                            }}
+                          >
+                            {selectedItem ? selectedItem : "Select Category"}
+                          </Text>
+                        </View>
+                      );
+                    }}
+                    dropdownStyle={{ borderRadius: 8 }}
+                    renderCustomizedRowChild={(item, index) => {
+                      return (
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                            paddingHorizontal: 18,
+                            backgroundColor: backgroundColor(item),
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "white",
+                              textAlign: "center",
+                              fontWeight: newCat === item ? "bold" : "normal",
+                              fontSize: 18,
+                              marginHorizontal: 12,
+                            }}
+                          >
+                            {item}
+                          </Text>
+                        </View>
+                      );
+                    }}
+                  />
+                  {catInvalid ? (
+                    <Text
+                      style={{
+                        color: "red",
+                        alignSelf: "center",
+                        marginTop: 5,
+                      }}
+                    >
+                      Select a Category!
+                    </Text>
+                  ) : null}
+                </View>
+              ) : null}
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
                   width: "100%",
-                  marginTop: 10,
+                  marginTop: catInvalid ? "5%" : "10%",
                 }}
               >
                 <TouchableOpacity
                   onPress={() => {
-                    setGroceryNotFound(false);
                     setModalVisible(false);
                     updateNewGroceryName("");
+                    setAddingNewGrocery(false);
+                    setNewCat(null);
+                    setCatInvalid(false);
+                    oldGrocery.current = null;
                   }}
                 >
                   <Text style={{ color: "red", fontSize: 17 }}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={addGrocery}>
-                  <Text style={{ color: colors.primary, fontSize: 17 }}>
-                    Add
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontSize: 17,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {oldGrocery.current === null ? "Add" : "Update"}
                   </Text>
                 </TouchableOpacity>
               </View>
