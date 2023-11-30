@@ -9,7 +9,7 @@ import {
   Switch,
   Animated,
   ScrollView,
-  SafeAreaView,
+  StyleSheet,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScrollViewContainer from "../../components/scrollViewContainer";
@@ -17,6 +17,7 @@ import { AntDesign, Entypo, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { updateMealAction } from "../../store/actions/updateMeal";
 import Card from "../../components/card";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
+import { BlurView } from "expo-blur";
 
 const GroceryMacros = (props) => {
   const dispatch = useDispatch();
@@ -528,698 +529,753 @@ const GroceryMacros = (props) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, marginTop: 0 }}>
-      <ScrollViewContainer
-        style={{ backgroundColor: colors.lightGrey }}
-        keyboardShouldPersistTaps={true}
-        content={
-          <View
-            style={{
-              //flex: 1,
-              alignItems: "center",
-              //justifyContent: "center",
-              width: "90%",
-              alignSelf: "center",
-              //marginBottom: 65,
-              backgroundColor: colors.lightGrey,
-              marginTop: 50,
-            }}
-          >
+    <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
+        <ScrollViewContainer
+          style={{ backgroundColor: colors.lightGrey }}
+          keyboardShouldPersistTaps={true}
+          content={
             <View
               style={{
-                flex: 1,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                width: "100%",
-                marginBottom: 10,
-                alignItems: "flex-end",
+                //flex: 1,
+                alignItems: "center",
+                //justifyContent: "center",
+                width: "90%",
+                alignSelf: "center",
+                //marginBottom: 65,
+                backgroundColor: colors.lightGrey,
+                marginTop: 90,
               }}
             >
-              <Text
-                style={{
-                  fontSize: 30,
-                  fontWeight: "bold",
-                }}
-              >
-                Macros
-              </Text>
-              <TouchableOpacity onPress={handleCalorieEditing}>
-                {editing ? (
-                  <AntDesign name="check" size={24} color="#3078cb" />
-                ) : (
-                  <Entypo name="new-message" size={24} color="#3078cb" />
-                )}
-              </TouchableOpacity>
-            </View>
-            <Card
-              style={{ backgroundColor: "white" }}
-              animating={mealsSelected || editing || logsSelected}
-              content={
-                <View>
-                  <View
-                    style={{
-                      alignItems: "center",
-                      flexDirection: "row",
-                      justifyContent: "space-around",
-                    }}
-                  >
-                    <View style={{ alignItems: "center" }}>
-                      <AnimatedCircularProgress
-                        size={140}
-                        width={10}
-                        backgroundWidth={10}
-                        fill={calsFill}
-                        tintColor="#46e7bd"
-                        backgroundColor="#7d7a7a"
-                        arcSweepAngle={240}
-                        rotation={240}
-                        lineCap="round"
-                      >
-                        {(fill) => (
-                          <View
-                            style={{ alignItems: "center", marginTop: -15 }}
-                          >
-                            <Text
-                              style={{
-                                textAlign: "center",
-                                color: "black",
-                                fontSize: 35,
-                                fontWeight: "bold",
-                              }}
-                            >
-                              {calories}
-                            </Text>
-                            <Text
-                              style={{
-                                fontSize: 15,
-                                opacity: 0.5,
-                              }}
-                            >
-                              Calories
-                            </Text>
-                          </View>
-                        )}
-                      </AnimatedCircularProgress>
-                      <View
-                        style={{
-                          alignItems: "center",
-                          borderRadius: 20,
-                          //padding: 5,
-                          flexDirection: "row",
-                          flex: 1,
-                          justifyContent: "space-around",
-                          marginTop: -15,
-                        }}
-                      >
-                        <TouchableOpacity
-                          onPress={() => {
-                            subtractOrAddCals(true);
-                          }}
-                          style={{
-                            borderRadius: 20,
-                            alignSelf: "center",
-                            opacity:
-                              bodyweight !== "" && lbsPerWeek !== "" ? 1 : 0,
-                          }}
-                          disabled={!(bodyweight !== "" && lbsPerWeek !== "")}
-                        >
-                          <AntDesign
-                            name="minuscircleo"
-                            size={27}
-                            color="red"
-                          />
-                        </TouchableOpacity>
-
-                        <TextInput
-                          value={calsTyped}
-                          onChangeText={(text) => {
-                            calsErrorFade.setValue(0);
-                            setCalsTyped(text);
-                          }}
-                          keyboardType="number-pad"
-                          maxLength={4}
-                          style={{
-                            fontSize: 25,
-                            textAlign: "center",
-                            width: "40%",
-                            opacity:
-                              bodyweight !== "" && lbsPerWeek !== "" ? 1 : 0,
-                          }}
-                          placeholder="500"
-                          placeholderTextColor="#a1a6ab"
-                          editable={bodyweight !== "" && lbsPerWeek !== ""}
-                        />
-
-                        <TouchableOpacity
-                          onPress={() => {
-                            subtractOrAddCals(false);
-                          }}
-                          style={{
-                            borderRadius: 20,
-                            alignSelf: "center",
-                            opacity:
-                              bodyweight !== "" && lbsPerWeek !== "" ? 1 : 0,
-                          }}
-                          disabled={!(bodyweight !== "" && lbsPerWeek !== "")}
-                        >
-                          <AntDesign
-                            name="pluscircleo"
-                            size={27}
-                            color="green"
-                          />
-                        </TouchableOpacity>
-                      </View>
-                      <Animated.View style={{ opacity: calsErrorFade }}>
-                        <Text
-                          style={{
-                            color: "red",
-                            alignSelf: "center",
-                          }}
-                        >
-                          Enter Amount
-                        </Text>
-                      </Animated.View>
-                    </View>
-                    <View style={{ alignItems: "center" }}>
-                      <AnimatedCircularProgress
-                        size={140}
-                        width={10}
-                        backgroundWidth={10}
-                        fill={proteinFill}
-                        tintColor="#2ca3ee"
-                        backgroundColor="#7d7a7a"
-                        arcSweepAngle={240}
-                        rotation={240}
-                        lineCap="round"
-                      >
-                        {(fill) => (
-                          <View
-                            style={{ alignItems: "center", marginTop: -15 }}
-                          >
-                            <Text
-                              style={{
-                                textAlign: "center",
-                                color: "black",
-                                fontSize: 35,
-                                fontWeight: "bold",
-                              }}
-                            >
-                              {protein}
-                            </Text>
-                            <Text
-                              style={{
-                                fontSize: 15,
-                                opacity: 0.5,
-                              }}
-                            >
-                              Protein
-                            </Text>
-                          </View>
-                        )}
-                      </AnimatedCircularProgress>
-                      <View
-                        style={{
-                          alignItems: "center",
-                          borderRadius: 20,
-                          //padding: 5,
-                          flexDirection: "row",
-                          flex: 1,
-                          justifyContent: "space-around",
-                          marginTop: -15,
-                        }}
-                      >
-                        <TouchableOpacity
-                          onPress={() => {
-                            subtractOrAddProtein(true);
-                          }}
-                          style={{
-                            borderRadius: 20,
-                            alignSelf: "center",
-                            opacity:
-                              bodyweight !== "" && proteinPerLb !== "" ? 1 : 0,
-                          }}
-                          disabled={!(bodyweight !== "" && proteinPerLb !== "")}
-                        >
-                          <AntDesign
-                            name="minuscircleo"
-                            size={27}
-                            color="red"
-                          />
-                        </TouchableOpacity>
-
-                        <TextInput
-                          value={proteinTyped}
-                          onChangeText={(text) => {
-                            proteinErrorFade.setValue(0);
-                            setProteinTyped(text);
-                          }}
-                          keyboardType="number-pad"
-                          maxLength={3}
-                          style={{
-                            fontSize: 25,
-                            textAlign: "center",
-                            width: "40%",
-                            opacity:
-                              bodyweight !== "" && proteinPerLb !== "" ? 1 : 0,
-                          }}
-                          placeholder="25"
-                          placeholderTextColor="#a1a6ab"
-                          editable={bodyweight !== "" && proteinPerLb !== ""}
-                        />
-
-                        <TouchableOpacity
-                          onPress={() => {
-                            subtractOrAddProtein(false);
-                          }}
-                          style={{
-                            borderRadius: 20,
-                            alignSelf: "center",
-                            opacity:
-                              bodyweight !== "" && proteinPerLb !== "" ? 1 : 0,
-                          }}
-                          disabled={!(bodyweight !== "" && proteinPerLb !== "")}
-                        >
-                          <AntDesign
-                            name="pluscircleo"
-                            size={27}
-                            color="green"
-                          />
-                        </TouchableOpacity>
-                      </View>
-                      <Animated.View style={{ opacity: proteinErrorFade }}>
-                        <Text
-                          style={{
-                            color: "red",
-                            alignSelf: "center",
-                          }}
-                        >
-                          Enter Amount
-                        </Text>
-                      </Animated.View>
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    style={{ width: "100%", marginTop: 10 }}
-                    onPress={async () => {
-                      LayoutAnimation.configureNext(
-                        LayoutAnimation.create(
-                          200,
-                          LayoutAnimation.Types.linear,
-                          LayoutAnimation.Properties.opacity
-                        )
-                      );
-                      setMealsSelected(!mealsSelected);
-                      await AsyncStorage.setItem(
-                        "Meals Selected",
-                        JSON.stringify({
-                          data: !mealsSelected,
-                        })
-                      );
-                    }}
-                  >
+              <Card
+                style={{ backgroundColor: "white" }}
+                animating={mealsSelected || editing || logsSelected}
+                content={
+                  <View style={{ marginTop: 15, marginBottom: 15 }}>
                     <View
                       style={{
+                        alignItems: "center",
                         flexDirection: "row",
-                        justifyContent: "space-between",
-                        //flex: 1,
-                        width: "100%",
+                        justifyContent: "space-around",
                       }}
                     >
-                      <Text
-                        style={{
-                          fontSize: 25,
-                          color: colors.textColors.headerText,
-                          fontWeight: mealsSelected ? "bold" : "normal",
-                          marginLeft: 20,
-                        }}
-                      >
-                        Meals
-                      </Text>
-                      <View
-                        style={{
-                          //alignSelf: "center",
-                          marginTop: 5,
-                          //justifyContent: "center",
-                          //flex: 1,
-                          marginRight: 10,
-                        }}
-                      >
-                        <AntDesign
-                          name={mealsSelected ? "arrowup" : "arrowdown"}
-                          color={"black"}
-                          size={20}
-                        />
+                      <View style={{ alignItems: "center" }}>
+                        <AnimatedCircularProgress
+                          size={140}
+                          width={10}
+                          backgroundWidth={10}
+                          fill={calsFill}
+                          tintColor="#46e7bd"
+                          backgroundColor="#7d7a7a"
+                          arcSweepAngle={240}
+                          rotation={240}
+                          lineCap="round"
+                        >
+                          {(fill) => (
+                            <View
+                              style={{ alignItems: "center", marginTop: -15 }}
+                            >
+                              <Text
+                                style={{
+                                  textAlign: "center",
+                                  color: "black",
+                                  fontSize: 35,
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {calories}
+                              </Text>
+                              <Text
+                                style={{
+                                  fontSize: 15,
+                                  opacity: 0.5,
+                                }}
+                              >
+                                Calories
+                              </Text>
+                            </View>
+                          )}
+                        </AnimatedCircularProgress>
+                        <View
+                          style={{
+                            alignItems: "center",
+                            borderRadius: 20,
+                            //padding: 5,
+                            flexDirection: "row",
+                            flex: 1,
+                            justifyContent: "space-around",
+                            marginTop: -15,
+                          }}
+                        >
+                          <TouchableOpacity
+                            onPress={() => {
+                              subtractOrAddCals(true);
+                            }}
+                            style={{
+                              borderRadius: 20,
+                              alignSelf: "center",
+                              opacity:
+                                bodyweight !== "" && lbsPerWeek !== "" ? 1 : 0,
+                            }}
+                            disabled={!(bodyweight !== "" && lbsPerWeek !== "")}
+                          >
+                            <AntDesign
+                              name="minuscircleo"
+                              size={27}
+                              color="red"
+                            />
+                          </TouchableOpacity>
+
+                          <TextInput
+                            value={calsTyped}
+                            onChangeText={(text) => {
+                              calsErrorFade.setValue(0);
+                              setCalsTyped(text);
+                            }}
+                            keyboardType="number-pad"
+                            maxLength={4}
+                            style={{
+                              fontSize: 25,
+                              textAlign: "center",
+                              width: "40%",
+                              opacity:
+                                bodyweight !== "" && lbsPerWeek !== "" ? 1 : 0,
+                            }}
+                            placeholder="500"
+                            placeholderTextColor="#a1a6ab"
+                            editable={bodyweight !== "" && lbsPerWeek !== ""}
+                          />
+
+                          <TouchableOpacity
+                            onPress={() => {
+                              subtractOrAddCals(false);
+                            }}
+                            style={{
+                              borderRadius: 20,
+                              alignSelf: "center",
+                              opacity:
+                                bodyweight !== "" && lbsPerWeek !== "" ? 1 : 0,
+                            }}
+                            disabled={!(bodyweight !== "" && lbsPerWeek !== "")}
+                          >
+                            <AntDesign
+                              name="pluscircleo"
+                              size={27}
+                              color="green"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                        <Animated.View style={{ opacity: calsErrorFade }}>
+                          <Text
+                            style={{
+                              color: "red",
+                              alignSelf: "center",
+                            }}
+                          >
+                            Enter Amount
+                          </Text>
+                        </Animated.View>
+                      </View>
+                      <View style={{ alignItems: "center" }}>
+                        <AnimatedCircularProgress
+                          size={140}
+                          width={10}
+                          backgroundWidth={10}
+                          fill={proteinFill}
+                          tintColor="#2ca3ee"
+                          backgroundColor="#7d7a7a"
+                          arcSweepAngle={240}
+                          rotation={240}
+                          lineCap="round"
+                        >
+                          {(fill) => (
+                            <View
+                              style={{ alignItems: "center", marginTop: -15 }}
+                            >
+                              <Text
+                                style={{
+                                  textAlign: "center",
+                                  color: "black",
+                                  fontSize: 35,
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {protein}
+                              </Text>
+                              <Text
+                                style={{
+                                  fontSize: 15,
+                                  opacity: 0.5,
+                                }}
+                              >
+                                Protein
+                              </Text>
+                            </View>
+                          )}
+                        </AnimatedCircularProgress>
+                        <View
+                          style={{
+                            alignItems: "center",
+                            borderRadius: 20,
+                            //padding: 5,
+                            flexDirection: "row",
+                            flex: 1,
+                            justifyContent: "space-around",
+                            marginTop: -15,
+                          }}
+                        >
+                          <TouchableOpacity
+                            onPress={() => {
+                              subtractOrAddProtein(true);
+                            }}
+                            style={{
+                              borderRadius: 20,
+                              alignSelf: "center",
+                              opacity:
+                                bodyweight !== "" && proteinPerLb !== ""
+                                  ? 1
+                                  : 0,
+                            }}
+                            disabled={
+                              !(bodyweight !== "" && proteinPerLb !== "")
+                            }
+                          >
+                            <AntDesign
+                              name="minuscircleo"
+                              size={27}
+                              color="red"
+                            />
+                          </TouchableOpacity>
+
+                          <TextInput
+                            value={proteinTyped}
+                            onChangeText={(text) => {
+                              proteinErrorFade.setValue(0);
+                              setProteinTyped(text);
+                            }}
+                            keyboardType="number-pad"
+                            maxLength={3}
+                            style={{
+                              fontSize: 25,
+                              textAlign: "center",
+                              width: "40%",
+                              opacity:
+                                bodyweight !== "" && proteinPerLb !== ""
+                                  ? 1
+                                  : 0,
+                            }}
+                            placeholder="25"
+                            placeholderTextColor="#a1a6ab"
+                            editable={bodyweight !== "" && proteinPerLb !== ""}
+                          />
+
+                          <TouchableOpacity
+                            onPress={() => {
+                              subtractOrAddProtein(false);
+                            }}
+                            style={{
+                              borderRadius: 20,
+                              alignSelf: "center",
+                              opacity:
+                                bodyweight !== "" && proteinPerLb !== ""
+                                  ? 1
+                                  : 0,
+                            }}
+                            disabled={
+                              !(bodyweight !== "" && proteinPerLb !== "")
+                            }
+                          >
+                            <AntDesign
+                              name="pluscircleo"
+                              size={27}
+                              color="green"
+                            />
+                          </TouchableOpacity>
+                        </View>
+                        <Animated.View style={{ opacity: proteinErrorFade }}>
+                          <Text
+                            style={{
+                              color: "red",
+                              alignSelf: "center",
+                            }}
+                          >
+                            Enter Amount
+                          </Text>
+                        </Animated.View>
                       </View>
                     </View>
-                  </TouchableOpacity>
-
-                  {mealsSelected ? (
-                    <ScrollView
-                      style={{
-                        backgroundColor: "white",
-                        width: "95%",
-                        alignSelf: "center",
-                        //flex: 1,
-                        padding: 5,
-                        borderRadius: 10,
-                        marginTop: 5,
-                        height: 200,
+                    <TouchableOpacity
+                      style={{ width: "100%", marginTop: 10 }}
+                      onPress={async () => {
+                        LayoutAnimation.configureNext(
+                          LayoutAnimation.create(
+                            200,
+                            LayoutAnimation.Types.linear,
+                            LayoutAnimation.Properties.opacity
+                          )
+                        );
+                        setMealsSelected(!mealsSelected);
+                        await AsyncStorage.setItem(
+                          "Meals Selected",
+                          JSON.stringify({
+                            data: !mealsSelected,
+                          })
+                        );
                       }}
                     >
-                      {filteredMeals.map((item, index) => {
-                        return (
-                          <View key={index}>
-                            <MealSwitchComp
-                              mealName={item.Name}
-                              cals={item.Calories}
-                              protein={item.Protein}
-                              groceries={item.Groceries}
-                              index={index}
-                            />
-                            {filteredMeals.length === index + 1 ? (
-                              <View style={{ marginBottom: 10 }} />
-                            ) : (
-                              <View
-                                style={{
-                                  borderColor: "#cfcfcf",
-                                  borderWidth: 0.5,
-                                  width: "95%",
-                                  alignSelf: "flex-end",
-                                }}
-                              />
-                            )}
-                          </View>
-                        );
-                      })}
-                    </ScrollView>
-                  ) : null}
-
-                  {editing ? (
-                    <View>
                       <View
                         style={{
                           flexDirection: "row",
-                          justifyContent: "space-around",
+                          justifyContent: "space-between",
+                          //flex: 1,
                           width: "100%",
-                          marginTop: 20,
-                        }}
-                      >
-                        <View style={{ alignItems: "center" }}>
-                          <Text>Bodyweight</Text>
-                          <TextInput
-                            value={bodyweight}
-                            onChangeText={setBodyweight}
-                            keyboardType="numeric"
-                            maxLength={3}
-                            style={{
-                              fontSize: 30,
-                              borderBottomColor: "grey",
-                              borderBottomWidth: 1,
-                              width: "90%",
-                              textAlign: "center",
-                            }}
-                            placeholder="100"
-                            placeholderTextColor="#D4D4D4"
-                          />
-                        </View>
-                        <View style={{ alignItems: "center" }}>
-                          <Text>Lbs Per Week</Text>
-                          <TextInput
-                            value={lbsPerWeek}
-                            onChangeText={setLbsPerWeek}
-                            keyboardType="numeric"
-                            maxLength={3}
-                            style={{
-                              fontSize: 30,
-                              borderBottomColor: "grey",
-                              borderBottomWidth: 1,
-                              width: "90%",
-                              textAlign: "center",
-                            }}
-                            placeholder="1.5"
-                            placeholderTextColor="#D4D4D4"
-                          />
-                        </View>
-                        <View style={{ alignItems: "center" }}>
-                          <Text>Protein Per Lb</Text>
-                          <TextInput
-                            value={proteinPerLb}
-                            onChangeText={setProteinPerLb}
-                            keyboardType="numeric"
-                            maxLength={3}
-                            style={{
-                              fontSize: 30,
-                              borderBottomColor: "grey",
-                              borderBottomWidth: 1,
-                              width: "90%",
-                              textAlign: "center",
-                            }}
-                            placeholder="1"
-                            placeholderTextColor="#D4D4D4"
-                          />
-                        </View>
-                      </View>
-                      <TouchableOpacity
-                        onPress={async () => {
-                          const savedProteinPerLb = await AsyncStorage.getItem(
-                            "ProteinPerLb"
-                          );
-                          let localProteinPerLb;
-                          if (savedProteinPerLb) {
-                            localProteinPerLb = await JSON.parse(
-                              savedProteinPerLb
-                            ).data;
-                          }
-
-                          const savedLbsPerWeek = await AsyncStorage.getItem(
-                            "LbsPerWeek"
-                          );
-                          let localLbsPerWeek;
-                          if (savedLbsPerWeek) {
-                            localLbsPerWeek = await JSON.parse(savedLbsPerWeek)
-                              .data;
-                          }
-
-                          if (
-                            bodyweight === "" ||
-                            lbsPerWeek === "" ||
-                            proteinPerLb === ""
-                          ) {
-                            return;
-                          }
-
-                          setCalories(
-                            parseInt(bodyweight) * 15 -
-                              parseFloat(lbsPerWeek) * 420
-                          );
-                          setProtein(0);
-                          setCalsFill(100);
-                          setProteinFill(0);
-
-                          setSwitchedMeals([]);
-                          await AsyncStorage.setItem(
-                            "Switched Meals",
-                            JSON.stringify({
-                              data: [],
-                            })
-                          );
-
-                          const log = {
-                            type: "add",
-                            cals: "Reset",
-                          };
-                          setLogs(logs.concat([log]));
-                          await AsyncStorage.setItem(
-                            "Logs",
-                            JSON.stringify({
-                              data: logs.concat([log]),
-                            })
-                          );
-                        }}
-                        style={{
-                          padding: 5,
-                          borderRadius: 20,
-                          width: "50%",
-                          alignSelf: "center",
-                          backgroundColor: colors.primary,
-                          marginTop: 15,
                         }}
                       >
                         <Text
                           style={{
+                            fontSize: 25,
                             color: colors.textColors.headerText,
-                            fontSize: 20,
-                            textAlign: "center",
+                            fontWeight: mealsSelected ? "bold" : "normal",
+                            marginLeft: 20,
                           }}
                         >
-                          Reset Macros
+                          Meals
                         </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <View style={{ width: "100%" }}>
-                      <TouchableOpacity
-                        onPress={async () => {
-                          LayoutAnimation.configureNext(
-                            LayoutAnimation.create(
-                              200,
-                              LayoutAnimation.Types.linear,
-                              LayoutAnimation.Properties.opacity
-                            )
-                          );
-                          setLogsSelected(!logsSelected);
-                          await AsyncStorage.setItem(
-                            "Logs Selected",
-                            JSON.stringify({
-                              data: !logsSelected,
-                            })
-                          );
+                        <View
+                          style={{
+                            //alignSelf: "center",
+                            marginTop: 5,
+                            //justifyContent: "center",
+                            //flex: 1,
+                            marginRight: 10,
+                          }}
+                        >
+                          <AntDesign
+                            name={mealsSelected ? "arrowup" : "arrowdown"}
+                            color={"black"}
+                            size={20}
+                          />
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+
+                    {mealsSelected ? (
+                      <ScrollView
+                        style={{
+                          backgroundColor: "white",
+                          width: "95%",
+                          alignSelf: "center",
+                          //flex: 1,
+                          padding: 5,
+                          borderRadius: 10,
+                          marginTop: 5,
+                          height: 200,
                         }}
                       >
+                        {filteredMeals.map((item, index) => {
+                          return (
+                            <View key={index}>
+                              <MealSwitchComp
+                                mealName={item.Name}
+                                cals={item.Calories}
+                                protein={item.Protein}
+                                groceries={item.Groceries}
+                                index={index}
+                              />
+                              {filteredMeals.length === index + 1 ? (
+                                <View style={{ marginBottom: 10 }} />
+                              ) : (
+                                <View
+                                  style={{
+                                    borderColor: "#cfcfcf",
+                                    borderWidth: 0.5,
+                                    width: "95%",
+                                    alignSelf: "flex-end",
+                                  }}
+                                />
+                              )}
+                            </View>
+                          );
+                        })}
+                      </ScrollView>
+                    ) : null}
+
+                    {editing ? (
+                      <View>
                         <View
                           style={{
                             flexDirection: "row",
-                            justifyContent: "space-between",
-                            //flex: 1,
+                            justifyContent: "space-around",
                             width: "100%",
-                            marginTop: 10,
+                            marginTop: 20,
+                          }}
+                        >
+                          <View style={{ alignItems: "center" }}>
+                            <Text>Bodyweight</Text>
+                            <TextInput
+                              value={bodyweight}
+                              onChangeText={setBodyweight}
+                              keyboardType="numeric"
+                              maxLength={3}
+                              style={{
+                                fontSize: 30,
+                                borderBottomColor: "grey",
+                                borderBottomWidth: 1,
+                                width: "90%",
+                                textAlign: "center",
+                              }}
+                              placeholder="100"
+                              placeholderTextColor="#D4D4D4"
+                            />
+                          </View>
+                          <View style={{ alignItems: "center" }}>
+                            <Text>Lbs Per Week</Text>
+                            <TextInput
+                              value={lbsPerWeek}
+                              onChangeText={setLbsPerWeek}
+                              keyboardType="numeric"
+                              maxLength={3}
+                              style={{
+                                fontSize: 30,
+                                borderBottomColor: "grey",
+                                borderBottomWidth: 1,
+                                width: "90%",
+                                textAlign: "center",
+                              }}
+                              placeholder="1.5"
+                              placeholderTextColor="#D4D4D4"
+                            />
+                          </View>
+                          <View style={{ alignItems: "center" }}>
+                            <Text>Protein Per Lb</Text>
+                            <TextInput
+                              value={proteinPerLb}
+                              onChangeText={setProteinPerLb}
+                              keyboardType="numeric"
+                              maxLength={3}
+                              style={{
+                                fontSize: 30,
+                                borderBottomColor: "grey",
+                                borderBottomWidth: 1,
+                                width: "90%",
+                                textAlign: "center",
+                              }}
+                              placeholder="1"
+                              placeholderTextColor="#D4D4D4"
+                            />
+                          </View>
+                        </View>
+                        <TouchableOpacity
+                          onPress={async () => {
+                            const savedProteinPerLb =
+                              await AsyncStorage.getItem("ProteinPerLb");
+                            let localProteinPerLb;
+                            if (savedProteinPerLb) {
+                              localProteinPerLb = await JSON.parse(
+                                savedProteinPerLb
+                              ).data;
+                            }
+
+                            const savedLbsPerWeek = await AsyncStorage.getItem(
+                              "LbsPerWeek"
+                            );
+                            let localLbsPerWeek;
+                            if (savedLbsPerWeek) {
+                              localLbsPerWeek = await JSON.parse(
+                                savedLbsPerWeek
+                              ).data;
+                            }
+
+                            if (
+                              bodyweight === "" ||
+                              lbsPerWeek === "" ||
+                              proteinPerLb === ""
+                            ) {
+                              return;
+                            }
+
+                            setCalories(
+                              parseInt(bodyweight) * 15 -
+                                parseFloat(lbsPerWeek) * 420
+                            );
+                            setProtein(0);
+                            setCalsFill(100);
+                            setProteinFill(0);
+
+                            setSwitchedMeals([]);
+                            await AsyncStorage.setItem(
+                              "Switched Meals",
+                              JSON.stringify({
+                                data: [],
+                              })
+                            );
+
+                            const log = {
+                              type: "add",
+                              cals: "Reset",
+                            };
+                            setLogs(logs.concat([log]));
+                            await AsyncStorage.setItem(
+                              "Logs",
+                              JSON.stringify({
+                                data: logs.concat([log]),
+                              })
+                            );
+                          }}
+                          style={{
+                            padding: 5,
+                            borderRadius: 20,
+                            width: "50%",
+                            alignSelf: "center",
+                            backgroundColor: colors.primary,
+                            marginTop: 15,
                           }}
                         >
                           <Text
                             style={{
-                              fontSize: 25,
                               color: colors.textColors.headerText,
-                              fontWeight: logsSelected ? "bold" : "normal",
-                              marginLeft: 20,
+                              fontSize: 20,
+                              textAlign: "center",
                             }}
                           >
-                            Logs
+                            Reset Macros
                           </Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <View style={{ width: "100%" }}>
+                        <TouchableOpacity
+                          onPress={async () => {
+                            LayoutAnimation.configureNext(
+                              LayoutAnimation.create(
+                                200,
+                                LayoutAnimation.Types.linear,
+                                LayoutAnimation.Properties.opacity
+                              )
+                            );
+                            setLogsSelected(!logsSelected);
+                            await AsyncStorage.setItem(
+                              "Logs Selected",
+                              JSON.stringify({
+                                data: !logsSelected,
+                              })
+                            );
+                          }}
+                        >
                           <View
                             style={{
-                              //alignSelf: "center",
-                              marginTop: 5,
-                              //justifyContent: "center",
+                              flexDirection: "row",
+                              justifyContent: "space-between",
                               //flex: 1,
-                              marginRight: 10,
-                            }}
-                          >
-                            <AntDesign
-                              name={logsSelected ? "arrowup" : "arrowdown"}
-                              color={"black"}
-                              size={20}
-                            />
-                          </View>
-                        </View>
-                      </TouchableOpacity>
-                      {logsSelected && logs.length !== 0 ? (
-                        <View>
-                          <ScrollView
-                            style={{
-                              backgroundColor: "white",
-                              width: "95%",
-                              alignSelf: "center",
-                              //flex: 1,
-                              padding: 5,
-                              borderRadius: 10,
-                              marginTop: 5,
-                              height: 200,
-                            }}
-                          >
-                            {logs.map((item, index) => {
-                              const getTColor = () => {
-                                if (item.cals === "Reset") {
-                                  return "black";
-                                } else if (item.type === "protein") {
-                                  return "#2ca3ee";
-                                } else {
-                                  return "#46e7bd";
-                                }
-                              };
-
-                              return (
-                                <View key={index}>
-                                  <View
-                                    style={{
-                                      flex: 1,
-                                      justifyContent: "center",
-                                      alignItems: "center",
-                                      flexDirection: "row",
-                                      width: "100%",
-                                      marginTop: 5,
-                                      marginBottom: 5,
-                                      backgroundColor: "white",
-                                    }}
-                                  >
-                                    <Text
-                                      style={{
-                                        margin: 5,
-                                        padding: 5,
-                                        color: getTColor(),
-                                        fontSize: 20,
-                                        width: "40%",
-                                        textAlign: "center",
-                                        fontWeight: "normal",
-                                      }}
-                                    >
-                                      {item.cals}
-                                    </Text>
-                                  </View>
-                                  {logs.length === index + 1 ? undefined : (
-                                    <View
-                                      style={{
-                                        borderColor: "#cfcfcf",
-                                        borderWidth: 0.5,
-                                        width: "95%",
-                                        alignSelf: "flex-end",
-                                      }}
-                                    />
-                                  )}
-                                </View>
-                              );
-                            })}
-                          </ScrollView>
-                          <TouchableOpacity
-                            onPress={async () => {
-                              setLogs([]);
-                              await AsyncStorage.setItem(
-                                "Logs",
-                                JSON.stringify({
-                                  data: [],
-                                })
-                              );
-                            }}
-                            style={{
-                              padding: 5,
-                              borderRadius: 20,
-                              width: "50%",
-                              alignSelf: "center",
-                              backgroundColor: colors.primary,
-                              marginTop: 15,
+                              width: "100%",
+                              marginTop: 10,
                             }}
                           >
                             <Text
                               style={{
+                                fontSize: 25,
                                 color: colors.textColors.headerText,
-                                fontSize: 20,
-                                textAlign: "center",
+                                fontWeight: logsSelected ? "bold" : "normal",
+                                marginLeft: 20,
                               }}
                             >
-                              Clear Logs
+                              Logs
                             </Text>
-                          </TouchableOpacity>
-                        </View>
-                      ) : null}
-                    </View>
-                  )}
-                </View>
-              }
-            />
+                            <View
+                              style={{
+                                //alignSelf: "center",
+                                marginTop: 5,
+                                //justifyContent: "center",
+                                //flex: 1,
+                                marginRight: 10,
+                              }}
+                            >
+                              <AntDesign
+                                name={logsSelected ? "arrowup" : "arrowdown"}
+                                color={"black"}
+                                size={20}
+                              />
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                        {logsSelected && logs.length !== 0 ? (
+                          <View>
+                            <ScrollView
+                              style={{
+                                backgroundColor: "white",
+                                width: "95%",
+                                alignSelf: "center",
+                                //flex: 1,
+                                padding: 5,
+                                borderRadius: 10,
+                                marginTop: 5,
+                                height: 200,
+                              }}
+                            >
+                              {logs.map((item, index) => {
+                                const getTColor = () => {
+                                  if (item.cals === "Reset") {
+                                    return "black";
+                                  } else if (item.type === "protein") {
+                                    return "#2ca3ee";
+                                  } else {
+                                    return "#46e7bd";
+                                  }
+                                };
+
+                                return (
+                                  <View key={index}>
+                                    <View
+                                      style={{
+                                        flex: 1,
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        flexDirection: "row",
+                                        width: "100%",
+                                        marginTop: 5,
+                                        marginBottom: 5,
+                                        backgroundColor: "white",
+                                      }}
+                                    >
+                                      <Text
+                                        style={{
+                                          margin: 5,
+                                          padding: 5,
+                                          color: getTColor(),
+                                          fontSize: 20,
+                                          width: "40%",
+                                          textAlign: "center",
+                                          fontWeight: "normal",
+                                        }}
+                                      >
+                                        {item.cals}
+                                      </Text>
+                                    </View>
+                                    {logs.length === index + 1 ? undefined : (
+                                      <View
+                                        style={{
+                                          borderColor: "#cfcfcf",
+                                          borderWidth: 0.5,
+                                          width: "95%",
+                                          alignSelf: "flex-end",
+                                        }}
+                                      />
+                                    )}
+                                  </View>
+                                );
+                              })}
+                            </ScrollView>
+                            <TouchableOpacity
+                              onPress={async () => {
+                                setLogs([]);
+                                await AsyncStorage.setItem(
+                                  "Logs",
+                                  JSON.stringify({
+                                    data: [],
+                                  })
+                                );
+                              }}
+                              style={{
+                                padding: 5,
+                                borderRadius: 20,
+                                width: "50%",
+                                alignSelf: "center",
+                                backgroundColor: colors.primary,
+                                marginTop: 15,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  color: colors.textColors.headerText,
+                                  fontSize: 20,
+                                  textAlign: "center",
+                                }}
+                              >
+                                Clear Logs
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        ) : null}
+                      </View>
+                    )}
+                  </View>
+                }
+              />
+
+              <Text
+                style={{
+                  fontSize: 30,
+                  color: "#aaaaaa",
+                  marginTop: "100%",
+                  marginBottom: 15,
+                }}
+              >
+                More Coming Soon!
+              </Text>
+            </View>
+          }
+          nav={props.navigation}
+        ></ScrollViewContainer>
+      </View>
+      <BlurView
+        style={{
+          width: "100%",
+          height: "12%",
+          ...StyleSheet.absoluteFillObject,
+        }}
+        intensity={40}
+      >
+        <View
+          style={{
+            justifyContent: "space-between",
+            flexDirection: "row",
+            alignItems: "center",
+            alignSelf: "center",
+            marginTop: 30,
+            width: "90%",
+          }}
+        >
+          <View style={{ opacity: 0 }}>
+            <Entypo name="new-message" size={24} color={colors.primary} />
           </View>
-        }
-        nav={props.navigation}
-      ></ScrollViewContainer>
-    </SafeAreaView>
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "bold",
+              }}
+            >
+              Macros
+            </Text>
+            <Text
+              style={{
+                fontSize: 15,
+                color: "#aaaaaa",
+              }}
+            >
+              Calories and Protein
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={handleCalorieEditing}
+            style={{
+              alignSelf: "center",
+            }}
+          >
+            {editing ? (
+              <AntDesign name="check" size={24} color={colors.primary} />
+            ) : (
+              <Entypo name="new-message" size={24} color={colors.primary} />
+            )}
+          </TouchableOpacity>
+        </View>
+      </BlurView>
+    </View>
   );
 };
 

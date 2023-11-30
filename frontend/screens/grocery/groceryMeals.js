@@ -501,21 +501,25 @@ const GroceryMeals = (props) => {
           height: "12%",
           ...StyleSheet.absoluteFillObject,
         }}
-        intensity={70}
+        intensity={40}
       >
         <View
           style={{
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             flexDirection: "row",
             alignItems: "center",
+            alignSelf: "center",
             marginTop: 30,
+            width: "90%",
           }}
         >
+          <View style={{ opacity: 0 }}>
+            <Entypo name="new-message" size={24} color={colors.primary} />
+          </View>
           <View
             style={{
               justifyContent: "center",
               alignItems: "center",
-              marginRight: 110,
             }}
           >
             <Text
@@ -563,7 +567,7 @@ const GroceryMeals = (props) => {
                 mealUpdates.current = [];
                 setEditing(false);
               }}
-              style={{ alignSelf: "center", marginRight: 25 }}
+              style={{ alignSelf: "center" }}
             >
               <AntDesign name="check" size={24} color={colors.primary} />
             </TouchableOpacity>
@@ -581,7 +585,6 @@ const GroceryMeals = (props) => {
               }}
               style={{
                 alignSelf: "center",
-                marginRight: 25,
               }}
             >
               <Entypo name="new-message" size={24} color={colors.primary} />

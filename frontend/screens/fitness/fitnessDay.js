@@ -314,11 +314,11 @@ const FitnessDay = (props) => {
         nav={props.navigation}
         onScroll={(pos) => {
           if (
-            pos.nativeEvent.contentOffset.y < 40 &&
+            pos.nativeEvent.contentOffset.y < 20 &&
             pos.nativeEvent.contentOffset.y > 0
           ) {
             setBlur(pos.nativeEvent.contentOffset.y);
-          } else if (pos.nativeEvent.contentOffset.y > 40) {
+          } else if (pos.nativeEvent.contentOffset.y > 20) {
             setBlur(40);
           } else if (pos.nativeEvent.contentOffset.y < 0) {
             setBlur(0);

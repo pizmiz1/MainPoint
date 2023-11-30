@@ -816,22 +816,25 @@ const GroceryList = (props) => {
       >
         <View
           style={{
+            justifyContent: "space-between",
             flexDirection: "row",
             alignItems: "center",
-            width: "90%",
+            alignSelf: "center",
             marginTop: 30,
+            width: "90%",
           }}
         >
+          <View style={{ opacity: 0 }}>
+            <Ionicons name="add" size={30} color={colors.primary} />
+          </View>
           <View
             style={{
-              width: "100%",
               justifyContent: "center",
               alignItems: "center",
             }}
           >
             <Text
               style={{
-                marginLeft: 35,
                 fontSize: 20,
                 fontWeight: "bold",
               }}
@@ -840,7 +843,6 @@ const GroceryList = (props) => {
             </Text>
             <Text
               style={{
-                marginLeft: 35,
                 fontSize: 15,
                 color: "#aaaaaa",
               }}

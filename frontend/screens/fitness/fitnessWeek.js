@@ -448,7 +448,7 @@ const FitnessWeek = (props) => {
         nav={props.navigation}
       />
       <BlurView
-        intensity={40}
+        intensity={20}
         style={{
           width: "100%",
           height: "12%",
