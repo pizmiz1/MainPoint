@@ -243,16 +243,6 @@ const MyDrawerNav = (props) => {
           }}
         />
         <MyTab.Screen
-          name="Grocery Macros"
-          component={GroceryMacros}
-          options={{
-            tabBarLabel: "Macros",
-            tabBarIcon: ({ color }) => (
-              <FontAwesome name="balance-scale" size={24} color={color} />
-            ),
-          }}
-        />
-        <MyTab.Screen
           name="Grocery Meals"
           component={GroceryMeals}
           options={{
@@ -263,6 +253,16 @@ const MyDrawerNav = (props) => {
                 size={24}
                 color={color}
               />
+            ),
+          }}
+        />
+        <MyTab.Screen
+          name="Grocery Macros"
+          component={GroceryMacros}
+          options={{
+            tabBarLabel: "Macros",
+            tabBarIcon: ({ color }) => (
+              <FontAwesome name="balance-scale" size={24} color={color} />
             ),
           }}
         />

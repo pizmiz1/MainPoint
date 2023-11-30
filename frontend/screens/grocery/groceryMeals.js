@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Text,
   Switch,
@@ -37,7 +37,8 @@ const GroceryMeals = (props) => {
   const colors = useSelector((state) => state.colors);
   const meals = useSelector((state) => state.meals);
   const allGroceries = useSelector((state) => state.allGroceries);
-  const groceryList = useSelector((state) => state.groceryList);
+
+  const mealUpdates = useRef([]);
 
   const dispatch = useDispatch();
 
@@ -77,6 +78,8 @@ const GroceryMeals = (props) => {
     const [groceries, setGroceries] = useState(
       allGroceries.filter((curr) => props.groceries.includes(curr.id))
     );
+
+    const groceryList = useSelector((state) => state.groceryList);
 
     const toggleSwitch = async () => {
       if (!isEnabled) {
@@ -320,16 +323,28 @@ const GroceryMeals = (props) => {
                         Protein: props.protein,
                       };
 
+                      const existingIndex = mealUpdates.current.findIndex(
+                        (curr) => curr.Index === props.index
+                      );
+                      if (existingIndex !== -1) {
+                        mealUpdates.current[existingIndex].Meal = updatedMeal;
+                      } else {
+                        const updatedMealForRef = {
+                          Meal: updatedMeal,
+                          Index: props.index,
+                        };
+
+                        mealUpdates.current.push(updatedMealForRef);
+                      }
+
                       LayoutAnimation.configureNext(
                         LayoutAnimation.create(
                           200,
                           LayoutAnimation.Types.linear,
                           LayoutAnimation.Properties.opacity
-                        ),
-                        () => {
-                          dispatch(updateMealAction(updatedMeal, props.index));
-                        }
+                        )
                       );
+                      // dispatch(updateMealAction(updatedMeal, props.index));
                       setShowDetails(false);
                     }
                   }}
@@ -523,6 +538,9 @@ const GroceryMeals = (props) => {
           {editing ? (
             <TouchableOpacity
               onPress={async () => {
+                mealUpdates.current.forEach((curr) => {
+                  dispatch(updateMealAction(curr.Meal, curr.Index));
+                });
                 const GroceryData = await AsyncStorage.getItem("Grocery Data");
                 if (GroceryData) {
                   const transformedGroceryData = await JSON.parse(GroceryData)
@@ -542,6 +560,7 @@ const GroceryMeals = (props) => {
                     LayoutAnimation.Properties.opacity
                   )
                 );
+                mealUpdates.current = [];
                 setEditing(false);
               }}
               style={{ alignSelf: "center", marginRight: 25 }}
