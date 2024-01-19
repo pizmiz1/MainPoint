@@ -14,8 +14,7 @@ import {
 } from "react-native";
 import uuid from "react-native-uuid";
 import { updateExersizes } from "../../store/actions/updateExersizes";
-import { updatePower } from "../../store/actions/updatePower";
-import { toggleBiweekly } from "../../store/actions/toggleBiweekly";
+import { toggleNoSchedule } from "../../store/actions/switchNoSchedule";
 import { switchRunning } from "../../store/actions/switchRunning";
 import { Notifier, Easing, NotifierComponents } from "react-native-notifier";
 import {
@@ -32,8 +31,7 @@ import ScrollViewContainer from "../../components/scrollViewContainer";
 
 const FitnessEdit = (props) => {
   const colors = useSelector((state) => state.colors);
-  const power = useSelector((state) => state.power);
-  const biweekly = useSelector((state) => state.biweekly);
+  const noschedule = useSelector((state) => state.noschedule);
   const running = useSelector((state) => state.running);
   const mondayExersizes = useSelector((state) => state.mondayExersizes);
   const tuesdayExersizes = useSelector((state) => state.tuesdayExersizes);
@@ -42,13 +40,9 @@ const FitnessEdit = (props) => {
   const fridayExersizes = useSelector((state) => state.fridayExersizes);
   const saturdayExersizes = useSelector((state) => state.saturdayExersizes);
   const sundayExersizes = useSelector((state) => state.sundayExersizes);
-  const mondayExersizesB = useSelector((state) => state.mondayExersizesB);
-  const tuesdayExersizesB = useSelector((state) => state.tuesdayExersizesB);
-  const wednesdayExersizesB = useSelector((state) => state.wednesdayExersizesB);
-  const thursdayExersizesB = useSelector((state) => state.thursdayExersizesB);
-  const fridayExersizesB = useSelector((state) => state.fridayExersizesB);
-  const saturdayExersizesB = useSelector((state) => state.saturdayExersizesB);
-  const sundayExersizesB = useSelector((state) => state.sundayExersizesB);
+  const pushExersizes = useSelector((state) => state.pushExersizes);
+  const pullExersizes = useSelector((state) => state.pullExersizes);
+  const legsExersizes = useSelector((state) => state.legsExersizes);
 
   const [switchSelected, setSwitchSelected] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -123,10 +117,14 @@ const FitnessEdit = (props) => {
         passedDay = 5;
       } else if (props.day === "Sunday") {
         passedDay = 6;
+      } else if (props.day === "Push") {
+        passedDay = 7;
+      } else if (props.day === "Pull") {
+        passedDay = 8;
+      } else if (props.day === "Legs") {
+        passedDay = 9;
       }
-      const worked = await dispatch(
-        updateExersizes(passedDay, power, exersizes)
-      );
+      const worked = await dispatch(updateExersizes(passedDay, exersizes));
       if (worked) {
         Notifier.showNotification({
           title: "Success!",
@@ -582,99 +580,26 @@ const FitnessEdit = (props) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.secondary }}>
-      {!biweekly ? null : (
-        <View
-          style={{
-            flex: 0,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-evenly",
-            backgroundColor: colors.secondary,
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <TouchableOpacity
-              style={{ alignItems: "center" }}
-              onPress={() => {
-                dispatch(updatePower(true));
-              }}
-            >
-              <MaterialCommunityIcons
-                name={power ? "arm-flex" : "arm-flex-outline"}
-                color={"white"}
-                size={30}
-              />
-              <View style={{ marginBottom: 5 }} />
-              <Text
-                style={{
-                  fontSize: 15,
-                  color: colors.textColors.headerText,
-                  fontWeight: power ? "bold" : "normal",
-                  textAlign: "center",
-                }}
-              >
-                Power
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{ flex: 1 }}>
-            <TouchableOpacity
-              style={{ alignItems: "center" }}
-              onPress={() => {
-                dispatch(updatePower(false));
-              }}
-            >
-              <AntDesign
-                name={!power ? "smile-circle" : "smileo"}
-                color={"white"}
-                size={20}
-              />
-              <View style={{ marginBottom: 5 }} />
-              <Text
-                style={{
-                  fontSize: 15,
-                  color: colors.textColors.headerText,
-                  fontWeight: !power ? "bold" : "normal",
-                  textAlign: "center",
-                }}
-              >
-                BB
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
       <ScrollViewContainer
         content={
           <View style={{ flex: 1, marginTop: 20 }}>
-            <DayComponent
-              day="Monday"
-              exersizes={power ? mondayExersizes : mondayExersizesB}
-            />
-            <DayComponent
-              day="Tuesday"
-              exersizes={power ? tuesdayExersizes : tuesdayExersizesB}
-            />
-            <DayComponent
-              day="Wednesday"
-              exersizes={power ? wednesdayExersizes : wednesdayExersizesB}
-            />
-            <DayComponent
-              day="Thursday"
-              exersizes={power ? thursdayExersizes : thursdayExersizesB}
-            />
-            <DayComponent
-              day="Friday"
-              exersizes={power ? fridayExersizes : fridayExersizesB}
-            />
-            <DayComponent
-              day="Saturday"
-              exersizes={power ? saturdayExersizes : saturdayExersizesB}
-            />
-            <DayComponent
-              day="Sunday"
-              exersizes={power ? sundayExersizes : sundayExersizesB}
-            />
+            {noschedule ? (
+              <View>
+                <DayComponent day="Push" exersizes={pushExersizes} />
+                <DayComponent day="Pull" exersizes={pullExersizes} />
+                <DayComponent day="Legs" exersizes={legsExersizes} />
+              </View>
+            ) : (
+              <View>
+                <DayComponent day="Monday" exersizes={mondayExersizes} />
+                <DayComponent day="Tuesday" exersizes={tuesdayExersizes} />
+                <DayComponent day="Wednesday" exersizes={wednesdayExersizes} />
+                <DayComponent day="Thursday" exersizes={thursdayExersizes} />
+                <DayComponent day="Friday" exersizes={fridayExersizes} />
+                <DayComponent day="Saturday" exersizes={saturdayExersizes} />
+                <DayComponent day="Sunday" exersizes={sundayExersizes} />
+              </View>
+            )}
             <View style={{ width: "90%", alignSelf: "center", marginTop: 20 }}>
               <Text
                 style={{
@@ -750,7 +675,7 @@ const FitnessEdit = (props) => {
                           color: "white",
                         }}
                       >
-                        Biweekly
+                        No Schedule
                       </Text>
                       <Switch
                         onValueChange={() => {
@@ -761,9 +686,9 @@ const FitnessEdit = (props) => {
                               LayoutAnimation.Properties.opacity
                             )
                           );
-                          dispatch(toggleBiweekly());
+                          dispatch(toggleNoSchedule());
                         }}
-                        value={biweekly}
+                        value={noschedule}
                         ios_backgroundColor={colors.darkGrey}
                       />
                     </View>
@@ -896,59 +821,31 @@ const FitnessEdit = (props) => {
                                   switch (value) {
                                     case "monday":
                                       day1 = 0;
-                                      if (power) {
-                                        day1exersizes = mondayExersizes;
-                                      } else {
-                                        day1exersizes = mondayExersizesB;
-                                      }
+                                      day1exersizes = mondayExersizes;
                                       break;
                                     case "tuesday":
                                       day1 = 1;
-                                      if (power) {
-                                        day1exersizes = tuesdayExersizes;
-                                      } else {
-                                        day1exersizes = tuesdayExersizesB;
-                                      }
+                                      day1exersizes = tuesdayExersizes;
                                       break;
                                     case "wednesday":
                                       day1 = 2;
-                                      if (power) {
-                                        day1exersizes = wednesdayExersizes;
-                                      } else {
-                                        day1exersizes = wednesdayExersizesB;
-                                      }
+                                      day1exersizes = wednesdayExersizes;
                                       break;
                                     case "thursday":
                                       day1 = 3;
-                                      if (power) {
-                                        day1exersizes = thursdayExersizes;
-                                      } else {
-                                        day1exersizes = thursdayExersizesB;
-                                      }
+                                      day1exersizes = thursdayExersizes;
                                       break;
                                     case "friday":
                                       day1 = 4;
-                                      if (power) {
-                                        day1exersizes = fridayExersizes;
-                                      } else {
-                                        day1exersizes = fridayExersizesB;
-                                      }
+                                      day1exersizes = fridayExersizes;
                                       break;
                                     case "saturday":
                                       day1 = 5;
-                                      if (power) {
-                                        day1exersizes = saturdayExersizes;
-                                      } else {
-                                        day1exersizes = saturdayExersizesB;
-                                      }
+                                      day1exersizes = saturdayExersizes;
                                       break;
                                     case "sunday":
                                       day1 = 6;
-                                      if (power) {
-                                        day1exersizes = sundayExersizes;
-                                      } else {
-                                        day1exersizes = sundayExersizesB;
-                                      }
+                                      day1exersizes = sundayExersizes;
                                       break;
                                     default:
                                       break;
@@ -957,68 +854,40 @@ const FitnessEdit = (props) => {
                                   switch (value2) {
                                     case "monday":
                                       day2 = 0;
-                                      if (power) {
-                                        day2exersizes = mondayExersizes;
-                                      } else {
-                                        day2exersizes = mondayExersizesB;
-                                      }
+                                      day2exersizes = mondayExersizes;
                                       break;
                                     case "tuesday":
                                       day2 = 1;
-                                      if (power) {
-                                        day2exersizes = tuesdayExersizes;
-                                      } else {
-                                        day2exersizes = tuesdayExersizesB;
-                                      }
+                                      day2exersizes = tuesdayExersizes;
                                       break;
                                     case "wednesday":
                                       day2 = 2;
-                                      if (power) {
-                                        day2exersizes = wednesdayExersizes;
-                                      } else {
-                                        day2exersizes = wednesdayExersizesB;
-                                      }
+                                      day2exersizes = wednesdayExersizes;
                                       break;
                                     case "thursday":
                                       day2 = 3;
-                                      if (power) {
-                                        day2exersizes = thursdayExersizes;
-                                      } else {
-                                        day2exersizes = thursdayExersizesB;
-                                      }
+                                      day2exersizes = thursdayExersizes;
                                       break;
                                     case "friday":
                                       day2 = 4;
-                                      if (power) {
-                                        day2exersizes = fridayExersizes;
-                                      } else {
-                                        day2exersizes = fridayExersizesB;
-                                      }
+                                      day2exersizes = fridayExersizes;
                                       break;
                                     case "saturday":
                                       day2 = 5;
-                                      if (power) {
-                                        day2exersizes = saturdayExersizes;
-                                      } else {
-                                        day2exersizes = saturdayExersizesB;
-                                      }
+                                      day2exersizes = saturdayExersizes;
                                       break;
                                     case "sunday":
                                       day2 = 6;
-                                      if (power) {
-                                        day2exersizes = sundayExersizes;
-                                      } else {
-                                        day2exersizes = sundayExersizesB;
-                                      }
+                                      day2exersizes = sundayExersizes;
                                       break;
                                     default:
                                       break;
                                   }
                                   const worked1 = await dispatch(
-                                    updateExersizes(day1, power, day2exersizes)
+                                    updateExersizes(day1, day2exersizes)
                                   );
                                   const worked2 = await dispatch(
-                                    updateExersizes(day2, power, day1exersizes)
+                                    updateExersizes(day2, day1exersizes)
                                   );
                                   if (worked1 && worked2) {
                                     Notifier.showNotification({

@@ -1,102 +1,295 @@
 import { UPDATE_EXERSIZES } from "./updateExersizes";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import uuid from "react-native-uuid";
 
 export const getExersizes = () => (dispatch) => {
   return new Promise(async (resolve) => {
     try {
-      const FitnessData = await AsyncStorage.getItem("Fitness Data");
-      if (FitnessData) {
-        const transformedFitnessData = await JSON.parse(FitnessData).data;
+      const Exersizes = await AsyncStorage.getItem("Exersizes");
+      if (Exersizes) {
+        const transformed = await JSON.parse(Exersizes).data;
 
         dispatch({
           type: UPDATE_EXERSIZES,
-          day: 4,
-          power: true,
-          exersizes: transformedFitnessData.at(0).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
-          day: 4,
-          power: false,
-          exersizes: transformedFitnessData.at(1).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
           day: 0,
-          power: true,
-          exersizes: transformedFitnessData.at(3).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
-          day: 0,
-          power: false,
-          exersizes: transformedFitnessData.at(4).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
-          day: 5,
-          power: true,
-          exersizes: transformedFitnessData.at(5).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
-          day: 5,
-          power: false,
-          exersizes: transformedFitnessData.at(6).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
-          day: 6,
-          power: true,
-          exersizes: transformedFitnessData.at(7).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
-          day: 6,
-          power: false,
-          exersizes: transformedFitnessData.at(8).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
-          day: 3,
-          power: true,
-          exersizes: transformedFitnessData.at(9).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
-          day: 3,
-          power: false,
-          exersizes: transformedFitnessData.at(10).Exersizes,
+          exersizes: transformed.Monday,
         });
         dispatch({
           type: UPDATE_EXERSIZES,
           day: 1,
-          power: true,
-          exersizes: transformedFitnessData.at(11).Exersizes,
-        });
-        dispatch({
-          type: UPDATE_EXERSIZES,
-          day: 1,
-          power: false,
-          exersizes: transformedFitnessData.at(12).Exersizes,
+          exersizes: transformed.Tuesday,
         });
         dispatch({
           type: UPDATE_EXERSIZES,
           day: 2,
-          power: true,
-          exersizes: transformedFitnessData.at(13).Exersizes,
+          exersizes: transformed.Wednesday,
         });
         dispatch({
           type: UPDATE_EXERSIZES,
-          day: 2,
-          power: false,
-          exersizes: transformedFitnessData.at(14).Exersizes,
+          day: 3,
+          exersizes: transformed.Thursday,
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 4,
+          exersizes: transformed.Friday,
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 5,
+          exersizes: transformed.Saturday,
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 6,
+          exersizes: transformed.Sunday,
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 7,
+          exersizes: transformed.Push,
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 8,
+          exersizes: transformed.Pull,
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 9,
+          exersizes: transformed.Legs,
         });
 
         resolve(true);
       } else {
-        resolve(false);
-        console.log("Failed Getting Exersize Thru ASYNC");
+        await AsyncStorage.setItem(
+          "Exersizes",
+          JSON.stringify({
+            data: {
+              Monday: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+              Tuesday: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+              Wednesday: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+              Thursday: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+              Friday: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+              Saturday: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+              Sunday: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+              Push: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+              Pull: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+              Legs: [
+                {
+                  id: uuid.v4(),
+                  exersize: "",
+                  sets: "",
+                  reps: "",
+                  weight: "",
+                },
+              ],
+            },
+          })
+        );
+
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 0,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 1,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 2,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 3,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 4,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 5,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 6,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 7,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 8,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
+        dispatch({
+          type: UPDATE_EXERSIZES,
+          day: 9,
+          exersizes: [
+            {
+              id: uuid.v4(),
+              exersize: "",
+              sets: "",
+              reps: "",
+              weight: "",
+            },
+          ],
+        });
       }
     } catch (err) {
       resolve(false);

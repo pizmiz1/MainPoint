@@ -4,9 +4,8 @@ import { SWITCH_MODE } from "../actions/switchMode";
 import { UPDATE_BENCH } from "../actions/updateBench";
 import { UPDATE_SQUAT } from "../actions/updateSquat";
 import { UPDATE_OHP } from "../actions/updateOHP";
-import { UPDATE_POWER } from "../actions/updatePower";
 import { UPDATE_EXERSIZES } from "../actions/updateExersizes";
-import { TOGGLE_BIWEEKLY } from "../actions/toggleBiweekly";
+import { TOGGLE_NO_SCHEDULE } from "../actions/switchNoSchedule";
 import { CROSS_DAILY_FOOD } from "../actions/crossDailyFood";
 import { SWITCH_RUNNING } from "../actions/switchRunning";
 import { UPDATE_RUNNING } from "../actions/updateRunning";
@@ -31,7 +30,7 @@ const initialState = {
   mode: undefined,
   running: false,
   startDate: undefined,
-  biweekly: false,
+  noschedule: false,
   totalMiles: 0,
   shoeMiles: 0,
   runningDone: false,
@@ -45,7 +44,6 @@ const initialState = {
   maxBench: 0,
   maxSquat: 0,
   maxOHP: 0,
-  power: true,
   shakeCrossed: false,
   yogurtCrossed: false,
   barCrossed: false,
@@ -82,25 +80,7 @@ const initialState = {
       weight: "",
     },
   ],
-  mondayExersizesB: [
-    {
-      id: uuid.v4(),
-      exersize: "",
-      sets: "",
-      reps: "",
-      weight: "",
-    },
-  ],
   tuesdayExersizes: [
-    {
-      id: uuid.v4(),
-      exersize: "",
-      sets: "",
-      reps: "",
-      weight: "",
-    },
-  ],
-  tuesdayExersizesB: [
     {
       id: uuid.v4(),
       exersize: "",
@@ -118,25 +98,7 @@ const initialState = {
       weight: "",
     },
   ],
-  wednesdayExersizesB: [
-    {
-      id: uuid.v4(),
-      exersize: "",
-      sets: "",
-      reps: "",
-      weight: "",
-    },
-  ],
   thursdayExersizes: [
-    {
-      id: uuid.v4(),
-      exersize: "",
-      sets: "",
-      reps: "",
-      weight: "",
-    },
-  ],
-  thursdayExersizesB: [
     {
       id: uuid.v4(),
       exersize: "",
@@ -154,25 +116,7 @@ const initialState = {
       weight: "",
     },
   ],
-  fridayExersizesB: [
-    {
-      id: uuid.v4(),
-      exersize: "",
-      sets: "",
-      reps: "",
-      weight: "",
-    },
-  ],
   saturdayExersizes: [
-    {
-      id: uuid.v4(),
-      exersize: "",
-      sets: "",
-      reps: "",
-      weight: "",
-    },
-  ],
-  saturdayExersizesB: [
     {
       id: uuid.v4(),
       exersize: "",
@@ -190,7 +134,25 @@ const initialState = {
       weight: "",
     },
   ],
-  sundayExersizesB: [
+  pushExersizes: [
+    {
+      id: uuid.v4(),
+      exersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  pullExersizes: [
+    {
+      id: uuid.v4(),
+      exersize: "",
+      sets: "",
+      reps: "",
+      weight: "",
+    },
+  ],
+  legsExersizes: [
     {
       id: uuid.v4(),
       exersize: "",
@@ -273,12 +235,6 @@ const rootReducer = (state, action) => {
         maxOHP: action.maxOHP,
       };
     }
-    case UPDATE_POWER: {
-      return {
-        ...state,
-        power: action.power,
-      };
-    }
     case CROSS_DAILY_FOOD: {
       switch (action.passedDailyFood) {
         case 0: {
@@ -315,53 +271,34 @@ const rootReducer = (state, action) => {
     case UPDATE_EXERSIZES: {
       switch (action.day) {
         case 0: {
-          if (action.power) {
-            return { ...state, mondayExersizes: action.exersizes };
-          } else {
-            return { ...state, mondayExersizesB: action.exersizes };
-          }
+          return { ...state, mondayExersizes: action.exersizes };
         }
         case 1: {
-          if (action.power) {
-            return { ...state, tuesdayExersizes: action.exersizes };
-          } else {
-            return { ...state, tuesdayExersizesB: action.exersizes };
-          }
+          return { ...state, tuesdayExersizes: action.exersizes };
         }
         case 2: {
-          if (action.power) {
-            return { ...state, wednesdayExersizes: action.exersizes };
-          } else {
-            return { ...state, wednesdayExersizesB: action.exersizes };
-          }
+          return { ...state, wednesdayExersizes: action.exersizes };
         }
         case 3: {
-          if (action.power) {
-            return { ...state, thursdayExersizes: action.exersizes };
-          } else {
-            return { ...state, thursdayExersizesB: action.exersizes };
-          }
+          return { ...state, thursdayExersizes: action.exersizes };
         }
         case 4: {
-          if (action.power) {
-            return { ...state, fridayExersizes: action.exersizes };
-          } else {
-            return { ...state, fridayExersizesB: action.exersizes };
-          }
+          return { ...state, fridayExersizes: action.exersizes };
         }
         case 5: {
-          if (action.power) {
-            return { ...state, saturdayExersizes: action.exersizes };
-          } else {
-            return { ...state, saturdayExersizesB: action.exersizes };
-          }
+          return { ...state, saturdayExersizes: action.exersizes };
         }
         case 6: {
-          if (action.power) {
-            return { ...state, sundayExersizes: action.exersizes };
-          } else {
-            return { ...state, sundayExersizesB: action.exersizes };
-          }
+          return { ...state, sundayExersizes: action.exersizes };
+        }
+        case 7: {
+          return { ...state, pushExersizes: action.exersizes };
+        }
+        case 8: {
+          return { ...state, pullExersizes: action.exersizes };
+        }
+        case 9: {
+          return { ...state, legsExersizes: action.exersizes };
         }
         default:
           return state;
@@ -444,10 +381,10 @@ const rootReducer = (state, action) => {
         }),
       };
     }
-    case TOGGLE_BIWEEKLY: {
+    case TOGGLE_NO_SCHEDULE: {
       return {
         ...state,
-        biweekly: !state.biweekly,
+        noschedule: !state.noschedule,
       };
     }
     case SWITCH_RUNNING: {

@@ -85,18 +85,14 @@ const FitnessMaxes = (props) => {
                       if (bench !== "") {
                         setBenchUpdating(true);
                         await dispatch(updateBench(bench));
-                        const FitnessData = await AsyncStorage.getItem(
-                          "Fitness Data"
-                        );
-                        if (FitnessData) {
-                          const transformedFitnessData = await JSON.parse(
-                            FitnessData
-                          ).data;
-                          transformedFitnessData.at(2).Bench = bench;
+                        const Maxes = await AsyncStorage.getItem("Maxes");
+                        if (Maxes) {
+                          const transformed = await JSON.parse(Maxes).data;
+                          transformed.Bench = bench;
                           await AsyncStorage.setItem(
-                            "Fitness Data",
+                            "Maxes",
                             JSON.stringify({
-                              data: transformedFitnessData,
+                              data: transformed,
                             })
                           );
                         }
@@ -149,18 +145,14 @@ const FitnessMaxes = (props) => {
                       if (squat !== "") {
                         setSquatUpdating(true);
                         await dispatch(updateSquat(squat));
-                        const FitnessData = await AsyncStorage.getItem(
-                          "Fitness Data"
-                        );
-                        if (FitnessData) {
-                          const transformedFitnessData = await JSON.parse(
-                            FitnessData
-                          ).data;
-                          transformedFitnessData.at(2).Squat = squat;
+                        const Maxes = await AsyncStorage.getItem("Maxes");
+                        if (Maxes) {
+                          const transformed = await JSON.parse(Maxes).data;
+                          transformed.Squat = squat;
                           await AsyncStorage.setItem(
-                            "Fitness Data",
+                            "Maxes",
                             JSON.stringify({
-                              data: transformedFitnessData,
+                              data: transformed,
                             })
                           );
                         }
@@ -213,18 +205,14 @@ const FitnessMaxes = (props) => {
                       if (OHP !== "") {
                         setOHPUpdating(true);
                         await dispatch(updateOHP(OHP));
-                        const FitnessData = await AsyncStorage.getItem(
-                          "Fitness Data"
-                        );
-                        if (FitnessData) {
-                          const transformedFitnessData = await JSON.parse(
-                            FitnessData
-                          ).data;
-                          transformedFitnessData.at(2).OHP = OHP;
+                        const Maxes = await AsyncStorage.getItem("Maxes");
+                        if (Maxes) {
+                          const transformed = await JSON.parse(Maxes).data;
+                          transformed.OHP = OHP;
                           await AsyncStorage.setItem(
-                            "Fitness Data",
+                            "Maxes",
                             JSON.stringify({
-                              data: transformedFitnessData,
+                              data: transformed,
                             })
                           );
                         }

@@ -12,7 +12,6 @@ import {
   MaterialCommunityIcons,
   FontAwesome,
 } from "@expo/vector-icons";
-import { updatePower } from "../../store/actions/updatePower";
 import moment from "moment";
 import { BlurView } from "expo-blur";
 
@@ -21,11 +20,20 @@ import ScrollViewContainer from "../../components/scrollViewContainer";
 
 const FitnessWeek = (props) => {
   const colors = useSelector((state) => state.colors);
-  const power = useSelector((state) => state.power);
-  const biweekly = useSelector((state) => state.biweekly);
+  const noschedule = useSelector((state) => state.noschedule);
   const maxBench = useSelector((state) => state.maxBench);
   const maxSquat = useSelector((state) => state.maxSquat);
   const maxOHP = useSelector((state) => state.maxOHP);
+  const mondayExersizes = useSelector((state) => state.mondayExersizes);
+  const tuesdayExersizes = useSelector((state) => state.tuesdayExersizes);
+  const wednesdayExersizes = useSelector((state) => state.wednesdayExersizes);
+  const thursdayExersizes = useSelector((state) => state.thursdayExersizes);
+  const fridayExersizes = useSelector((state) => state.fridayExersizes);
+  const saturdayExersizes = useSelector((state) => state.saturdayExersizes);
+  const sundayExersizes = useSelector((state) => state.sundayExersizes);
+  const pushExersizes = useSelector((state) => state.pushExersizes);
+  const pullExersizes = useSelector((state) => state.pullExersizes);
+  const legsExersizes = useSelector((state) => state.legsExersizes);
 
   let weekDisp;
   const dayDisp = moment().format("dddd");
@@ -46,46 +54,6 @@ const FitnessWeek = (props) => {
   }
 
   const dispatch = useDispatch();
-
-  let mondayExersizes;
-  let tuesdayExersizes;
-  let wednesdayExersizes;
-  let thursdayExersizes;
-  let fridayExersizes;
-  let saturdayExersizes;
-  let sundayExersizes;
-  switch (power) {
-    case true: {
-      mondayExersizes = useSelector((state) => state.mondayExersizes);
-      tuesdayExersizes = useSelector((state) => state.tuesdayExersizes);
-      wednesdayExersizes = useSelector((state) => state.wednesdayExersizes);
-      thursdayExersizes = useSelector((state) => state.thursdayExersizes);
-      fridayExersizes = useSelector((state) => state.fridayExersizes);
-      saturdayExersizes = useSelector((state) => state.saturdayExersizes);
-      sundayExersizes = useSelector((state) => state.sundayExersizes);
-      break;
-    }
-    case false: {
-      mondayExersizes = useSelector((state) => state.mondayExersizesB);
-      tuesdayExersizes = useSelector((state) => state.tuesdayExersizesB);
-      wednesdayExersizes = useSelector((state) => state.wednesdayExersizesB);
-      thursdayExersizes = useSelector((state) => state.thursdayExersizesB);
-      fridayExersizes = useSelector((state) => state.fridayExersizesB);
-      saturdayExersizes = useSelector((state) => state.saturdayExersizesB);
-      sundayExersizes = useSelector((state) => state.sundayExersizesB);
-      break;
-    }
-    default: {
-      mondayExersizes = useSelector((state) => state.mondayExersizes);
-      tuesdayExersizes = useSelector((state) => state.tuesdayExersizes);
-      wednesdayExersizes = useSelector((state) => state.wednesdayExersizes);
-      thursdayExersizes = useSelector((state) => state.thursdayExersizes);
-      fridayExersizes = useSelector((state) => state.fridayExersizes);
-      saturdayExersizes = useSelector((state) => state.saturdayExersizes);
-      sundayExersizes = useSelector((state) => state.sundayExersizes);
-      break;
-    }
-  }
 
   const convertMax = (weight, exersize) => {
     const floatWeight = parseFloat(weight);
@@ -112,7 +80,7 @@ const FitnessWeek = (props) => {
     const [selected, setSelected] = useState(true);
     const [mainLiftIndexs, setMainLiftIndexs] = useState([]);
     const [isRestDay, setIsRestDay] = useState(
-      props.exersizes.at(0) === "Rest"
+      props.exersizes.at(0).exersize === "Rest"
     );
 
     return (
@@ -370,79 +338,27 @@ const FitnessWeek = (props) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {!biweekly ? null : (
-        <View
-          style={{
-            flex: 0,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-evenly",
-            backgroundColor: colors.secondary,
-          }}
-        >
-          <View style={{ flex: 1 }}>
-            <TouchableOpacity
-              style={{ alignItems: "center" }}
-              onPress={() => {
-                dispatch(updatePower(true));
-              }}
-            >
-              <MaterialCommunityIcons
-                name={power ? "arm-flex" : "arm-flex-outline"}
-                color={"white"}
-                size={30}
-              />
-              <View style={{ marginBottom: 5 }} />
-              <Text
-                style={{
-                  fontSize: 15,
-                  color: colors.textColors.headerText,
-                  fontWeight: power ? "bold" : "normal",
-                  textAlign: "center",
-                }}
-              >
-                Power
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{ flex: 1 }}>
-            <TouchableOpacity
-              style={{ alignItems: "center" }}
-              onPress={() => {
-                dispatch(updatePower(false));
-              }}
-            >
-              <AntDesign
-                name={!power ? "smile-circle" : "smileo"}
-                color={"white"}
-                size={20}
-              />
-              <View style={{ marginBottom: 5 }} />
-              <Text
-                style={{
-                  fontSize: 15,
-                  color: colors.textColors.headerText,
-                  fontWeight: !power ? "bold" : "normal",
-                  textAlign: "center",
-                }}
-              >
-                BB
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
       <ScrollViewContainer
         content={
           <View>
             <View style={{ marginTop: 80 }} />
-            <DayComponent day="Monday" exersizes={mondayExersizes} />
-            <DayComponent day="Tuesday" exersizes={tuesdayExersizes} />
-            <DayComponent day="Wednesday" exersizes={wednesdayExersizes} />
-            <DayComponent day="Thursday" exersizes={thursdayExersizes} />
-            <DayComponent day="Friday" exersizes={fridayExersizes} />
-            <DayComponent day="Saturday" exersizes={saturdayExersizes} />
-            <DayComponent day="Sunday" exersizes={sundayExersizes} />
+            {noschedule ? (
+              <View>
+                <DayComponent day="Push" exersizes={pushExersizes} />
+                <DayComponent day="Pull" exersizes={pullExersizes} />
+                <DayComponent day="Legs" exersizes={legsExersizes} />
+              </View>
+            ) : (
+              <View>
+                <DayComponent day="Monday" exersizes={mondayExersizes} />
+                <DayComponent day="Tuesday" exersizes={tuesdayExersizes} />
+                <DayComponent day="Wednesday" exersizes={wednesdayExersizes} />
+                <DayComponent day="Thursday" exersizes={thursdayExersizes} />
+                <DayComponent day="Friday" exersizes={fridayExersizes} />
+                <DayComponent day="Saturday" exersizes={saturdayExersizes} />
+                <DayComponent day="Sunday" exersizes={sundayExersizes} />
+              </View>
+            )}
           </View>
         }
         nav={props.navigation}

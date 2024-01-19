@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import moment from "moment";
 import { LinearGradient } from "expo-linear-gradient";
 import MaskedView from "@react-native-masked-view/masked-view";
@@ -16,69 +22,44 @@ const FitnessDay = (props) => {
   const [blur, setBlur] = useState(0);
 
   const colors = useSelector((state) => state.colors);
-  const power = useSelector((state) => state.power);
   const maxBench = useSelector((state) => state.maxBench);
   const maxSquat = useSelector((state) => state.maxSquat);
   const maxOHP = useSelector((state) => state.maxOHP);
+  const noschedule = useSelector((state) => state.noschedule);
+  const pushExersizes = useSelector((state) => state.pushExersizes);
+  const pullExersizes = useSelector((state) => state.pullExersizes);
+  const legsExersizes = useSelector((state) => state.legsExersizes);
 
   const dayDisp = moment().format("dddd");
 
   let exersizes;
   switch (dayDisp) {
     case "Monday": {
-      if (power) {
-        exersizes = useSelector((state) => state.mondayExersizes);
-      } else {
-        exersizes = useSelector((state) => state.mondayExersizesB);
-      }
+      exersizes = useSelector((state) => state.mondayExersizes);
       break;
     }
     case "Tuesday": {
-      if (power) {
-        exersizes = useSelector((state) => state.tuesdayExersizes);
-      } else {
-        exersizes = useSelector((state) => state.tuesdayExersizesB);
-      }
+      exersizes = useSelector((state) => state.tuesdayExersizes);
       break;
     }
     case "Wednesday": {
-      if (power) {
-        exersizes = useSelector((state) => state.wednesdayExersizes);
-      } else {
-        exersizes = useSelector((state) => state.wednesdayExersizesB);
-      }
+      exersizes = useSelector((state) => state.wednesdayExersizes);
       break;
     }
     case "Thursday": {
-      if (power) {
-        exersizes = useSelector((state) => state.thursdayExersizes);
-      } else {
-        exersizes = useSelector((state) => state.thursdayExersizesB);
-      }
+      exersizes = useSelector((state) => state.thursdayExersizes);
       break;
     }
     case "Friday": {
-      if (power) {
-        exersizes = useSelector((state) => state.fridayExersizes);
-      } else {
-        exersizes = useSelector((state) => state.fridayExersizesB);
-      }
+      exersizes = useSelector((state) => state.fridayExersizes);
       break;
     }
     case "Saturday": {
-      if (power) {
-        exersizes = useSelector((state) => state.saturdayExersizes);
-      } else {
-        exersizes = useSelector((state) => state.saturdayExersizesB);
-      }
+      exersizes = useSelector((state) => state.saturdayExersizes);
       break;
     }
     case "Sunday": {
-      if (power) {
-        exersizes = useSelector((state) => state.sundayExersizes);
-      } else {
-        exersizes = useSelector((state) => state.sundayExersizesB);
-      }
+      exersizes = useSelector((state) => state.sundayExersizes);
       break;
     }
   }
@@ -104,11 +85,183 @@ const FitnessDay = (props) => {
     }
   };
 
+  const PPLComp = (props) => {
+    let marginLeft;
+    let marginRight;
+    switch (props.day) {
+      case "Push": {
+        exersizes = pushExersizes;
+        marginLeft = 17;
+        marginRight = 30;
+        break;
+      }
+      case "Pull": {
+        exersizes = pullExersizes;
+        marginLeft = 30;
+        marginRight = 30;
+        break;
+      }
+      case "Legs": {
+        exersizes = legsExersizes;
+        marginLeft = 30;
+        marginRight = 17;
+        break;
+      }
+    }
+
+    return (
+      <View
+        style={{
+          marginTop: 100,
+          flex: 1,
+          marginLeft: marginLeft,
+          marginRight: marginRight,
+          width: 340,
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: colors.darkGrey,
+            padding: 5,
+            borderRadius: 10,
+          }}
+        >
+          {exersizes.map((item, index) => {
+            if (!mainLiftIndexs.includes(index)) {
+              if (
+                item.exersize === "Squat" ||
+                item.exersize === "Bench" ||
+                item.exersize === "Overhead Press"
+              ) {
+                setMainLiftIndexs(mainLiftIndexs.concat([index]));
+              }
+            } else {
+              if (
+                item.exersize !== "Squat" &&
+                item.exersize !== "Bench" &&
+                item.exersize !== "Overhead Press"
+              ) {
+                setMainLiftIndexs(
+                  mainLiftIndexs.filter((currIndex) => index !== currIndex)
+                );
+              }
+            }
+            return (
+              <View key={index} style={{ backgroundColor: colors.darkGrey }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginTop: 10,
+                    marginBottom: 10,
+                    backgroundColor: colors.darkGrey,
+                    justifyContent: "space-between",
+                    padding: 5,
+                    alignItems: "center",
+                  }}
+                >
+                  <View style={{ marginRight: 15, flex: 1 }}>
+                    <Text
+                      style={{
+                        margin: 5,
+                        padding: 5,
+                        color: mainLiftIndexs.includes(index)
+                          ? colors.primary
+                          : "white",
+                        fontSize: 15,
+                        textAlign: "center",
+                        fontWeight: mainLiftIndexs.includes(index)
+                          ? "bold"
+                          : "normal",
+                        opacity: selectedIndexs.includes(index) ? 0.2 : 1,
+                      }}
+                    >
+                      {item.exersize}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      marginLeft: 15,
+                      flex: 1,
+                      //justifyContent: "flex-end",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        margin: 5,
+                        padding: 5,
+                        color: "white",
+                        fontSize: 15,
+                        textAlign: "center",
+                        opacity: selectedIndexs.includes(index) ? 0.2 : 1,
+                      }}
+                    >
+                      {item.sets}
+                    </Text>
+                    <Text
+                      style={{
+                        margin: 5,
+                        padding: 5,
+                        color: "white",
+                        fontSize: 15,
+                        textAlign: "center",
+                        opacity: selectedIndexs.includes(index) ? 0.2 : 1,
+                      }}
+                    >
+                      {item.reps}
+                    </Text>
+                    <Text
+                      style={{
+                        margin: 5,
+                        padding: 5,
+                        color: "white",
+                        fontSize: 15,
+                        marginRight: 5,
+                        textAlign: "center",
+                        opacity: selectedIndexs.includes(index) ? 0.2 : 1,
+                      }}
+                    >
+                      {mainLiftIndexs.includes(index)
+                        ? convertMax(item.weight, item.exersize)
+                        : item.weight}
+                    </Text>
+                  </View>
+                </View>
+                {exersizes.length === index + 1 ? undefined : (
+                  <View
+                    style={{
+                      borderColor: colors.lightGrey,
+                      borderWidth: 0.5,
+                      width: "95%",
+                      alignSelf: "flex-end",
+                    }}
+                  />
+                )}
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollViewContainer
         content={
-          exersizes.at(0).exersize === "Rest" ? (
+          noschedule ? (
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                width: "100%",
+              }}
+            >
+              <PPLComp day={"Push"} />
+              <PPLComp day={"Pull"} />
+              <PPLComp day={"Legs"} />
+            </View>
+          ) : exersizes.at(0).exersize === "Rest" ? (
             <View style={{ marginTop: 100 }}>
               <MaskedView
                 style={{ height: "50%" }}
@@ -324,6 +477,7 @@ const FitnessDay = (props) => {
             setBlur(0);
           }
         }}
+        horizontal={noschedule}
       />
       <BlurView
         intensity={blur}
@@ -343,7 +497,7 @@ const FitnessDay = (props) => {
             marginBottom: 10,
           }}
         >
-          {dayDisp}
+          {noschedule ? "PPL" : dayDisp}
         </Text>
       </BlurView>
     </View>

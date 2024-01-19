@@ -39,6 +39,7 @@ const ScrollViewContainer = (props) => {
       scrollEnabled={!props.scrollDisabled}
       scrollEventThrottle={16}
       onScroll={props.onScroll}
+      horizontal={props.horizontal}
     >
       {props.content}
     </ScrollView>
