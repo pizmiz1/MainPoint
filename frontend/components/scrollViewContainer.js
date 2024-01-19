@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, Dimensions } from "react-native";
 import { useSelector } from "react-redux";
 import { NestableScrollContainer } from "react-native-draggable-flatlist";
 
@@ -40,6 +40,9 @@ const ScrollViewContainer = (props) => {
       scrollEventThrottle={16}
       onScroll={props.onScroll}
       horizontal={props.horizontal}
+      decelerationRate={props.horizontal ? "fast" : null}
+      snapToInterval={props.horizontal ? Dimensions.get("screen").width : null}
+      snapToAlignment={props.horizontal ? "center" : null}
     >
       {props.content}
     </ScrollView>

@@ -20,6 +20,7 @@ const FitnessDay = (props) => {
   const [mainLiftIndexs, setMainLiftIndexs] = useState([]);
   const [selectedIndexs, setSelectedIndexs] = useState([]);
   const [blur, setBlur] = useState(0);
+  const [pplDisp, setPplDisp] = useState("Push");
 
   const colors = useSelector((state) => state.colors);
   const maxBench = useSelector((state) => state.maxBench);
@@ -86,25 +87,17 @@ const FitnessDay = (props) => {
   };
 
   const PPLComp = (props) => {
-    let marginLeft;
-    let marginRight;
     switch (props.day) {
       case "Push": {
         exersizes = pushExersizes;
-        marginLeft = 17;
-        marginRight = 30;
         break;
       }
       case "Pull": {
         exersizes = pullExersizes;
-        marginLeft = 30;
-        marginRight = 30;
         break;
       }
       case "Legs": {
         exersizes = legsExersizes;
-        marginLeft = 30;
-        marginRight = 17;
         break;
       }
     }
@@ -114,8 +107,8 @@ const FitnessDay = (props) => {
         style={{
           marginTop: 100,
           flex: 1,
-          marginLeft: marginLeft,
-          marginRight: marginRight,
+          marginLeft: 17,
+          marginRight: 17,
           width: 340,
         }}
       >
@@ -457,6 +450,14 @@ const FitnessDay = (props) => {
           } else if (pos.nativeEvent.contentOffset.y < 0) {
             setBlur(0);
           }
+
+          if (pos.nativeEvent.contentOffset.x < 202) {
+            setPplDisp("Push");
+          } else if (pos.nativeEvent.contentOffset.x < 602) {
+            setPplDisp("Pull");
+          } else {
+            setPplDisp("Legs");
+          }
         }}
         horizontal={noschedule}
       />
@@ -478,7 +479,7 @@ const FitnessDay = (props) => {
             marginBottom: 10,
           }}
         >
-          {noschedule ? "PPL" : dayDisp}
+          {noschedule ? pplDisp : dayDisp}
         </Text>
       </BlurView>
     </View>
