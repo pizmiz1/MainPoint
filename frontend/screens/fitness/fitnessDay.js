@@ -127,25 +127,10 @@ const FitnessDay = (props) => {
           }}
         >
           {exersizes.map((item, index) => {
-            if (!mainLiftIndexs.includes(index)) {
-              if (
-                item.exersize === "Squat" ||
-                item.exersize === "Bench" ||
-                item.exersize === "Overhead Press"
-              ) {
-                setMainLiftIndexs(mainLiftIndexs.concat([index]));
-              }
-            } else {
-              if (
-                item.exersize !== "Squat" &&
-                item.exersize !== "Bench" &&
-                item.exersize !== "Overhead Press"
-              ) {
-                setMainLiftIndexs(
-                  mainLiftIndexs.filter((currIndex) => index !== currIndex)
-                );
-              }
-            }
+            const isMainLift =
+              item.exersize === "Squat" ||
+              item.exersize === "Bench" ||
+              item.exersize === "Overhead Press";
             return (
               <View key={index} style={{ backgroundColor: colors.darkGrey }}>
                 <View
@@ -164,14 +149,10 @@ const FitnessDay = (props) => {
                       style={{
                         margin: 5,
                         padding: 5,
-                        color: mainLiftIndexs.includes(index)
-                          ? colors.primary
-                          : "white",
+                        color: isMainLift ? colors.primary : "white",
                         fontSize: 15,
                         textAlign: "center",
-                        fontWeight: mainLiftIndexs.includes(index)
-                          ? "bold"
-                          : "normal",
+                        fontWeight: isMainLift ? "bold" : "normal",
                         opacity: selectedIndexs.includes(index) ? 0.2 : 1,
                       }}
                     >
@@ -221,7 +202,7 @@ const FitnessDay = (props) => {
                         opacity: selectedIndexs.includes(index) ? 0.2 : 1,
                       }}
                     >
-                      {mainLiftIndexs.includes(index)
+                      {isMainLift
                         ? convertMax(item.weight, item.exersize)
                         : item.weight}
                     </Text>
