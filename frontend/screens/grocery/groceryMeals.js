@@ -452,7 +452,7 @@ const GroceryMeals = (props) => {
                   height: 30,
                   marginTop: 5,
                 }}
-                platform="ios"
+                platform="default"
                 showCancel={true}
               />
               <NestableDraggableFlatList

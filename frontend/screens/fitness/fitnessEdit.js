@@ -534,7 +534,7 @@ const FitnessEdit = (props) => {
                       <AntDesign name="check" size={30} color="#03a9f5" />
                     ) : (
                       <Ionicons
-                        name="ios-swap-vertical"
+                        name="swap-vertical"
                         size={30}
                         color="#03a9f5"
                       />

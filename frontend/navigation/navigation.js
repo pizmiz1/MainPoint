@@ -153,7 +153,7 @@ const MyDrawerNav = (props) => {
               tabBarLabel: "Day",
               tabBarIcon: ({ focused, color }) => (
                 <Ionicons
-                  name={focused ? "ios-sunny" : "ios-sunny-outline"}
+                  name={focused ? "sunny" : "sunny-outline"}
                   color={color}
                   size={24}
                 />
@@ -167,7 +167,7 @@ const MyDrawerNav = (props) => {
               tabBarLabel: "Week",
               tabBarIcon: ({ focused, color }) => (
                 <Ionicons
-                  name={focused ? "ios-calendar" : "ios-calendar-outline"}
+                  name={focused ? "calendar" : "calendar-outline"}
                   size={24}
                   color={color}
                 />
@@ -181,7 +181,7 @@ const MyDrawerNav = (props) => {
               tabBarLabel: "Edit",
               tabBarIcon: ({ focused, color }) => (
                 <Ionicons
-                  name={focused ? "ios-settings" : "ios-settings-outline"}
+                  name={focused ? "settings" : "settings-outline"}
                   size={24}
                   color={color}
                 />
@@ -235,7 +235,7 @@ const MyDrawerNav = (props) => {
             tabBarLabel: "List",
             tabBarIcon: ({ focused, color }) => (
               <Ionicons
-                name={focused ? "ios-list" : "ios-list-outline"}
+                name={focused ? "list" : "list-outline"}
                 size={24}
                 color={color}
               />

@@ -510,7 +510,7 @@ const GroceryMacros = (props) => {
             </View>
           ) : switchedMeals.includes(props.mealName) ? (
             <Ionicons
-              name="ios-checkmark-circle"
+              name="checkmark-circle"
               size={26}
               color="#3078cb"
               style={{
