@@ -23,7 +23,7 @@ import SelectDropdown from "react-native-select-dropdown";
 import { addNewGroceryAction } from "../../store/actions/addNewGrocery";
 
 //components
-import ScrollViewContainer from "../../components/scrollViewContainer";
+import ScrollViewContainer from "../components/scrollViewContainer";
 
 const GroceryList = (props) => {
   const colors = useSelector((state) => state.colors);
