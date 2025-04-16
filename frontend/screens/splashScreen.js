@@ -5,7 +5,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const SplashScreen = (props) => {
   useEffect(() => {
     const load = async () => {
-      props.navigation.navigate("Disclaimer Screen");
+      const FirstUseJSON = await AsyncStorage.getItem("FirstUse");
+      const FirstUseParsed =
+        FirstUseJSON != null ? JSON.parse(FirstUseJSON) : null;
+
+      if (FirstUseParsed === null) {
+        props.navigation.navigate("Disclaimer Screen");
+      } else {
+        // Nav to grocery list
+      }
     };
 
     load();
