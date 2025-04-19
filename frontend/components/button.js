@@ -1,12 +1,12 @@
 import { Text, TouchableOpacity } from "react-native";
 import colors from "../constants/colors";
 
-const Button = ({ style, label, onPress, size = 150 }) => {
+const Button = ({ style, label, onPress, color = colors.primaryBlue, size = 150 }) => {
   return (
     <TouchableOpacity
       style={{
         ...style,
-        backgroundColor: colors.primaryBlue,
+        backgroundColor: color,
         width: size,
         height: size / 2.9,
         borderRadius: 200,

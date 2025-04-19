@@ -1,35 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Text,
-  View,
-  TouchableOpacity,
-  Modal,
-  TouchableWithoutFeedback,
-  TextInput,
-  Keyboard,
-  ActionSheetIOS,
-  Alert,
-  LayoutAnimation,
-  StyleSheet,
-} from "react-native";
-import { useSelector, useDispatch } from "react-redux";
-import uuid from "react-native-uuid";
-import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
-import { removeGroceryAction } from "../../store/actions/removeGrocery";
-import { addGroceryAction } from "../../store/actions/addGrocery";
+import { Text, View, TouchableOpacity, Modal, TouchableWithoutFeedback, TextInput, Keyboard, LayoutAnimation, StyleSheet } from "react-native";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BlurView } from "expo-blur";
 import SelectDropdown from "react-native-select-dropdown";
-import { addNewGroceryAction } from "../../store/actions/addNewGrocery";
+import uuid from "react-native-uuid";
 
 //components
 import ScrollViewContainer from "../components/scrollViewContainer";
 
-const GroceryList = (props) => {
-  const colors = useSelector((state) => state.colors);
-  const allGroceries = useSelector((state) => state.allGroceries);
-  const groceryList = useSelector((state) => state.groceryList);
-
+const GroceryListScreen = (props) => {
   const [produceList, setProduceList] = useState([]);
   const [fishList, setFishList] = useState([]);
   const [meatList, setMeatList] = useState([]);
@@ -52,46 +32,18 @@ const GroceryList = (props) => {
   const oldGrocery = useRef(null);
 
   const setArrays = () => {
-    setProduceList(
-      groceryList.filter((currGrocery) => currGrocery.Category === "Produce")
-    );
-    setFishList(
-      groceryList.filter((currGrocery) => currGrocery.Category === "Fish")
-    );
-    setMeatList(
-      groceryList.filter((currGrocery) => currGrocery.Category === "Meat")
-    );
-    setGrainsList(
-      groceryList.filter((currGrocery) => currGrocery.Category === "Grain")
-    );
-    setDairyList(
-      groceryList.filter((currGrocery) => currGrocery.Category === "Dairy")
-    );
-    setCondimentsList(
-      groceryList.filter((currGrocery) => currGrocery.Category === "Condiment")
-    );
-    setSnacksList(
-      groceryList.filter((currGrocery) => currGrocery.Category === "Snack")
-    );
-    setNonFoodList(
-      groceryList.filter((currGrocery) => currGrocery.Category === "Non Food")
-    );
-    setFrozenList(
-      groceryList.filter((currGrocery) => currGrocery.Category === "Frozen")
-    );
+    setProduceList(groceryList.filter((currGrocery) => currGrocery.Category === "Produce"));
+    setFishList(groceryList.filter((currGrocery) => currGrocery.Category === "Fish"));
+    setMeatList(groceryList.filter((currGrocery) => currGrocery.Category === "Meat"));
+    setGrainsList(groceryList.filter((currGrocery) => currGrocery.Category === "Grain"));
+    setDairyList(groceryList.filter((currGrocery) => currGrocery.Category === "Dairy"));
+    setCondimentsList(groceryList.filter((currGrocery) => currGrocery.Category === "Condiment"));
+    setSnacksList(groceryList.filter((currGrocery) => currGrocery.Category === "Snack"));
+    setNonFoodList(groceryList.filter((currGrocery) => currGrocery.Category === "Non Food"));
+    setFrozenList(groceryList.filter((currGrocery) => currGrocery.Category === "Frozen"));
   };
 
-  const cats = [
-    "Produce",
-    "Fish",
-    "Meat",
-    "Grain",
-    "Dairy",
-    "Condiment",
-    "Snack",
-    "Frozen",
-    "Non Food",
-  ];
+  const cats = ["Produce", "Fish", "Meat", "Grain", "Dairy", "Condiment", "Snack", "Frozen", "Non Food"];
 
   const backgroundColor = (cat) => {
     switch (cat) {
@@ -139,25 +91,25 @@ const GroceryList = (props) => {
 
   useEffect(() => {
     const load = async () => {
-      const CrossedGroceries = await AsyncStorage.getItem("Crossed Groceries");
-      if (CrossedGroceries) {
-        const transformedCrossed = await JSON.parse(CrossedGroceries).data;
+      const CrossedGroceryUuidsJSON = await AsyncStorage.getItem("CrossedGroceryUuids");
+      const CrossedGroceryUuidsParsed = CrossedGroceryUuidsJSON != null ? JSON.parse(CrossedGroceryUuidsJSON) : null;
+
+      if (CrossedGroceryUuidsParsed !== null) {
+        const transformedCrossed = await JSON.parse(CrossedGroceryUuidsParsed).data;
+
+        // STOPPED HERE
         setCrossedGroceries(transformedCrossed);
+      }
+
+      setArrays();
+      if (groceryList.length === 0) {
+        setClearVisible(false);
+      } else {
+        setClearVisible(true);
       }
     };
     load();
   }, []);
-
-  useEffect(() => {
-    setArrays();
-    if (groceryList.length === 0) {
-      setClearVisible(false);
-    } else {
-      setClearVisible(true);
-    }
-  }, [groceryList]);
-
-  const dispatch = useDispatch();
 
   const removeGrocery = async (passedGrocery) => {
     await dispatch(removeGroceryAction(passedGrocery, false));
@@ -211,9 +163,7 @@ const GroceryList = (props) => {
             marginBottom: -10,
           }}
         >
-          <Text style={{ fontSize: 20, marginBottom: 10, color: "white" }}>
-            {props.catName}
-          </Text>
+          <Text style={{ fontSize: 20, marginBottom: 10, color: "white" }}>{props.catName}</Text>
         </View>
         <View
           style={{
@@ -236,15 +186,11 @@ const GroceryList = (props) => {
                     })
                   );
                 } else {
-                  setCrossedGroceries(
-                    crossedGroceries.filter((currId) => item.id !== currId)
-                  );
+                  setCrossedGroceries(crossedGroceries.filter((currId) => item.id !== currId));
                   await AsyncStorage.setItem(
                     "Crossed Groceries",
                     JSON.stringify({
-                      data: crossedGroceries.filter(
-                        (currId) => item.id !== currId
-                      ),
+                      data: crossedGroceries.filter((currId) => item.id !== currId),
                     })
                   );
                 }
@@ -272,9 +218,7 @@ const GroceryList = (props) => {
                           fontSize: 25,
                           marginTop: 10,
                           marginBottom: 10,
-                          textDecorationLine: crossedGroceries.includes(item.id)
-                            ? "line-through"
-                            : "none",
+                          textDecorationLine: crossedGroceries.includes(item.id) ? "line-through" : "none",
                           opacity: crossedGroceries.includes(item.id) ? 0.2 : 1,
                         }}
                       >
@@ -339,9 +283,7 @@ const GroceryList = (props) => {
         const GroceryData = await AsyncStorage.getItem("Grocery Data");
         if (GroceryData) {
           const transformedGroceryData = await JSON.parse(GroceryData).data;
-          transformedGroceryData.at(1).Groceries = groceryList.concat([
-            grocery,
-          ]);
+          transformedGroceryData.at(1).Groceries = groceryList.concat([grocery]);
           transformedGroceryData.at(0).AllGroceries = allGroceries;
           await AsyncStorage.setItem(
             "Grocery Data",
@@ -356,9 +298,7 @@ const GroceryList = (props) => {
         const GroceryData = await AsyncStorage.getItem("Grocery Data");
         if (GroceryData) {
           const transformedGroceryData = await JSON.parse(GroceryData).data;
-          transformedGroceryData.at(1).Groceries = groceryList.filter(
-            (currGrocery) => currGrocery.Name !== grocery.Name
-          );
+          transformedGroceryData.at(1).Groceries = groceryList.filter((currGrocery) => currGrocery.Name !== grocery.Name);
           transformedGroceryData.at(0).AllGroceries = allGroceries;
           await AsyncStorage.setItem(
             "Grocery Data",
@@ -373,12 +313,8 @@ const GroceryList = (props) => {
         const GroceryData = await AsyncStorage.getItem("Grocery Data");
         if (GroceryData) {
           const transformedGroceryData = await JSON.parse(GroceryData).data;
-          transformedGroceryData.at(1).Groceries = groceryList.concat([
-            grocery,
-          ]);
-          transformedGroceryData.at(0).AllGroceries = allGroceries.concat([
-            grocery,
-          ]);
+          transformedGroceryData.at(1).Groceries = groceryList.concat([grocery]);
+          transformedGroceryData.at(0).AllGroceries = allGroceries.concat([grocery]);
           await AsyncStorage.setItem(
             "Grocery Data",
             JSON.stringify({
@@ -393,15 +329,11 @@ const GroceryList = (props) => {
         if (GroceryData) {
           const transformedGroceryData = await JSON.parse(GroceryData).data;
 
-          const myGroceryListIndex = groceryList.findIndex(
-            (curr) => curr.id === oldGrocery.current.id
-          );
+          const myGroceryListIndex = groceryList.findIndex((curr) => curr.id === oldGrocery.current.id);
           groceryList[myGroceryListIndex] = grocery;
           transformedGroceryData.at(1).Groceries = groceryList;
 
-          const myGroceryIndex = allGroceries.findIndex(
-            (curr) => curr.id === oldGrocery.current.id
-          );
+          const myGroceryIndex = allGroceries.findIndex((curr) => curr.id === oldGrocery.current.id);
           allGroceries[myGroceryIndex] = grocery;
           transformedGroceryData.at(0).AllGroceries = allGroceries;
           await AsyncStorage.setItem(
@@ -424,14 +356,10 @@ const GroceryList = (props) => {
       Category: "",
     };
 
-    const existingGrocery = allGroceries.find(
-      (currGrocery) => currGrocery.Name === newGroceryName
-    );
+    const existingGrocery = allGroceries.find((currGrocery) => currGrocery.Name === newGroceryName);
 
     if (existingGrocery && oldGrocery.current === null) {
-      const existingGroceryInList = groceryList.find(
-        (currGrocery) => currGrocery.Name === newGroceryName
-      );
+      const existingGroceryInList = groceryList.find((currGrocery) => currGrocery.Name === newGroceryName);
       if (existingGroceryInList) {
         updateNewGroceryName("");
         setModalVisible(false);
@@ -448,24 +376,12 @@ const GroceryList = (props) => {
       saveGroceries(1, newGrocery);
     } else {
       if (!addingNewGrocery) {
-        LayoutAnimation.configureNext(
-          LayoutAnimation.create(
-            200,
-            LayoutAnimation.Types.linear,
-            LayoutAnimation.Properties.opacity
-          )
-        );
+        LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
         setAddingNewGrocery(true);
         return;
       }
       if (newCat === null) {
-        LayoutAnimation.configureNext(
-          LayoutAnimation.create(
-            200,
-            LayoutAnimation.Types.linear,
-            LayoutAnimation.Properties.opacity
-          )
-        );
+        LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
         setCatInvalid(true);
         return;
       }
@@ -477,10 +393,7 @@ const GroceryList = (props) => {
       newGrocery.Category = newCat;
 
       if (oldGrocery.current !== null) {
-        if (
-          newGrocery.Category === oldGrocery.current.Category &&
-          newGrocery.Name === oldGrocery.current.Name
-        ) {
+        if (newGrocery.Category === oldGrocery.current.Category && newGrocery.Name === oldGrocery.current.Name) {
           updateNewGroceryName("");
           setModalVisible(false);
           setAddingNewGrocery(false);
@@ -545,13 +458,7 @@ const GroceryList = (props) => {
                 placeholder="Name"
                 onChangeText={(text) => {
                   if (catInvalid) {
-                    LayoutAnimation.configureNext(
-                      LayoutAnimation.create(
-                        200,
-                        LayoutAnimation.Types.linear,
-                        LayoutAnimation.Properties.opacity
-                      )
-                    );
+                    LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
                     setCatInvalid(false);
                   }
                   updateNewGroceryName(text);
@@ -721,78 +628,21 @@ const GroceryList = (props) => {
               >
                 <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
               </TouchableOpacity>
-              {produceList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Produce"}
-                  groceries={produceList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {fishList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Fish"}
-                  groceries={fishList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {meatList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Meat"}
-                  groceries={meatList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {grainsList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Grains"}
-                  groceries={grainsList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {dairyList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Dairy"}
-                  groceries={dairyList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {condimentsList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Condiments"}
-                  groceries={condimentsList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {snacksList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Snacks"}
-                  groceries={snacksList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {frozenList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Frozen"}
-                  groceries={frozenList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
-              {nonFoodList.length !== 0 ? (
-                <CategoryComponent
-                  catName={"Non Food"}
-                  groceries={nonFoodList}
-                  remove={removeGrocery}
-                />
-              ) : undefined}
+              {produceList.length !== 0 ? <CategoryComponent catName={"Produce"} groceries={produceList} remove={removeGrocery} /> : undefined}
+              {fishList.length !== 0 ? <CategoryComponent catName={"Fish"} groceries={fishList} remove={removeGrocery} /> : undefined}
+              {meatList.length !== 0 ? <CategoryComponent catName={"Meat"} groceries={meatList} remove={removeGrocery} /> : undefined}
+              {grainsList.length !== 0 ? <CategoryComponent catName={"Grains"} groceries={grainsList} remove={removeGrocery} /> : undefined}
+              {dairyList.length !== 0 ? <CategoryComponent catName={"Dairy"} groceries={dairyList} remove={removeGrocery} /> : undefined}
+              {condimentsList.length !== 0 ? <CategoryComponent catName={"Condiments"} groceries={condimentsList} remove={removeGrocery} /> : undefined}
+              {snacksList.length !== 0 ? <CategoryComponent catName={"Snacks"} groceries={snacksList} remove={removeGrocery} /> : undefined}
+              {frozenList.length !== 0 ? <CategoryComponent catName={"Frozen"} groceries={frozenList} remove={removeGrocery} /> : undefined}
+              {nonFoodList.length !== 0 ? <CategoryComponent catName={"Non Food"} groceries={nonFoodList} remove={removeGrocery} /> : undefined}
             </View>
           }
           style={{ backgroundColor: colors.lightGrey }}
           onScroll={(pos) => {
             setBackgroundTrig(pos.nativeEvent.contentOffset.y);
-            if (
-              pos.nativeEvent.contentOffset.y < 40 &&
-              pos.nativeEvent.contentOffset.y > 0
-            ) {
+            if (pos.nativeEvent.contentOffset.y < 40 && pos.nativeEvent.contentOffset.y > 0) {
               setBlur(pos.nativeEvent.contentOffset.y);
             } else if (pos.nativeEvent.contentOffset.y > 40) {
               setBlur(40);
@@ -809,8 +659,7 @@ const GroceryList = (props) => {
           width: "100%",
           height: "12%",
           ...StyleSheet.absoluteFillObject,
-          backgroundColor:
-            backgroundTrig > 100 ? "rgba(255, 255, 255, .7)" : null,
+          backgroundColor: backgroundTrig > 100 ? "rgba(255, 255, 255, .7)" : null,
         }}
         intensity={blur}
       >
@@ -864,4 +713,4 @@ const GroceryList = (props) => {
   );
 };
 
-export default GroceryList;
+export default GroceryListScreen;

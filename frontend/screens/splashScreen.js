@@ -4,15 +4,28 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SplashScreen = (props) => {
   useEffect(() => {
+    const setupInitialAsyncStructure = async () => {
+      AsyncStorage.clear();
+
+      // Crossed grocery uuids
+      const crossedGroceryUuidJSON = JSON.stringify([]);
+      await AsyncStorage.setItem("CrossedGroceryUuids", crossedGroceryUuidJSON);
+    };
+
     const load = async () => {
+      // Testing disclaimer screen
+      //AsyncStorage.clear();
+
       const FirstUseJSON = await AsyncStorage.getItem("FirstUse");
-      const FirstUseParsed =
-        FirstUseJSON != null ? JSON.parse(FirstUseJSON) : null;
+      const FirstUseParsed = FirstUseJSON != null ? JSON.parse(FirstUseJSON) : null;
 
       if (FirstUseParsed === null) {
+        setupInitialAsyncStructure();
+
         props.navigation.navigate("Disclaimer Screen");
       } else {
-        // Nav to grocery list
+        console.log(1);
+        props.navigation.navigate("Grocery List Screen");
       }
     };
 
@@ -53,10 +66,7 @@ const SplashScreen = (props) => {
             opacity: pulseAnim,
           }}
         >
-          <Image
-            style={{ width: "100%", height: undefined, aspectRatio: 1 }}
-            source={require("./../assets/Logo/MainLogo.jpg")}
-          ></Image>
+          <Image style={{ width: "100%", height: undefined, aspectRatio: 1 }} source={require("./../assets/Logo/MainLogo.jpg")}></Image>
         </Animated.View>
       </View>
     </View>

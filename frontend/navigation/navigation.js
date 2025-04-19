@@ -6,11 +6,12 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // screens
 import SplashScreen from "../screens/splashScreen";
 import DisclaimerScreen from "../screens/disclaimerScreen";
-
-//Root Nav
-const Stack = createNativeStackNavigator();
+import GroceryListScreen from "../screens/groceryListScreen";
 
 const MyNav = () => {
+  //Root Nav
+  const Stack = createNativeStackNavigator();
+
   return (
     <NavigationContainer>
       <StatusBar />
@@ -21,16 +22,9 @@ const MyNav = () => {
         }}
         initialRouteName="Splash Screen"
       >
-        <Stack.Screen
-          name="Splash Screen"
-          component={SplashScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Disclaimer Screen"
-          component={DisclaimerScreen}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="Splash Screen" component={SplashScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Disclaimer Screen" component={DisclaimerScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Grocery List Screen" component={GroceryListScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

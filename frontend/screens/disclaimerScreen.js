@@ -5,10 +5,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DisclaimerScreen = (props) => {
   const continuePress = async () => {
-    const firstUseJSON = JSON.stringify({ FirstUse: false });
+    const firstUseJSON = JSON.stringify(false);
     await AsyncStorage.setItem("FirstUse", firstUseJSON);
 
-    // Nav to grocery list
+    props.navigation.navigate("Grocery List Screen");
   };
 
   return (
@@ -18,10 +18,7 @@ const DisclaimerScreen = (props) => {
         alignItems: "center",
       }}
     >
-      <Image
-        style={{ width: "0%", height: "35%", aspectRatio: 1, marginTop: "25%" }}
-        source={require("./../assets/Info.png")}
-      ></Image>
+      <Image style={{ width: "0%", height: "35%", aspectRatio: 1, marginTop: "25%" }} source={require("./../assets/Info.png")}></Image>
       <Text
         style={{
           fontSize: 40,
@@ -40,15 +37,9 @@ const DisclaimerScreen = (props) => {
           textAlign: "center",
         }}
       >
-        Welcome to MainPoint. Any data entered in the app will be permanently
-        lost if you delete MainPoint. This includes any groceries so be careful.
-        Enjoy!
+        Welcome to MainPoint. Any data entered in the app will be permanently lost if you delete MainPoint. This includes any groceries so be careful. Enjoy!
       </Text>
-      <Button
-        label="Continue"
-        style={{ marginTop: "20%" }}
-        onPress={continuePress}
-      />
+      <Button label="Continue" style={{ marginTop: "20%" }} onPress={continuePress} />
     </View>
   );
 };
