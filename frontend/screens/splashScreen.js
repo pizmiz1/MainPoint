@@ -7,15 +7,19 @@ const SplashScreen = (props) => {
     const setupInitialAsyncStructure = async () => {
       AsyncStorage.clear();
 
+      const EmptyArrJSON = JSON.stringify([]);
+
       // Crossed grocery uuids
-      const crossedGroceryUuidJSON = JSON.stringify([]);
-      await AsyncStorage.setItem("CrossedGroceryUuids", crossedGroceryUuidJSON);
+      await AsyncStorage.setItem("CrossedGroceryUuids", EmptyArrJSON);
+
+      // Grocery list
+      await AsyncStorage.setItem("GroceryList", EmptyArrJSON);
+
+      // All groceries
+      await AsyncStorage.setItem("AllGroceries", EmptyArrJSON);
     };
 
     const load = async () => {
-      // Testing disclaimer screen
-      //AsyncStorage.clear();
-
       const FirstUseJSON = await AsyncStorage.getItem("FirstUse");
       const FirstUseParsed = FirstUseJSON != null ? JSON.parse(FirstUseJSON) : null;
 
@@ -24,7 +28,6 @@ const SplashScreen = (props) => {
 
         props.navigation.navigate("Disclaimer Screen");
       } else {
-        console.log(1);
         props.navigation.navigate("Grocery List Screen");
       }
     };

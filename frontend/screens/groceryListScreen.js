@@ -5,11 +5,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BlurView } from "expo-blur";
 import SelectDropdown from "react-native-select-dropdown";
 import uuid from "react-native-uuid";
+import colors from "../constants/colors";
 
 //components
 import ScrollViewContainer from "../components/scrollViewContainer";
+import groceryCategories from "../constants/groceryCategories";
 
 const GroceryListScreen = (props) => {
+  const [allGroceries, setAllGroceries] = useState([]);
+  const [groceryList, setGroceryList] = useState([]);
   const [produceList, setProduceList] = useState([]);
   const [fishList, setFishList] = useState([]);
   const [meatList, setMeatList] = useState([]);
@@ -43,7 +47,11 @@ const GroceryListScreen = (props) => {
     setFrozenList(groceryList.filter((currGrocery) => currGrocery.Category === "Frozen"));
   };
 
-  const cats = ["Produce", "Fish", "Meat", "Grain", "Dairy", "Condiment", "Snack", "Frozen", "Non Food"];
+  const objectValuesToArray = (obj) => {
+    return Object.values(obj);
+  };
+
+  const cats = objectValuesToArray(groceryCategories);
 
   const backgroundColor = (cat) => {
     switch (cat) {
@@ -51,13 +59,10 @@ const GroceryListScreen = (props) => {
         return "green";
       }
       case "Fish": {
-        return colors.primary;
+        return colors.primaryBlue;
       }
       case "Meat": {
         return "red";
-      }
-      case "Grains": {
-        return "tan";
       }
       case "Grain": {
         return "tan";
@@ -65,14 +70,8 @@ const GroceryListScreen = (props) => {
       case "Dairy": {
         return "teal";
       }
-      case "Condiments": {
-        return "#f5ce42";
-      }
       case "Condiment": {
         return "#f5ce42";
-      }
-      case "Snacks": {
-        return "#f27e1f";
       }
       case "Snack": {
         return "#f27e1f";
@@ -91,27 +90,44 @@ const GroceryListScreen = (props) => {
 
   useEffect(() => {
     const load = async () => {
+      // Crossed Groceries
       const CrossedGroceryUuidsJSON = await AsyncStorage.getItem("CrossedGroceryUuids");
       const CrossedGroceryUuidsParsed = CrossedGroceryUuidsJSON != null ? JSON.parse(CrossedGroceryUuidsJSON) : null;
 
       if (CrossedGroceryUuidsParsed !== null) {
-        const transformedCrossed = await JSON.parse(CrossedGroceryUuidsParsed).data;
-
-        // STOPPED HERE
-        setCrossedGroceries(transformedCrossed);
+        setCrossedGroceries(CrossedGroceryUuidsParsed);
       }
 
-      setArrays();
+      // Grocery List
+      const GroceryListJSON = await AsyncStorage.getItem("GroceryList");
+      const GroceryListParsed = GroceryListJSON != null ? JSON.parse(GroceryListJSON) : null;
+
+      if (GroceryListParsed !== null) {
+        setGroceryList(GroceryListParsed);
+        setArrays();
+      }
+
+      // All Groceries
+      const AllGroceriesJSON = await AsyncStorage.getItem("AllGroceries");
+      const AllGroceriesParsed = AllGroceriesJSON != null ? JSON.parse(AllGroceriesJSON) : null;
+
+      if (AllGroceriesParsed !== null) {
+        setAllGroceries(AllGroceriesParsed);
+      }
+
       if (groceryList.length === 0) {
         setClearVisible(false);
       } else {
         setClearVisible(true);
       }
     };
+
     load();
   }, []);
 
   const removeGrocery = async (passedGrocery) => {
+    // STOPPED HERE
+
     await dispatch(removeGroceryAction(passedGrocery, false));
     saveGroceries(2, passedGrocery);
   };
@@ -262,92 +278,92 @@ const GroceryListScreen = (props) => {
     );
   };
 
-  const saveGroceries = async (type, grocery) => {
-    switch (type) {
-      case 0: {
-        const GroceryData = await AsyncStorage.getItem("Grocery Data");
-        if (GroceryData) {
-          const transformedGroceryData = await JSON.parse(GroceryData).data;
-          transformedGroceryData.at(1).Groceries = [];
-          transformedGroceryData.at(0).AllGroceries = allGroceries;
-          await AsyncStorage.setItem(
-            "Grocery Data",
-            JSON.stringify({
-              data: transformedGroceryData,
-            })
-          );
-        }
-        break;
-      }
-      case 1: {
-        const GroceryData = await AsyncStorage.getItem("Grocery Data");
-        if (GroceryData) {
-          const transformedGroceryData = await JSON.parse(GroceryData).data;
-          transformedGroceryData.at(1).Groceries = groceryList.concat([grocery]);
-          transformedGroceryData.at(0).AllGroceries = allGroceries;
-          await AsyncStorage.setItem(
-            "Grocery Data",
-            JSON.stringify({
-              data: transformedGroceryData,
-            })
-          );
-        }
-        break;
-      }
-      case 2: {
-        const GroceryData = await AsyncStorage.getItem("Grocery Data");
-        if (GroceryData) {
-          const transformedGroceryData = await JSON.parse(GroceryData).data;
-          transformedGroceryData.at(1).Groceries = groceryList.filter((currGrocery) => currGrocery.Name !== grocery.Name);
-          transformedGroceryData.at(0).AllGroceries = allGroceries;
-          await AsyncStorage.setItem(
-            "Grocery Data",
-            JSON.stringify({
-              data: transformedGroceryData,
-            })
-          );
-        }
-        break;
-      }
-      case 3: {
-        const GroceryData = await AsyncStorage.getItem("Grocery Data");
-        if (GroceryData) {
-          const transformedGroceryData = await JSON.parse(GroceryData).data;
-          transformedGroceryData.at(1).Groceries = groceryList.concat([grocery]);
-          transformedGroceryData.at(0).AllGroceries = allGroceries.concat([grocery]);
-          await AsyncStorage.setItem(
-            "Grocery Data",
-            JSON.stringify({
-              data: transformedGroceryData,
-            })
-          );
-        }
-        break;
-      }
-      case 4: {
-        const GroceryData = await AsyncStorage.getItem("Grocery Data");
-        if (GroceryData) {
-          const transformedGroceryData = await JSON.parse(GroceryData).data;
+  // const saveGroceries = async (type, grocery) => {
+  //   switch (type) {
+  //     case 0: {
+  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
+  //       if (GroceryData) {
+  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
+  //         transformedGroceryData.at(1).Groceries = [];
+  //         transformedGroceryData.at(0).AllGroceries = allGroceries;
+  //         await AsyncStorage.setItem(
+  //           "Grocery Data",
+  //           JSON.stringify({
+  //             data: transformedGroceryData,
+  //           })
+  //         );
+  //       }
+  //       break;
+  //     }
+  //     case 1: {
+  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
+  //       if (GroceryData) {
+  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
+  //         transformedGroceryData.at(1).Groceries = groceryList.concat([grocery]);
+  //         transformedGroceryData.at(0).AllGroceries = allGroceries;
+  //         await AsyncStorage.setItem(
+  //           "Grocery Data",
+  //           JSON.stringify({
+  //             data: transformedGroceryData,
+  //           })
+  //         );
+  //       }
+  //       break;
+  //     }
+  //     case 2: {
+  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
+  //       if (GroceryData) {
+  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
+  //         transformedGroceryData.at(1).Groceries = groceryList.filter((currGrocery) => currGrocery.Name !== grocery.Name);
+  //         transformedGroceryData.at(0).AllGroceries = allGroceries;
+  //         await AsyncStorage.setItem(
+  //           "Grocery Data",
+  //           JSON.stringify({
+  //             data: transformedGroceryData,
+  //           })
+  //         );
+  //       }
+  //       break;
+  //     }
+  //     case 3: {
+  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
+  //       if (GroceryData) {
+  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
+  //         transformedGroceryData.at(1).Groceries = groceryList.concat([grocery]);
+  //         transformedGroceryData.at(0).AllGroceries = allGroceries.concat([grocery]);
+  //         await AsyncStorage.setItem(
+  //           "Grocery Data",
+  //           JSON.stringify({
+  //             data: transformedGroceryData,
+  //           })
+  //         );
+  //       }
+  //       break;
+  //     }
+  //     case 4: {
+  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
+  //       if (GroceryData) {
+  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
 
-          const myGroceryListIndex = groceryList.findIndex((curr) => curr.id === oldGrocery.current.id);
-          groceryList[myGroceryListIndex] = grocery;
-          transformedGroceryData.at(1).Groceries = groceryList;
+  //         const myGroceryListIndex = groceryList.findIndex((curr) => curr.id === oldGrocery.current.id);
+  //         groceryList[myGroceryListIndex] = grocery;
+  //         transformedGroceryData.at(1).Groceries = groceryList;
 
-          const myGroceryIndex = allGroceries.findIndex((curr) => curr.id === oldGrocery.current.id);
-          allGroceries[myGroceryIndex] = grocery;
-          transformedGroceryData.at(0).AllGroceries = allGroceries;
-          await AsyncStorage.setItem(
-            "Grocery Data",
-            JSON.stringify({
-              data: transformedGroceryData,
-            })
-          );
-          oldGrocery.current = null;
-        }
-        break;
-      }
-    }
-  };
+  //         const myGroceryIndex = allGroceries.findIndex((curr) => curr.id === oldGrocery.current.id);
+  //         allGroceries[myGroceryIndex] = grocery;
+  //         transformedGroceryData.at(0).AllGroceries = allGroceries;
+  //         await AsyncStorage.setItem(
+  //           "Grocery Data",
+  //           JSON.stringify({
+  //             data: transformedGroceryData,
+  //           })
+  //         );
+  //         oldGrocery.current = null;
+  //       }
+  //       break;
+  //     }
+  //   }
+  // };
 
   const addGrocery = async () => {
     let newGrocery = {
