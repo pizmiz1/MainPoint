@@ -14,7 +14,7 @@ const MyNav = () => {
 
   return (
     <NavigationContainer>
-      <StatusBar />
+      <StatusBar barStyle={"dark-content"} />
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
@@ -22,9 +22,9 @@ const MyNav = () => {
         }}
         initialRouteName="Splash Screen"
       >
-        <Stack.Screen name="Splash Screen" component={SplashScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Disclaimer Screen" component={DisclaimerScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Grocery List Screen" component={GroceryListScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Splash Screen" component={SplashScreen} />
+        <Stack.Screen name="Disclaimer Screen" component={DisclaimerScreen} />
+        <Stack.Screen name="Grocery List Screen" component={GroceryListScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

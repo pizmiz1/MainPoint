@@ -33,7 +33,7 @@ const DisclaimerScreen = (props) => {
         style={{
           width: "90%",
           marginTop: "3%",
-          color: colors.lightGrey,
+          color: colors.textGrey,
           textAlign: "center",
         }}
       >

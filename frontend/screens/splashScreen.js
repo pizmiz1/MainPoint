@@ -28,6 +28,9 @@ const SplashScreen = (props) => {
 
         props.navigation.navigate("Disclaimer Screen");
       } else {
+        // Testing
+        //AsyncStorage.clear();
+
         props.navigation.navigate("Grocery List Screen");
       }
     };

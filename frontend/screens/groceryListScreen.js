@@ -32,19 +32,20 @@ const GroceryListScreen = (props) => {
   const [addingNewGrocery, setAddingNewGrocery] = useState(false);
   const [newCat, setNewCat] = useState(null);
   const [catInvalid, setCatInvalid] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const oldGrocery = useRef(null);
 
   const setArrays = () => {
-    setProduceList(groceryList.filter((currGrocery) => currGrocery.Category === "Produce"));
-    setFishList(groceryList.filter((currGrocery) => currGrocery.Category === "Fish"));
-    setMeatList(groceryList.filter((currGrocery) => currGrocery.Category === "Meat"));
-    setGrainsList(groceryList.filter((currGrocery) => currGrocery.Category === "Grain"));
-    setDairyList(groceryList.filter((currGrocery) => currGrocery.Category === "Dairy"));
-    setCondimentsList(groceryList.filter((currGrocery) => currGrocery.Category === "Condiment"));
-    setSnacksList(groceryList.filter((currGrocery) => currGrocery.Category === "Snack"));
-    setNonFoodList(groceryList.filter((currGrocery) => currGrocery.Category === "Non Food"));
-    setFrozenList(groceryList.filter((currGrocery) => currGrocery.Category === "Frozen"));
+    setProduceList(groceryList.filter((currGrocery) => currGrocery.category === "Produce"));
+    setFishList(groceryList.filter((currGrocery) => currGrocery.category === "Fish"));
+    setMeatList(groceryList.filter((currGrocery) => currGrocery.category === "Meat"));
+    setGrainsList(groceryList.filter((currGrocery) => currGrocery.category === "Grain"));
+    setDairyList(groceryList.filter((currGrocery) => currGrocery.category === "Dairy"));
+    setCondimentsList(groceryList.filter((currGrocery) => currGrocery.category === "Condiment"));
+    setSnacksList(groceryList.filter((currGrocery) => currGrocery.category === "Snack"));
+    setNonFoodList(groceryList.filter((currGrocery) => currGrocery.category === "Non Food"));
+    setFrozenList(groceryList.filter((currGrocery) => currGrocery.category === "Frozen"));
   };
 
   const objectValuesToArray = (obj) => {
@@ -115,21 +116,43 @@ const GroceryListScreen = (props) => {
         setAllGroceries(AllGroceriesParsed);
       }
 
-      if (groceryList.length === 0) {
-        setClearVisible(false);
-      } else {
-        setClearVisible(true);
-      }
+      setLoading(false);
     };
 
     load();
   }, []);
 
-  const removeGrocery = async (passedGrocery) => {
-    // STOPPED HERE
+  useEffect(() => {
+    if (loading !== true) {
+      saveGroceries();
+      setArrays();
+    }
 
-    await dispatch(removeGroceryAction(passedGrocery, false));
-    saveGroceries(2, passedGrocery);
+    if (groceryList.length === 0) {
+      setClearVisible(false);
+    } else {
+      setClearVisible(true);
+    }
+  }, [groceryList, allGroceries]);
+
+  useEffect(() => {
+    if (loading !== true) {
+      saveCrossedGroceries();
+    }
+  }, [crossedGroceries]);
+
+  const saveGroceries = async () => {
+    // Grocery list
+    const GroceryListJSON = JSON.stringify(groceryList);
+    await AsyncStorage.setItem("GroceryList", GroceryListJSON);
+
+    // All groceries
+    const AllGroceriesJSON = JSON.stringify(allGroceries);
+    await AsyncStorage.setItem("AllGroceries", AllGroceriesJSON);
+  };
+
+  const saveCrossedGroceries = async () => {
+    await AsyncStorage.setItem("CrossedGroceryUuids", JSON.stringify(crossedGroceries));
   };
 
   const CategoryComponent = (props) => {
@@ -139,7 +162,7 @@ const GroceryListScreen = (props) => {
           return "green";
         }
         case "Fish": {
-          return colors.primary;
+          return colors.primaryBlue;
         }
         case "Meat": {
           return "red";
@@ -163,7 +186,7 @@ const GroceryListScreen = (props) => {
           return "#3b5b73";
         }
         default: {
-          return colors.primary;
+          return colors.primaryBlue;
         }
       }
     };
@@ -186,7 +209,7 @@ const GroceryListScreen = (props) => {
             alignItems: "flex-start",
             width: "90%",
             alignSelf: "center",
-            backgroundColor: colors.secondary,
+            backgroundColor: "white",
             borderRadius: 20,
           }}
         >
@@ -195,20 +218,8 @@ const GroceryListScreen = (props) => {
               const crossGroceryOff = async () => {
                 if (!crossedGroceries.includes(item.id)) {
                   setCrossedGroceries(crossedGroceries.concat([item.id]));
-                  await AsyncStorage.setItem(
-                    "Crossed Groceries",
-                    JSON.stringify({
-                      data: crossedGroceries.concat([item.id]),
-                    })
-                  );
                 } else {
                   setCrossedGroceries(crossedGroceries.filter((currId) => item.id !== currId));
-                  await AsyncStorage.setItem(
-                    "Crossed Groceries",
-                    JSON.stringify({
-                      data: crossedGroceries.filter((currId) => item.id !== currId),
-                    })
-                  );
                 }
               };
 
@@ -218,9 +229,9 @@ const GroceryListScreen = (props) => {
                     <TouchableOpacity
                       onLongPress={async () => {
                         oldGrocery.current = item;
-                        updateNewGroceryName(item.Name);
+                        updateNewGroceryName(item.name);
                         setCatInvalid(false);
-                        setNewCat(item.Category);
+                        setNewCat(item.category);
                         setAddingNewGrocery(true);
                         setModalVisible(true);
                       }}
@@ -238,7 +249,7 @@ const GroceryListScreen = (props) => {
                           opacity: crossedGroceries.includes(item.id) ? 0.2 : 1,
                         }}
                       >
-                        {item.Name}
+                        {item.name}
                       </Text>
                     </TouchableOpacity>
                     <View
@@ -278,164 +289,82 @@ const GroceryListScreen = (props) => {
     );
   };
 
-  // const saveGroceries = async (type, grocery) => {
-  //   switch (type) {
-  //     case 0: {
-  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
-  //       if (GroceryData) {
-  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
-  //         transformedGroceryData.at(1).Groceries = [];
-  //         transformedGroceryData.at(0).AllGroceries = allGroceries;
-  //         await AsyncStorage.setItem(
-  //           "Grocery Data",
-  //           JSON.stringify({
-  //             data: transformedGroceryData,
-  //           })
-  //         );
-  //       }
-  //       break;
-  //     }
-  //     case 1: {
-  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
-  //       if (GroceryData) {
-  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
-  //         transformedGroceryData.at(1).Groceries = groceryList.concat([grocery]);
-  //         transformedGroceryData.at(0).AllGroceries = allGroceries;
-  //         await AsyncStorage.setItem(
-  //           "Grocery Data",
-  //           JSON.stringify({
-  //             data: transformedGroceryData,
-  //           })
-  //         );
-  //       }
-  //       break;
-  //     }
-  //     case 2: {
-  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
-  //       if (GroceryData) {
-  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
-  //         transformedGroceryData.at(1).Groceries = groceryList.filter((currGrocery) => currGrocery.Name !== grocery.Name);
-  //         transformedGroceryData.at(0).AllGroceries = allGroceries;
-  //         await AsyncStorage.setItem(
-  //           "Grocery Data",
-  //           JSON.stringify({
-  //             data: transformedGroceryData,
-  //           })
-  //         );
-  //       }
-  //       break;
-  //     }
-  //     case 3: {
-  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
-  //       if (GroceryData) {
-  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
-  //         transformedGroceryData.at(1).Groceries = groceryList.concat([grocery]);
-  //         transformedGroceryData.at(0).AllGroceries = allGroceries.concat([grocery]);
-  //         await AsyncStorage.setItem(
-  //           "Grocery Data",
-  //           JSON.stringify({
-  //             data: transformedGroceryData,
-  //           })
-  //         );
-  //       }
-  //       break;
-  //     }
-  //     case 4: {
-  //       const GroceryData = await AsyncStorage.getItem("Grocery Data");
-  //       if (GroceryData) {
-  //         const transformedGroceryData = await JSON.parse(GroceryData).data;
-
-  //         const myGroceryListIndex = groceryList.findIndex((curr) => curr.id === oldGrocery.current.id);
-  //         groceryList[myGroceryListIndex] = grocery;
-  //         transformedGroceryData.at(1).Groceries = groceryList;
-
-  //         const myGroceryIndex = allGroceries.findIndex((curr) => curr.id === oldGrocery.current.id);
-  //         allGroceries[myGroceryIndex] = grocery;
-  //         transformedGroceryData.at(0).AllGroceries = allGroceries;
-  //         await AsyncStorage.setItem(
-  //           "Grocery Data",
-  //           JSON.stringify({
-  //             data: transformedGroceryData,
-  //           })
-  //         );
-  //         oldGrocery.current = null;
-  //       }
-  //       break;
-  //     }
-  //   }
-  // };
+  const removeGrocery = async (passedGrocery) => {
+    setGroceryList(groceryList.filter((curr) => curr.id !== passedGrocery.id));
+  };
 
   const addGrocery = async () => {
     let newGrocery = {
       id: uuid.v4(),
-      Name: newGroceryName,
-      Category: "",
+      name: newGroceryName,
+      category: "",
     };
 
-    const existingGrocery = allGroceries.find((currGrocery) => currGrocery.Name === newGroceryName);
-
-    if (existingGrocery && oldGrocery.current === null) {
-      const existingGroceryInList = groceryList.find((currGrocery) => currGrocery.Name === newGroceryName);
-      if (existingGroceryInList) {
-        updateNewGroceryName("");
-        setModalVisible(false);
-        setAddingNewGrocery(false);
-        setNewCat(null);
-        setCatInvalid(false);
-        setModalVisible(false);
+    // Updating
+    if (oldGrocery.current !== null) {
+      const existingGrocery = allGroceries.find((currGrocery) => currGrocery.name === newGroceryName);
+      if ((newGrocery.category === oldGrocery.current.category && newGrocery.name === oldGrocery.current.name) || existingGrocery) {
+        resetAddState();
         return;
       }
 
-      newGrocery.Category = existingGrocery.Category;
-      newGrocery.id = existingGrocery.id;
-      dispatch(addGroceryAction(newGrocery));
-      saveGroceries(1, newGrocery);
-    } else {
-      if (!addingNewGrocery) {
-        LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
-        setAddingNewGrocery(true);
-        return;
-      }
-      if (newCat === null) {
-        LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
-        setCatInvalid(true);
-        return;
-      }
+      const id = oldGrocery.current.id;
 
-      if (newGroceryName === "") {
-        return;
-      }
+      setGroceryList((prev) => prev.map((curr) => (curr.id === id ? { ...curr, name: newGroceryName, category: newCat } : curr)));
+      setAllGroceries((prev) => prev.map((curr) => (curr.id === id ? { ...curr, name: newGroceryName, category: newCat } : curr)));
 
-      newGrocery.Category = newCat;
+      oldGrocery.current = null;
+    } // Adding
+    else {
+      const existingGrocery = allGroceries.find((currGrocery) => currGrocery.name === newGroceryName);
 
-      if (oldGrocery.current !== null) {
-        if (newGrocery.Category === oldGrocery.current.Category && newGrocery.Name === oldGrocery.current.Name) {
-          updateNewGroceryName("");
-          setModalVisible(false);
-          setAddingNewGrocery(false);
-          setNewCat(null);
-          setCatInvalid(false);
+      if (existingGrocery) {
+        const existingGroceryInList = groceryList.find((currGrocery) => currGrocery.name === newGroceryName);
+        if (existingGroceryInList) {
+          resetAddState();
           return;
         }
 
-        dispatch(removeGroceryAction(oldGrocery.current, true));
-        dispatch(removeGroceryAction(oldGrocery.current, false));
-      }
-
-      dispatch(addNewGroceryAction(newGrocery));
-      dispatch(addGroceryAction(newGrocery));
-      if (oldGrocery.current !== null) {
-        saveGroceries(4, newGrocery);
+        newGrocery.category = existingGrocery.category;
+        newGrocery.id = existingGrocery.id;
+        setGroceryList(groceryList.concat([newGrocery]));
       } else {
-        saveGroceries(3, newGrocery);
+        if (!addingNewGrocery) {
+          LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
+          setAddingNewGrocery(true);
+          return;
+        }
+        if (newCat === null) {
+          LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
+          setCatInvalid(true);
+          return;
+        }
+
+        if (newGroceryName === "") {
+          return;
+        }
+
+        newGrocery.category = newCat;
+
+        setGroceryList(groceryList.concat([newGrocery]));
+        setAllGroceries(allGroceries.concat([newGrocery]));
       }
     }
 
+    resetAddState();
+  };
+
+  const resetAddState = () => {
     updateNewGroceryName("");
     setModalVisible(false);
     setAddingNewGrocery(false);
     setNewCat(null);
     setCatInvalid(false);
+  };
+
+  const clearAllGroceries = () => {
+    setGroceryList([]);
+    setCrossedGroceries([]);
   };
 
   return (
@@ -466,7 +395,7 @@ const GroceryListScreen = (props) => {
                 shadowRadius: 4,
                 elevation: 5,
                 width: "60%",
-                height: addingNewGrocery ? "25%" : "20%",
+                height: addingNewGrocery ? (catInvalid ? "27%" : "25%") : "20%",
               }}
             >
               <TextInput
@@ -487,12 +416,11 @@ const GroceryListScreen = (props) => {
                   marginTop: addingNewGrocery ? -15 : 0,
                 }}
                 textAlign="center"
-                placeholderTextColor={colors.darkerGrey}
+                placeholderTextColor="#7d7a7a"
                 keyboardType="ascii-capable"
                 autoFocus={true}
                 returnKeyType="done"
                 onSubmitEditing={addGrocery}
-                blurOnSubmit={false}
                 autoCapitalize="words"
               />
               {addingNewGrocery ? (
@@ -595,7 +523,7 @@ const GroceryListScreen = (props) => {
                 <TouchableOpacity onPress={addGrocery}>
                   <Text
                     style={{
-                      color: colors.primary,
+                      color: colors.primaryBlue,
                       fontSize: 17,
                       fontWeight: "bold",
                     }}
@@ -626,20 +554,7 @@ const GroceryListScreen = (props) => {
                   marginTop: 10,
                   opacity: clearVisible ? 1 : 0,
                 }}
-                onPress={async () => {
-                  const tempArr = groceryList;
-                  tempArr.forEach((currGrocery) => {
-                    dispatch(removeGroceryAction(currGrocery, false));
-                  });
-                  saveGroceries(0);
-                  setCrossedGroceries([]);
-                  await AsyncStorage.setItem(
-                    "Crossed Groceries",
-                    JSON.stringify({
-                      data: [],
-                    })
-                  );
-                }}
+                onPress={clearAllGroceries}
                 disabled={!clearVisible}
               >
                 <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
@@ -657,6 +572,10 @@ const GroceryListScreen = (props) => {
           }
           style={{ backgroundColor: colors.lightGrey }}
           onScroll={(pos) => {
+            if (groceryList.length === 0) {
+              return;
+            }
+
             setBackgroundTrig(pos.nativeEvent.contentOffset.y);
             if (pos.nativeEvent.contentOffset.y < 40 && pos.nativeEvent.contentOffset.y > 0) {
               setBlur(pos.nativeEvent.contentOffset.y);
@@ -666,7 +585,6 @@ const GroceryListScreen = (props) => {
               setBlur(0);
             }
           }}
-          nav={props.navigation}
         />
       </View>
 
@@ -690,7 +608,7 @@ const GroceryListScreen = (props) => {
           }}
         >
           <View style={{ opacity: 0 }}>
-            <Ionicons name="add" size={30} color={colors.primary} />
+            <Ionicons name="add" size={30} color={colors.primaryBlue} />
           </View>
           <View
             style={{
@@ -709,7 +627,7 @@ const GroceryListScreen = (props) => {
             <Text
               style={{
                 fontSize: 15,
-                color: "#aaaaaa",
+                color: colors.textGrey,
               }}
             >
               {groceryList.length} {groceryList.length !== 1 ? "Items" : "Item"}
@@ -721,7 +639,7 @@ const GroceryListScreen = (props) => {
             }}
             style={{ alignSelf: "center" }}
           >
-            <Ionicons name="add" size={30} color={colors.primary} />
+            <Ionicons name="add" size={30} color={colors.primaryBlue} />
           </TouchableOpacity>
         </View>
       </BlurView>
