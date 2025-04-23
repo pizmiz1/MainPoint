@@ -36,16 +36,16 @@ const GroceryListScreen = (props) => {
 
   const oldGrocery = useRef(null);
 
-  const setArrays = () => {
-    setProduceList(groceryList.filter((currGrocery) => currGrocery.category === "Produce"));
-    setFishList(groceryList.filter((currGrocery) => currGrocery.category === "Fish"));
-    setMeatList(groceryList.filter((currGrocery) => currGrocery.category === "Meat"));
-    setGrainsList(groceryList.filter((currGrocery) => currGrocery.category === "Grain"));
-    setDairyList(groceryList.filter((currGrocery) => currGrocery.category === "Dairy"));
-    setCondimentsList(groceryList.filter((currGrocery) => currGrocery.category === "Condiment"));
-    setSnacksList(groceryList.filter((currGrocery) => currGrocery.category === "Snack"));
-    setNonFoodList(groceryList.filter((currGrocery) => currGrocery.category === "Non Food"));
-    setFrozenList(groceryList.filter((currGrocery) => currGrocery.category === "Frozen"));
+  const setArrays = (passedGroceryList) => {
+    setProduceList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Produce"));
+    setFishList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Fish"));
+    setMeatList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Meat"));
+    setGrainsList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Grain"));
+    setDairyList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Dairy"));
+    setCondimentsList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Condiment"));
+    setSnacksList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Snack"));
+    setNonFoodList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Non Food"));
+    setFrozenList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Frozen"));
   };
 
   const objectValuesToArray = (obj) => {
@@ -105,7 +105,7 @@ const GroceryListScreen = (props) => {
 
       if (GroceryListParsed !== null) {
         setGroceryList(GroceryListParsed);
-        setArrays();
+        setArrays(GroceryListParsed);
       }
 
       // All Groceries
@@ -125,7 +125,7 @@ const GroceryListScreen = (props) => {
   useEffect(() => {
     if (loading !== true) {
       saveGroceries();
-      setArrays();
+      setArrays(groceryList);
     }
 
     if (groceryList.length === 0) {
@@ -273,10 +273,10 @@ const GroceryListScreen = (props) => {
                   {props.groceries.length === index + 1 ? undefined : (
                     <View
                       style={{
-                        borderColor: colors.darkGrey,
-                        borderWidth: 0.5,
+                        backgroundColor: "#808080",
+                        height: StyleSheet.hairlineWidth,
                         width: "100%",
-                        alignSelf: "flex-end",
+                        alignSelf: "flex-start",
                       }}
                     />
                   )}

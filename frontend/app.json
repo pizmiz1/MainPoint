@@ -9,13 +9,11 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "userInterfaceStyle": "automatic",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "bundleIdentifier": "com.Linedo.MainPoint",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
