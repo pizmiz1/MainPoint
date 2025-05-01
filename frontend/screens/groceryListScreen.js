@@ -12,7 +12,6 @@ import ScrollViewContainer from "../components/scrollViewContainer";
 import groceryCategories from "../constants/groceryCategories";
 
 const GroceryListScreen = (props) => {
-  const [allGroceries, setAllGroceries] = useState([]);
   const [groceryList, setGroceryList] = useState([]);
   const [produceList, setProduceList] = useState([]);
   const [fishList, setFishList] = useState([]);
@@ -34,6 +33,7 @@ const GroceryListScreen = (props) => {
   const [catInvalid, setCatInvalid] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const allGroceries = useRef([]);
   const oldGrocery = useRef(null);
 
   const setArrays = (passedGroceryList) => {
@@ -113,7 +113,7 @@ const GroceryListScreen = (props) => {
       const AllGroceriesParsed = AllGroceriesJSON != null ? JSON.parse(AllGroceriesJSON) : null;
 
       if (AllGroceriesParsed !== null) {
-        setAllGroceries(AllGroceriesParsed);
+        allGroceries.current = AllGroceriesParsed;
       }
 
       setLoading(false);
@@ -124,7 +124,7 @@ const GroceryListScreen = (props) => {
 
   useEffect(() => {
     if (loading !== true) {
-      saveGroceries();
+      saveGroceryList();
       setArrays(groceryList);
     }
 
@@ -133,7 +133,7 @@ const GroceryListScreen = (props) => {
     } else {
       setClearVisible(true);
     }
-  }, [groceryList, allGroceries]);
+  }, [groceryList]);
 
   useEffect(() => {
     if (loading !== true) {
@@ -141,13 +141,15 @@ const GroceryListScreen = (props) => {
     }
   }, [crossedGroceries]);
 
-  const saveGroceries = async () => {
-    // Grocery list
+  const saveGroceryList = async () => {
     const GroceryListJSON = JSON.stringify(groceryList);
     await AsyncStorage.setItem("GroceryList", GroceryListJSON);
+  };
 
-    // All groceries
-    const AllGroceriesJSON = JSON.stringify(allGroceries);
+  const setAndSaveAllGroceries = async (passedAllGroceries) => {
+    allGroceries.current = passedAllGroceries;
+
+    const AllGroceriesJSON = JSON.stringify(passedAllGroceries);
     await AsyncStorage.setItem("AllGroceries", AllGroceriesJSON);
   };
 
@@ -302,21 +304,33 @@ const GroceryListScreen = (props) => {
 
     // Updating
     if (oldGrocery.current !== null) {
-      const existingGrocery = allGroceries.find((currGrocery) => currGrocery.name === newGroceryName);
-      if ((newGrocery.category === oldGrocery.current.category && newGrocery.name === oldGrocery.current.name) || existingGrocery) {
-        resetAddState();
+      const existingGrocery = allGroceries.current.find((currGrocery) => currGrocery.name === newGroceryName && currGrocery.category === newCat);
+      if ((newCat === oldGrocery.current.category && newGroceryName === oldGrocery.current.name) || existingGrocery) {
+        setModalVisible(false);
+        updateNewGroceryName("");
+        setAddingNewGrocery(false);
+        setNewCat(null);
+        setCatInvalid(false);
+        oldGrocery.current = null;
         return;
       }
 
       const id = oldGrocery.current.id;
 
       setGroceryList((prev) => prev.map((curr) => (curr.id === id ? { ...curr, name: newGroceryName, category: newCat } : curr)));
-      setAllGroceries((prev) => prev.map((curr) => (curr.id === id ? { ...curr, name: newGroceryName, category: newCat } : curr)));
+
+      let newAllGroceries = allGroceries.current;
+      const index = newAllGroceries.findIndex((curr) => curr.id === id);
+      if (index !== -1) {
+        newAllGroceries[index].name = newGroceryName;
+        newAllGroceries[index].category = newCat;
+      }
+      setAndSaveAllGroceries(newAllGroceries);
 
       oldGrocery.current = null;
     } // Adding
     else {
-      const existingGrocery = allGroceries.find((currGrocery) => currGrocery.name === newGroceryName);
+      const existingGrocery = allGroceries.current.find((currGrocery) => currGrocery.name === newGroceryName);
 
       if (existingGrocery) {
         const existingGroceryInList = groceryList.find((currGrocery) => currGrocery.name === newGroceryName);
@@ -347,7 +361,7 @@ const GroceryListScreen = (props) => {
         newGrocery.category = newCat;
 
         setGroceryList(groceryList.concat([newGrocery]));
-        setAllGroceries(allGroceries.concat([newGrocery]));
+        setAndSaveAllGroceries(allGroceries.current.concat([newGrocery]));
       }
     }
 
