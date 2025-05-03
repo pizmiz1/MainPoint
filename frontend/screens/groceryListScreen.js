@@ -610,6 +610,7 @@ const GroceryListScreen = (props) => {
           backgroundColor: backgroundTrig > 100 ? "rgba(255, 255, 255, .7)" : null,
         }}
         intensity={blur}
+        tint="light"
       >
         <View
           style={{
