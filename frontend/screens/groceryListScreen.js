@@ -268,7 +268,7 @@ const GroceryListScreen = (props) => {
                           marginRight: 10,
                         }}
                       >
-                        <AntDesign name="minus-circle" size={20} color="red" />
+                        <AntDesign name="minuscircleo" size={20} color="red" />
                       </TouchableOpacity>
                     </View>
                   </View>
