@@ -2,7 +2,7 @@
   "expo": {
     "name": "MainPoint",
     "slug": "MainPoint",
-    "version": "3.0",
+    "version": "4.0",
     "orientation": "portrait",
     "icon": "./assets/Logo/MainLogo.jpg",
     "userInterfaceStyle": "automatic",

@@ -268,7 +268,7 @@ const GroceryListScreen = (props) => {
                           marginRight: 10,
                         }}
                       >
-                        <AntDesign name="minuscircleo" size={20} color="red" />
+                        <AntDesign name="minus-circle" size={20} color="red" />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -382,7 +382,7 @@ const GroceryListScreen = (props) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginTop: 20 }}>
       <Modal animationType="fade" visible={modalVisible} transparent={true}>
         <TouchableWithoutFeedback onPressOut={() => Keyboard.dismiss()}>
           <View
@@ -409,7 +409,6 @@ const GroceryListScreen = (props) => {
                 shadowRadius: 4,
                 elevation: 5,
                 width: "60%",
-                height: addingNewGrocery ? (catInvalid ? "27%" : "25%") : "20%",
               }}
             >
               <TextInput
@@ -578,7 +577,9 @@ const GroceryListScreen = (props) => {
               {meatList.length !== 0 ? <CategoryComponent catName={"Meat"} groceries={meatList} remove={removeGrocery} /> : undefined}
               {grainsList.length !== 0 ? <CategoryComponent catName={"Grains"} groceries={grainsList} remove={removeGrocery} /> : undefined}
               {dairyList.length !== 0 ? <CategoryComponent catName={"Dairy"} groceries={dairyList} remove={removeGrocery} /> : undefined}
-              {condimentsList.length !== 0 ? <CategoryComponent catName={"Condiments"} groceries={condimentsList} remove={removeGrocery} /> : undefined}
+              {condimentsList.length !== 0 ? (
+                <CategoryComponent catName={"Condiments"} groceries={condimentsList} remove={removeGrocery} />
+              ) : undefined}
               {snacksList.length !== 0 ? <CategoryComponent catName={"Snacks"} groceries={snacksList} remove={removeGrocery} /> : undefined}
               {frozenList.length !== 0 ? <CategoryComponent catName={"Frozen"} groceries={frozenList} remove={removeGrocery} /> : undefined}
               {nonFoodList.length !== 0 ? <CategoryComponent catName={"Non Food"} groceries={nonFoodList} remove={removeGrocery} /> : undefined}
@@ -605,7 +606,7 @@ const GroceryListScreen = (props) => {
       <BlurView
         style={{
           width: "100%",
-          height: "12%",
+          height: "10%",
           ...StyleSheet.absoluteFillObject,
           backgroundColor: backgroundTrig > 100 ? "rgba(255, 255, 255, .7)" : null,
         }}
