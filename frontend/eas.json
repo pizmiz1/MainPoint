@@ -17,9 +17,6 @@
       }
     },
     "production": {
-      "env": {
-        "EAS_BUILD_SKIP_LOCKFILE_CHECK": "1"
-      },
       "ios": {
         "image": "latest"
       }
