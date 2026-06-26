@@ -52,7 +52,7 @@ const SplashScreen = (props) => {
         duration: 1500,
         useNativeDriver: true,
       }),
-    ])
+    ]),
   ).start();
 
   return (
@@ -72,7 +72,7 @@ const SplashScreen = (props) => {
             opacity: pulseAnim,
           }}
         >
-          <Image style={{ width: "100%", height: undefined, aspectRatio: 1 }} source={require("./../assets/Logo/MainLogo.jpg")}></Image>
+          <Image style={{ width: "100%", height: undefined, aspectRatio: 1 }} source={require("./../assets/Logo/MainLogo.png")}></Image>
         </Animated.View>
       </View>
     </View>

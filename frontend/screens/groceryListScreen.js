@@ -268,7 +268,7 @@ const GroceryListScreen = (props) => {
                           marginRight: 10,
                         }}
                       >
-                        <AntDesign name="minuscircleo" size={20} color="red" />
+                        <AntDesign name="minus-circle" size={20} color="red" />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -382,7 +382,7 @@ const GroceryListScreen = (props) => {
   };
 
   return (
-    <View style={{ flex: 1, marginTop: 20 }}>
+    <View style={{ flex: 1, marginTop: 25 }}>
       <Modal animationType="fade" visible={modalVisible} transparent={true}>
         <TouchableWithoutFeedback onPressOut={() => Keyboard.dismiss()}>
           <View
@@ -607,7 +607,7 @@ const GroceryListScreen = (props) => {
         style={{
           width: "100%",
           height: "10%",
-          ...StyleSheet.absoluteFillObject,
+          ...StyleSheet.absoluteFill,
           backgroundColor: backgroundTrig > 100 ? "rgba(255, 255, 255, .7)" : null,
         }}
         intensity={blur}

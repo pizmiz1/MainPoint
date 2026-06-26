@@ -4,30 +4,21 @@
     "slug": "MainPoint",
     "version": "4.0",
     "orientation": "portrait",
-    "icon": "./assets/Logo/MainLogo.jpg",
+    "icon": "./assets/Logo/MainLogo.png",
     "userInterfaceStyle": "automatic",
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "userInterfaceStyle": "automatic",
-      "buildNumber": "4",
       "bundleIdentifier": "com.Linedo.MainPoint",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#FFFFFF"
-      }
-    },
+    "android": {},
     "extra": {
       "eas": {
         "projectId": "72452d11-5f02-4b09-af9f-255c5bbd0186"
       }
-    }
+    },
+    "plugins": ["expo-font"]
   }
 }
