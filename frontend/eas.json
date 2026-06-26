@@ -4,22 +4,15 @@
   },
   "build": {
     "development": {
+      "node": "22.15.0",
       "developmentClient": true,
-      "distribution": "internal",
-      "ios": {
-        "image": "latest"
-      }
+      "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal",
-      "ios": {
-        "image": "latest"
-      }
+      "distribution": "internal"
     },
     "production": {
-      "ios": {
-        "image": "latest"
-      }
+      "node": "22.15.0"
     }
   },
   "submit": {
