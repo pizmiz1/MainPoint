@@ -1,14 +1,17 @@
 import { View, Text, Image } from "react-native";
 import colors from "../constants/colors";
-import Button from "../components/button";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import asyncKeys from "../constants/asyncKeys";
+
+// Custom Components
+import Button from "../components/button";
 
 const DisclaimerScreen = (props) => {
   const continuePress = async () => {
     const firstUseJSON = JSON.stringify(false);
-    await AsyncStorage.setItem("FirstUse", firstUseJSON);
+    await AsyncStorage.setItem(asyncKeys.firstUse, firstUseJSON);
 
-    props.navigation.navigate("Grocery List Screen");
+    props.navigation.navigate("Tabs");
   };
 
   return (
@@ -37,7 +40,8 @@ const DisclaimerScreen = (props) => {
           textAlign: "center",
         }}
       >
-        Welcome to MainPoint. Any data entered in the app will be permanently lost if you delete MainPoint. This includes any groceries so be careful. Enjoy!
+        Welcome to MainPoint. Any data entered in the app will be permanently lost if you delete MainPoint. This includes any groceries so be careful.
+        Enjoy!
       </Text>
       <Button label="Continue" style={{ marginTop: "20%" }} onPress={continuePress} />
     </View>

@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { View, Animated, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import asyncKeys from "../constants/asyncKeys";
 
 const SplashScreen = (props) => {
   useEffect(() => {
@@ -10,28 +11,28 @@ const SplashScreen = (props) => {
       const EmptyArrJSON = JSON.stringify([]);
 
       // Crossed grocery uuids
-      await AsyncStorage.setItem("CrossedGroceryUuids", EmptyArrJSON);
+      await AsyncStorage.setItem(asyncKeys.crossedGroceryUuids, EmptyArrJSON);
 
       // Grocery list
-      await AsyncStorage.setItem("GroceryList", EmptyArrJSON);
+      await AsyncStorage.setItem(asyncKeys.groceryList, EmptyArrJSON);
 
       // All groceries
-      await AsyncStorage.setItem("AllGroceries", EmptyArrJSON);
+      await AsyncStorage.setItem(asyncKeys.allGroceries, EmptyArrJSON);
+
+      // Meal ideas
+      await AsyncStorage.setItem(asyncKeys.mealIdeas, EmptyArrJSON);
     };
 
     const load = async () => {
-      const FirstUseJSON = await AsyncStorage.getItem("FirstUse");
-      const FirstUseParsed = FirstUseJSON != null ? JSON.parse(FirstUseJSON) : null;
+      const firstUseJSON = await AsyncStorage.getItem(asyncKeys.firstUse);
+      const firstUseParsed = firstUseJSON != null ? JSON.parse(firstUseJSON) : null;
 
-      if (FirstUseParsed === null) {
+      if (firstUseParsed === null) {
         setupInitialAsyncStructure();
 
         props.navigation.navigate("Disclaimer Screen");
       } else {
-        // Testing
-        //AsyncStorage.clear();
-
-        props.navigation.navigate("Grocery List Screen");
+        props.navigation.navigate("Tabs");
       }
     };
 

@@ -1,25 +1,23 @@
 import React from "react";
 import { ScrollView, Dimensions } from "react-native";
 
-const ScrollViewContainer = (props) => {
+const ScrollViewContainer = ({ style, keyboardShouldPersistTaps, scrollDisabled, onScroll, horizontal, children }) => {
   return (
     <ScrollView
       style={{
-        ...props.style,
+        ...style,
       }}
-      keyboardShouldPersistTaps={
-        props.keyboardShouldPersistTaps ? "handled" : "never"
-      }
+      keyboardShouldPersistTaps={keyboardShouldPersistTaps ? "handled" : "never"}
       contentContainerStyle={{ flexGrow: 1 }}
-      scrollEnabled={!props.scrollDisabled}
+      scrollEnabled={!scrollDisabled}
       scrollEventThrottle={16}
-      onScroll={props.onScroll}
-      horizontal={props.horizontal}
-      decelerationRate={props.horizontal ? "fast" : null}
-      snapToInterval={props.horizontal ? Dimensions.get("screen").width : null}
-      snapToAlignment={props.horizontal ? "center" : null}
+      onScroll={onScroll}
+      horizontal={horizontal}
+      decelerationRate={horizontal ? "fast" : null}
+      snapToInterval={horizontal ? Dimensions.get("screen").width : null}
+      snapToAlignment={horizontal ? "center" : null}
     >
-      {props.content}
+      {children}
     </ScrollView>
   );
 };

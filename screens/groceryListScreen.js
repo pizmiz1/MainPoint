@@ -6,14 +6,17 @@ import { BlurView } from "expo-blur";
 import SelectDropdown from "react-native-select-dropdown";
 import uuid from "react-native-uuid";
 import colors from "../constants/colors";
+import asyncKeys from "../constants/asyncKeys";
 
-//components
+// Custom Components
 import ScrollViewContainer from "../components/scrollViewContainer";
 import groceryCategories from "../constants/groceryCategories";
+import Header from "../components/header";
 
 const GroceryListScreen = (props) => {
   const [groceryList, setGroceryList] = useState([]);
   const [produceList, setProduceList] = useState([]);
+  const [fruitList, setFruitList] = useState([]);
   const [fishList, setFishList] = useState([]);
   const [meatList, setMeatList] = useState([]);
   const [grainsList, setGrainsList] = useState([]);
@@ -38,6 +41,7 @@ const GroceryListScreen = (props) => {
 
   const setArrays = (passedGroceryList) => {
     setProduceList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Produce"));
+    setFruitList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Fruit"));
     setFishList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Fish"));
     setMeatList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Meat"));
     setGrainsList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Grain"));
@@ -48,16 +52,15 @@ const GroceryListScreen = (props) => {
     setFrozenList(passedGroceryList.filter((currGrocery) => currGrocery.category === "Frozen"));
   };
 
-  const objectValuesToArray = (obj) => {
-    return Object.values(obj);
-  };
-
-  const cats = objectValuesToArray(groceryCategories);
+  const cats = Object.values(groceryCategories);
 
   const backgroundColor = (cat) => {
     switch (cat) {
       case "Produce": {
         return "green";
+      }
+      case "Fruit": {
+        return "#FF00FF";
       }
       case "Fish": {
         return colors.primaryBlue;
@@ -92,28 +95,28 @@ const GroceryListScreen = (props) => {
   useEffect(() => {
     const load = async () => {
       // Crossed Groceries
-      const CrossedGroceryUuidsJSON = await AsyncStorage.getItem("CrossedGroceryUuids");
-      const CrossedGroceryUuidsParsed = CrossedGroceryUuidsJSON != null ? JSON.parse(CrossedGroceryUuidsJSON) : null;
+      const crossedGroceryUuidsJSON = await AsyncStorage.getItem(asyncKeys.crossedGroceryUuids);
+      const crossedGroceryUuidsParsed = crossedGroceryUuidsJSON != null ? JSON.parse(crossedGroceryUuidsJSON) : null;
 
-      if (CrossedGroceryUuidsParsed !== null) {
-        setCrossedGroceries(CrossedGroceryUuidsParsed);
+      if (crossedGroceryUuidsParsed !== null) {
+        setCrossedGroceries(crossedGroceryUuidsParsed);
       }
 
       // Grocery List
-      const GroceryListJSON = await AsyncStorage.getItem("GroceryList");
-      const GroceryListParsed = GroceryListJSON != null ? JSON.parse(GroceryListJSON) : null;
+      const groceryListJSON = await AsyncStorage.getItem(asyncKeys.groceryList);
+      const groceryListParsed = groceryListJSON != null ? JSON.parse(groceryListJSON) : null;
 
-      if (GroceryListParsed !== null) {
-        setGroceryList(GroceryListParsed);
-        setArrays(GroceryListParsed);
+      if (groceryListParsed !== null) {
+        setGroceryList(groceryListParsed);
+        setArrays(groceryListParsed);
       }
 
       // All Groceries
-      const AllGroceriesJSON = await AsyncStorage.getItem("AllGroceries");
-      const AllGroceriesParsed = AllGroceriesJSON != null ? JSON.parse(AllGroceriesJSON) : null;
+      const allGroceriesJSON = await AsyncStorage.getItem(asyncKeys.allGroceries);
+      const allGroceriesParsed = allGroceriesJSON != null ? JSON.parse(allGroceriesJSON) : null;
 
-      if (AllGroceriesParsed !== null) {
-        allGroceries.current = AllGroceriesParsed;
+      if (allGroceriesParsed !== null) {
+        allGroceries.current = allGroceriesParsed;
       }
 
       setLoading(false);
@@ -142,19 +145,19 @@ const GroceryListScreen = (props) => {
   }, [crossedGroceries]);
 
   const saveGroceryList = async () => {
-    const GroceryListJSON = JSON.stringify(groceryList);
-    await AsyncStorage.setItem("GroceryList", GroceryListJSON);
+    const groceryListJSON = JSON.stringify(groceryList);
+    await AsyncStorage.setItem(asyncKeys.groceryList, groceryListJSON);
   };
 
   const setAndSaveAllGroceries = async (passedAllGroceries) => {
     allGroceries.current = passedAllGroceries;
 
-    const AllGroceriesJSON = JSON.stringify(passedAllGroceries);
-    await AsyncStorage.setItem("AllGroceries", AllGroceriesJSON);
+    const allGroceriesJSON = JSON.stringify(passedAllGroceries);
+    await AsyncStorage.setItem(asyncKeys.allGroceries, allGroceriesJSON);
   };
 
   const saveCrossedGroceries = async () => {
-    await AsyncStorage.setItem("CrossedGroceryUuids", JSON.stringify(crossedGroceries));
+    await AsyncStorage.setItem(asyncKeys.crossedGroceryUuids, JSON.stringify(crossedGroceries));
   };
 
   const CategoryComponent = (props) => {
@@ -162,6 +165,9 @@ const GroceryListScreen = (props) => {
       switch (props.catName) {
         case "Produce": {
           return "green";
+        }
+        case "Fruit": {
+          return "#FF00FF";
         }
         case "Fish": {
           return colors.primaryBlue;
@@ -550,42 +556,18 @@ const GroceryListScreen = (props) => {
         </TouchableWithoutFeedback>
       </Modal>
 
+      <Header
+        headerText="List"
+        descriptionText={`${groceryList.length} ${groceryList.length !== 1 ? "Items" : "Item"}`}
+        backgroundTrig={backgroundTrig}
+        blur={blur}
+        actionPress={() => {
+          setModalVisible(true);
+        }}
+      />
+
       <View style={{ flex: 1 }}>
         <ScrollViewContainer
-          content={
-            <View
-              style={{
-                backgroundColor: colors.lightGrey,
-                marginBottom: 20,
-                marginTop: 80,
-              }}
-            >
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  marginTop: 10,
-                  opacity: clearVisible ? 1 : 0,
-                }}
-                onPress={clearAllGroceries}
-                disabled={!clearVisible}
-              >
-                <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
-              </TouchableOpacity>
-              {produceList.length !== 0 ? <CategoryComponent catName={"Produce"} groceries={produceList} remove={removeGrocery} /> : undefined}
-              {fishList.length !== 0 ? <CategoryComponent catName={"Fish"} groceries={fishList} remove={removeGrocery} /> : undefined}
-              {meatList.length !== 0 ? <CategoryComponent catName={"Meat"} groceries={meatList} remove={removeGrocery} /> : undefined}
-              {grainsList.length !== 0 ? <CategoryComponent catName={"Grains"} groceries={grainsList} remove={removeGrocery} /> : undefined}
-              {dairyList.length !== 0 ? <CategoryComponent catName={"Dairy"} groceries={dairyList} remove={removeGrocery} /> : undefined}
-              {condimentsList.length !== 0 ? (
-                <CategoryComponent catName={"Condiments"} groceries={condimentsList} remove={removeGrocery} />
-              ) : undefined}
-              {snacksList.length !== 0 ? <CategoryComponent catName={"Snacks"} groceries={snacksList} remove={removeGrocery} /> : undefined}
-              {frozenList.length !== 0 ? <CategoryComponent catName={"Frozen"} groceries={frozenList} remove={removeGrocery} /> : undefined}
-              {nonFoodList.length !== 0 ? <CategoryComponent catName={"Non Food"} groceries={nonFoodList} remove={removeGrocery} /> : undefined}
-            </View>
-          }
-          style={{ backgroundColor: colors.lightGrey }}
           onScroll={(pos) => {
             if (groceryList.length === 0) {
               return;
@@ -600,65 +582,38 @@ const GroceryListScreen = (props) => {
               setBlur(0);
             }
           }}
-        />
-      </View>
-
-      <BlurView
-        style={{
-          width: "100%",
-          height: "10%",
-          ...StyleSheet.absoluteFill,
-          backgroundColor: backgroundTrig > 100 ? "rgba(255, 255, 255, .7)" : null,
-        }}
-        intensity={blur}
-        tint="light"
-      >
-        <View
-          style={{
-            justifyContent: "space-between",
-            flexDirection: "row",
-            alignItems: "center",
-            alignSelf: "center",
-            marginTop: 30,
-            width: "90%",
-          }}
         >
-          <View style={{ opacity: 0 }}>
-            <Ionicons name="add" size={30} color={colors.primaryBlue} />
-          </View>
           <View
             style={{
-              justifyContent: "center",
-              alignItems: "center",
+              marginBottom: 20,
+              marginTop: 80,
             }}
           >
-            <Text
+            <TouchableOpacity
               style={{
-                fontSize: 20,
-                fontWeight: "bold",
+                flex: 1,
+                alignItems: "center",
+                marginTop: 10,
+                opacity: clearVisible ? 1 : 0,
               }}
+              onPress={clearAllGroceries}
+              disabled={!clearVisible}
             >
-              List
-            </Text>
-            <Text
-              style={{
-                fontSize: 15,
-                color: colors.textGrey,
-              }}
-            >
-              {groceryList.length} {groceryList.length !== 1 ? "Items" : "Item"}
-            </Text>
+              <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
+            </TouchableOpacity>
+            {produceList.length !== 0 ? <CategoryComponent catName={"Produce"} groceries={produceList} remove={removeGrocery} /> : undefined}
+            {fruitList.length !== 0 ? <CategoryComponent catName={"Fruit"} groceries={fruitList} remove={removeGrocery} /> : undefined}
+            {fishList.length !== 0 ? <CategoryComponent catName={"Fish"} groceries={fishList} remove={removeGrocery} /> : undefined}
+            {meatList.length !== 0 ? <CategoryComponent catName={"Meat"} groceries={meatList} remove={removeGrocery} /> : undefined}
+            {grainsList.length !== 0 ? <CategoryComponent catName={"Grains"} groceries={grainsList} remove={removeGrocery} /> : undefined}
+            {dairyList.length !== 0 ? <CategoryComponent catName={"Dairy"} groceries={dairyList} remove={removeGrocery} /> : undefined}
+            {condimentsList.length !== 0 ? <CategoryComponent catName={"Condiments"} groceries={condimentsList} remove={removeGrocery} /> : undefined}
+            {snacksList.length !== 0 ? <CategoryComponent catName={"Snacks"} groceries={snacksList} remove={removeGrocery} /> : undefined}
+            {frozenList.length !== 0 ? <CategoryComponent catName={"Frozen"} groceries={frozenList} remove={removeGrocery} /> : undefined}
+            {nonFoodList.length !== 0 ? <CategoryComponent catName={"Non Food"} groceries={nonFoodList} remove={removeGrocery} /> : undefined}
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              setModalVisible(true);
-            }}
-            style={{ alignSelf: "center" }}
-          >
-            <Ionicons name="add" size={30} color={colors.primaryBlue} />
-          </TouchableOpacity>
-        </View>
-      </BlurView>
+        </ScrollViewContainer>
+      </View>
     </View>
   );
 };
