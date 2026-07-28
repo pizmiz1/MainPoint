@@ -190,7 +190,9 @@ const MealIdeaModal = ({ modalVisible, setModalVisible, mealIdea, done, mealIdea
               fontStyle: "italic",
               textAlign: "center",
               fontWeight: "bold",
+              width: "70%",
             }}
+            numberOfLines={1}
           >
             {mealIdea ? mealIdea.name : "New Idea"}
           </Text>
