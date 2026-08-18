@@ -1,3 +1,3 @@
-# MainPoint - Grocery and Fitness in one
+# MainPoint - Grocery and Food Management
 
 By Ethan Britton! :)
