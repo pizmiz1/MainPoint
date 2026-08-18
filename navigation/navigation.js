@@ -3,14 +3,15 @@ import { StatusBar, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import colors from "../constants/colors";
+import { Ionicons } from "@expo/vector-icons";
 
-// screens
+// Screens
 import SplashScreen from "../screens/splashScreen";
 import DisclaimerScreen from "../screens/disclaimerScreen";
 import GroceryListScreen from "../screens/groceryListScreen";
 import MealIdeaScreen from "../screens/mealIdeaScreen";
-import colors from "../constants/colors";
-import { Ionicons } from "@expo/vector-icons";
+import WeekScreen from "../screens/weekScreen";
 
 const MyNav = () => {
   // Tab Nav
@@ -58,6 +59,25 @@ const MyNav = () => {
           }}
         />
         <Tab.Screen
+          name="Week Screen"
+          component={WeekScreen}
+          options={{
+            tabBarLabel: ({ focused, color }) => (
+              <Text
+                style={{
+                  color: color,
+                  marginTop: 6,
+                  fontSize: 12,
+                  fontWeight: focused ? "bold" : "normal",
+                }}
+              >
+                Week
+              </Text>
+            ),
+            tabBarIcon: ({ focused, color, size }) => <Ionicons name={focused ? "calendar" : "calendar-outline"} size={size} color={color} />,
+          }}
+        />
+        <Tab.Screen
           name="Meal Idea Screen"
           component={MealIdeaScreen}
           options={{
@@ -80,7 +100,7 @@ const MyNav = () => {
     );
   };
 
-  //Root Nav
+  // Root Nav
   const Stack = createNativeStackNavigator();
 
   return (

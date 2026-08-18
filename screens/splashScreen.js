@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { View, Animated, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import asyncKeys from "../constants/asyncKeys";
@@ -8,19 +8,25 @@ const SplashScreen = (props) => {
     const setupInitialAsyncStructure = async () => {
       AsyncStorage.clear();
 
-      const EmptyArrJSON = JSON.stringify([]);
+      const emptyArrJSON = JSON.stringify([]);
 
       // Crossed grocery uuids
-      await AsyncStorage.setItem(asyncKeys.crossedGroceryUuids, EmptyArrJSON);
+      await AsyncStorage.setItem(asyncKeys.crossedGroceryUuids, emptyArrJSON);
 
       // Grocery list
-      await AsyncStorage.setItem(asyncKeys.groceryList, EmptyArrJSON);
+      await AsyncStorage.setItem(asyncKeys.groceryList, emptyArrJSON);
 
       // All groceries
-      await AsyncStorage.setItem(asyncKeys.allGroceries, EmptyArrJSON);
+      await AsyncStorage.setItem(asyncKeys.allGroceries, emptyArrJSON);
 
       // Meal ideas
-      await AsyncStorage.setItem(asyncKeys.mealIdeas, EmptyArrJSON);
+      await AsyncStorage.setItem(asyncKeys.mealIdeas, emptyArrJSON);
+
+      // Week meals
+      await AsyncStorage.setItem(asyncKeys.weekMeals, emptyArrJSON);
+
+      // Crossed week meal uuids
+      await AsyncStorage.setItem(asyncKeys.crossedWeekMealUuids, emptyArrJSON);
     };
 
     const load = async () => {

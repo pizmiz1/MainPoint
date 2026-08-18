@@ -4,6 +4,8 @@ const asyncKeys = {
   crossedGroceryUuids: "CrossedGroceryUuids",
   groceryList: "GroceryList",
   mealIdeas: "MealIdeas",
+  weekMeals: "WeekMeals",
+  crossedWeekMealUuids: "CrossedWeekMealUuids",
 };
 
 export default asyncKeys;

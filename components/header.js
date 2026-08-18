@@ -4,6 +4,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import colors from "../constants/colors";
 
 const Header = ({ headerText, descriptionText, backgroundTrig, blur, actionPress }) => {
+  const hideAction = actionPress === undefined;
+
   return (
     <BlurView
       style={{
@@ -18,7 +20,7 @@ const Header = ({ headerText, descriptionText, backgroundTrig, blur, actionPress
     >
       <View
         style={{
-          justifyContent: "space-between",
+          justifyContent: hideAction ? "center" : "space-between",
           flexDirection: "row",
           alignItems: "center",
           alignSelf: "center",
@@ -26,9 +28,11 @@ const Header = ({ headerText, descriptionText, backgroundTrig, blur, actionPress
           width: "90%",
         }}
       >
-        <View style={{ opacity: 0 }}>
-          <Ionicons name="add" size={30} color={colors.primaryBlue} />
-        </View>
+        {!hideAction && (
+          <View style={{ opacity: 0 }}>
+            <Ionicons name="add" size={30} color={colors.primaryBlue} />
+          </View>
+        )}
         <View
           style={{
             justifyContent: "center",
@@ -52,9 +56,11 @@ const Header = ({ headerText, descriptionText, backgroundTrig, blur, actionPress
             {descriptionText}
           </Text>
         </View>
-        <TouchableOpacity onPress={actionPress} style={{ alignSelf: "center" }}>
-          <Ionicons name="add" size={30} color={colors.primaryBlue} />
-        </TouchableOpacity>
+        {!hideAction && (
+          <TouchableOpacity onPress={actionPress} style={{ alignSelf: "center" }}>
+            <Ionicons name="add" size={30} color={colors.primaryBlue} />
+          </TouchableOpacity>
+        )}
       </View>
     </BlurView>
   );

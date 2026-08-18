@@ -1,7 +1,6 @@
 import {
   ActivityIndicator,
   Animated,
-  FlatList,
   Image,
   Keyboard,
   LayoutAnimation,
@@ -10,18 +9,15 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import colors from "../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import uuid from "react-native-uuid";
-import asyncKeys from "../constants/asyncKeys";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import foodImages from "../constants/foodImages";
 
-const MealIdeaModal = ({ modalVisible, setModalVisible, mealIdea, done, mealIdeas }) => {
+const MealIdeaModal = ({ modalVisible, setModalVisible, mealIdea, mealIdeas, updateMealIdeas }) => {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState(mealIdea ? mealIdea.name : "");
   const [imageId, setImageId] = useState(mealIdea ? mealIdea.imageId : undefined);
@@ -109,10 +105,7 @@ const MealIdeaModal = ({ modalVisible, setModalVisible, mealIdea, done, mealIdea
       }
     }
 
-    const newMealIdeasJSON = JSON.stringify(newMealIdeas);
-    await AsyncStorage.setItem(asyncKeys.mealIdeas, newMealIdeasJSON);
-
-    done(newMealIdeas);
+    updateMealIdeas(newMealIdeas);
     setSaving(false);
     resetState();
     setModalVisible(false);
