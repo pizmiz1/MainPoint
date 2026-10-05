@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Text, View, TouchableOpacity } from "react-native";
+import { View, StyleSheet } from "react-native";
 import colors from "../constants/colors";
 import groceryCategories from "../constants/groceryCategories";
+import { Grocery } from "../types/grocery";
 
 // Custom Hooks
 import { useGroceryList } from "../hooks/useGroceryList";
@@ -9,19 +10,20 @@ import { useAllGroceries } from "../hooks/useAllGroceries";
 import { useCrossedGroceryUUIDs } from "../hooks/useCrossedGroceryUUIDs";
 
 // Custom Components
-import PageContainer from "../components/pageContainer";
-import Category from "../components/category";
-import GroceryModal from "../components/groceryModal";
+import PageContainer from "../components/PageContainer";
+import Category from "../components/Category";
+import GroceryModal from "../components/GroceryModal";
+import ClearAll from "../components/ClearAll";
 
 const GroceryListScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedGrocery, setSelectedGrocery] = useState(undefined);
+  const [selectedGrocery, setSelectedGrocery] = useState<Grocery | undefined>(undefined);
 
   const { groceryList, updateGroceryList } = useGroceryList();
   const { crossedGroceryUUIDs, updateCrossedGroceryUUIDs } = useCrossedGroceryUUIDs();
   const { allGroceries, updateAllGroceries } = useAllGroceries();
 
-  const backgroundColor = (cat) => {
+  const backgroundColor = (cat: string) => {
     switch (cat) {
       case groceryCategories.produce: {
         return "green";
@@ -66,7 +68,7 @@ const GroceryListScreen = () => {
     }
   };
 
-  const crossGrocery = (passedGrocery) => {
+  const crossGrocery = (passedGrocery: Grocery) => {
     if (!crossedGroceryUUIDs.includes(passedGrocery.id)) {
       updateCrossedGroceryUUIDs([...crossedGroceryUUIDs, passedGrocery.id]);
     } else {
@@ -74,12 +76,12 @@ const GroceryListScreen = () => {
     }
   };
 
-  const editGrocery = (passedGrocery) => {
+  const editGrocery = (passedGrocery: Grocery) => {
     setSelectedGrocery(passedGrocery);
     setModalVisible(true);
   };
 
-  const removeGrocery = (passedGrocery) => {
+  const removeGrocery = (passedGrocery: Grocery) => {
     const newGroceryList = groceryList.filter((curr) => curr.id !== passedGrocery.id);
 
     updateGroceryList(newGroceryList);
@@ -89,7 +91,7 @@ const GroceryListScreen = () => {
     }
   };
 
-  const clearAllCurrentGroceries = () => {
+  const clear = () => {
     updateGroceryList([]);
     updateCrossedGroceryUUIDs([]);
   };
@@ -121,7 +123,7 @@ const GroceryListScreen = () => {
   ];
 
   return (
-    <View style={{ flex: 1, marginTop: 25 }}>
+    <View style={styles.container}>
       <GroceryModal
         key={selectedGrocery?.id || "new"}
         modalVisible={modalVisible}
@@ -142,18 +144,8 @@ const GroceryListScreen = () => {
           setModalVisible(true);
         }}
       >
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            alignItems: "center",
-            marginTop: 10,
-            opacity: groceryList.length === 0 ? 0 : 1,
-          }}
-          onPress={clearAllCurrentGroceries}
-          disabled={groceryList.length === 0}
-        >
-          <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
-        </TouchableOpacity>
+        <ClearAll onPress={clear} disabled={groceryList.length === 0} />
+
         {categoryLists
           .filter((curr) => curr.list.length > 0)
           .map((curr) => {
@@ -161,11 +153,11 @@ const GroceryListScreen = () => {
               <Category
                 key={curr.name}
                 catName={curr.name}
-                groceries={curr.list}
+                data={curr.list}
                 onRemove={removeGrocery}
                 onEdit={editGrocery}
                 onCross={crossGrocery}
-                crossedGroceryUUIDs={crossedGroceryUUIDs}
+                crossedUUIDs={crossedGroceryUUIDs}
                 backgroundColor={backgroundColor(curr.name)}
               />
             );
@@ -176,3 +168,10 @@ const GroceryListScreen = () => {
 };
 
 export default GroceryListScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 25,
+  },
+});

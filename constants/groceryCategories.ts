@@ -10,6 +10,6 @@ const groceryCategories = {
   frozen: "Frozen",
   drink: "Drink",
   nonFood: "Non Food",
-};
+} as const;
 
 export default groceryCategories;

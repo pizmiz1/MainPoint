@@ -1,9 +1,19 @@
-import { View } from "react-native";
-import Header from "./header";
-import ScrollViewContainer from "./scrollViewContainer";
-import { useState } from "react";
+import { StyleSheet, View, ViewStyle } from "react-native";
+import { ReactNode, useState } from "react";
 
-const PageContainer = ({ children, headerText, headerDescriptionText, headerActionPress, viewStyle }) => {
+// Custom Components
+import Header from "./Header";
+import ScrollViewContainer from "./ScrollViewContainer";
+
+interface PageContainerProps {
+  children: ReactNode;
+  headerText: string;
+  headerDescriptionText: string;
+  headerActionPress: () => void;
+  viewStyle?: ViewStyle;
+}
+
+const PageContainer = ({ children, headerText, headerDescriptionText, headerActionPress, viewStyle }: PageContainerProps) => {
   const [blur, setBlur] = useState(0);
   const [backgroundTrig, setBackgroundTrig] = useState(0);
 
@@ -29,18 +39,17 @@ const PageContainer = ({ children, headerText, headerDescriptionText, headerActi
           }
         }}
       >
-        <View
-          style={{
-            marginBottom: 20,
-            marginTop: 80,
-            ...viewStyle,
-          }}
-        >
-          {children}
-        </View>
+        <View style={[styles.content, viewStyle]}>{children}</View>
       </ScrollViewContainer>
     </>
   );
 };
 
 export default PageContainer;
+
+const styles = StyleSheet.create({
+  content: {
+    marginBottom: 20,
+    marginTop: 80,
+  },
+});

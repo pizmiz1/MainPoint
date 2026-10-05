@@ -1,9 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import asyncKeys from "../constants/asyncKeys";
+import { Grocery } from "../types/grocery";
 
 export const useGroceryList = () => {
-  const [groceryList, setGroceryList] = useState([]);
+  const [groceryList, setGroceryList] = useState<Grocery[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -18,7 +19,7 @@ export const useGroceryList = () => {
     load();
   }, []);
 
-  const updateGroceryList = async (newGroceryList) => {
+  const updateGroceryList = async (newGroceryList: Grocery[]) => {
     setGroceryList(newGroceryList);
     const groceryListJSON = JSON.stringify(newGroceryList);
     await AsyncStorage.setItem(asyncKeys.groceryList, groceryListJSON);

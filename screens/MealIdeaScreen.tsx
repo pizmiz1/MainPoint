@@ -1,17 +1,19 @@
-import { LayoutAnimation, Text, TouchableOpacity, View } from "react-native";
+import { LayoutAnimation, StyleSheet, View } from "react-native";
 import { useState } from "react";
+import { MealIdea } from "../types/mealIdea";
 
 // Custom Hooks
 import { useMealIdeas } from "../hooks/useMealIdeas";
 
 // Custom Components
-import MealIdeaModal from "../components/mealIdeaModal";
-import MealIdeaCard from "../components/mealIdeaCard";
-import PageContainer from "../components/pageContainer";
+import MealIdeaModal from "../components/MealIdeaModal";
+import MealIdeaCard from "../components/MealIdeaCard";
+import PageContainer from "../components/PageContainer";
+import ClearAll from "../components/ClearAll";
 
 const MealIdeaScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedMealIdea, setSelectedMealIdea] = useState(undefined);
+  const [selectedMealIdea, setSelectedMealIdea] = useState<MealIdea | undefined>(undefined);
 
   const { mealIdeas, updateMealIdeas } = useMealIdeas();
 
@@ -21,7 +23,7 @@ const MealIdeaScreen = () => {
   };
 
   return (
-    <View style={{ flex: 1, marginTop: 25 }}>
+    <View style={styles.container}>
       <MealIdeaModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -37,22 +39,11 @@ const MealIdeaScreen = () => {
           setSelectedMealIdea(undefined);
           setModalVisible(true);
         }}
-        viewStyle={{ paddingHorizontal: 20 }}
+        viewStyle={styles.pageContainer}
       >
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            alignItems: "center",
-            marginTop: 10,
-            opacity: mealIdeas.length > 0 ? 1 : 0,
-          }}
-          onPress={clear}
-          disabled={mealIdeas.length === 0}
-        >
-          <Text style={{ fontSize: 20, color: "red" }}>Clear All</Text>
-        </TouchableOpacity>
+        <ClearAll onPress={clear} disabled={mealIdeas.length === 0} />
 
-        <View style={{ gap: 20, marginTop: 20 }}>
+        <View style={styles.ideaContainer}>
           {mealIdeas.map((curr) => {
             return (
               <MealIdeaCard
@@ -72,3 +63,17 @@ const MealIdeaScreen = () => {
 };
 
 export default MealIdeaScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 25,
+  },
+  pageContainer: {
+    paddingHorizontal: 20,
+  },
+  ideaContainer: {
+    gap: 20,
+    marginTop: 20,
+  },
+});

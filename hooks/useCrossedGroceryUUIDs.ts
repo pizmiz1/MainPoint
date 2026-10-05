@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import asyncKeys from "../constants/asyncKeys";
 
 export const useCrossedGroceryUUIDs = () => {
-  const [crossedGroceryUUIDs, setCrossedGroceryUUIDs] = useState([]);
+  const [crossedGroceryUUIDs, setCrossedGroceryUUIDs] = useState<string[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -18,7 +18,7 @@ export const useCrossedGroceryUUIDs = () => {
     load();
   }, []);
 
-  const updateCrossedGroceryUUIDs = async (newCrossedGroceryUUIDs) => {
+  const updateCrossedGroceryUUIDs = async (newCrossedGroceryUUIDs: string[]) => {
     setCrossedGroceryUUIDs(newCrossedGroceryUUIDs);
     const crossGroceryUUIDsJSON = JSON.stringify(newCrossedGroceryUUIDs);
     await AsyncStorage.setItem(asyncKeys.crossedGroceryUuids, crossGroceryUUIDsJSON);

@@ -1,9 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import asyncKeys from "../constants/asyncKeys";
+import { WeekMeal } from "../types/weekMeal";
 
 export const useWeekMeals = () => {
-  const [weekMeals, setWeekMeals] = useState([]);
+  const [weekMeals, setWeekMeals] = useState<WeekMeal[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -18,7 +19,7 @@ export const useWeekMeals = () => {
     load();
   }, []);
 
-  const updateWeekMeals = async (newWeekMeals) => {
+  const updateWeekMeals = async (newWeekMeals: WeekMeal[]) => {
     setWeekMeals(newWeekMeals);
     const newWeekMealsJSON = JSON.stringify(newWeekMeals);
     await AsyncStorage.setItem(asyncKeys.weekMeals, newWeekMealsJSON);
