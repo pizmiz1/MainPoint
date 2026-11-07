@@ -1,29 +1,42 @@
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import colors from "../constants/colors";
 
 interface HeaderProps {
   headerText: string;
   descriptionText: string;
-  backgroundTrig: number;
+  scrollY: Animated.Value;
   blur: number;
   actionPress: () => void;
 }
 
-const Header = ({ headerText, descriptionText, backgroundTrig, blur, actionPress }: HeaderProps) => {
+const Header = ({ headerText, descriptionText, scrollY, blur, actionPress }: HeaderProps) => {
+  const backgroundOpacity = scrollY.interpolate({
+    inputRange: [40, 150],
+    outputRange: [0, 1],
+    extrapolate: "clamp",
+  });
+
   const hideAction = actionPress === undefined;
 
   return (
-    <BlurView
-      style={[styles.container, { backgroundColor: backgroundTrig > 100 ? "rgba(255, 255, 255, .7)" : undefined }]}
-      intensity={blur}
-      tint="light"
-    >
+    <BlurView style={styles.container} intensity={Math.min(blur, 25)} tint="light">
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            backgroundColor: "rgba(255, 255, 255, 0.6)",
+            opacity: backgroundOpacity,
+          },
+        ]}
+      />
+
       <View style={[styles.content, { justifyContent: hideAction ? "center" : "space-between" }]}>
         {!hideAction && (
           <View style={styles.invisible}>
-            <Ionicons name="add" size={30} color={colors.primaryBlue} />
+            <Ionicons name="add" size={35} color={colors.primaryBlue} />
           </View>
         )}
         <View style={styles.headerContainer}>
@@ -32,10 +45,12 @@ const Header = ({ headerText, descriptionText, backgroundTrig, blur, actionPress
         </View>
         {!hideAction && (
           <TouchableOpacity onPress={actionPress} style={styles.btn}>
-            <Ionicons name="add" size={30} color={colors.primaryBlue} />
+            <Ionicons name="add" size={35} color={colors.primaryBlue} />
           </TouchableOpacity>
         )}
       </View>
+
+      <Animated.View pointerEvents="none" style={[styles.bottomBorder, { opacity: backgroundOpacity }]} />
     </BlurView>
   );
 };
@@ -44,10 +59,13 @@ export default Header;
 
 const styles = StyleSheet.create({
   container: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    top: -5,
     width: "100%",
-    height: "15%",
-    ...StyleSheet.absoluteFill,
-    top: -30,
+    height: 110,
     justifyContent: "flex-end",
     zIndex: 300,
   },
@@ -75,5 +93,12 @@ const styles = StyleSheet.create({
   },
   btn: {
     alignSelf: "center",
+  },
+  bottomBorder: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    height: 1,
+    backgroundColor: "#D0D5DA",
   },
 });

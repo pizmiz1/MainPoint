@@ -4,32 +4,30 @@ import { useState } from "react";
 import uuid from "react-native-uuid";
 import { WeekMeal } from "../types/weekMeal";
 import weekCategories from "../constants/weekCategories";
+import { useGlobalContext } from "../store/GlobalContext";
 
 // Custom Components
 import CategorySelector from "./CategorySelector";
 import FadeModal from "./FadeModal";
 
-interface WeekIdeaModalProps {
+interface WeekMealModalProps {
   modalVisible: boolean;
   setModalVisible: (newModalVisible: boolean) => void;
-  onAdd: (weekMeal: WeekMeal) => void;
   backgroundColor: (item: any) => string;
+  selectedWeekMeal: WeekMeal | undefined;
 }
 
-const WeekMealModal = ({ modalVisible, setModalVisible, onAdd, backgroundColor }: WeekIdeaModalProps) => {
-  const [name, setName] = useState("");
-  const [cat, setCat] = useState<string | null>(null);
+const WeekMealModal = ({ modalVisible, setModalVisible, backgroundColor, selectedWeekMeal }: WeekMealModalProps) => {
+  const { updateWeekMeals } = useGlobalContext();
+
+  const [name, setName] = useState(selectedWeekMeal ? selectedWeekMeal.name : "");
+  const [cat, setCat] = useState<string | null>(selectedWeekMeal ? selectedWeekMeal.category : null);
   const [catInvalid, setCatInvalid] = useState(false);
 
   const cats = Object.values(weekCategories);
 
   const closeModal = () => {
     setModalVisible(false);
-    setTimeout(() => {
-      setName("");
-      setCat(null);
-      setCatInvalid(false);
-    }, 500);
   };
 
   const submit = () => {
@@ -39,20 +37,24 @@ const WeekMealModal = ({ modalVisible, setModalVisible, onAdd, backgroundColor }
       return;
     }
 
-    const newWeekMeal: WeekMeal = {
-      id: uuid.v4(),
+    const weekMeal: WeekMeal = {
+      id: selectedWeekMeal ? selectedWeekMeal.id : uuid.v4(),
       name: name,
       category: cat as (typeof weekCategories)[keyof typeof weekCategories],
     };
 
-    onAdd(newWeekMeal);
+    if (selectedWeekMeal) {
+      updateWeekMeals((prev) => prev.map((curr) => (curr.id === weekMeal.id ? { ...curr, name: weekMeal.name, category: weekMeal.category } : curr)));
+    } else {
+      updateWeekMeals((prev) => [...prev, weekMeal]);
+    }
     closeModal();
   };
 
   const addDisabled = name === "" || cat === null;
 
   return (
-    <FadeModal modalVisible={modalVisible} innerViewStyle={{ marginBottom: 80 }}>
+    <FadeModal modalVisible={modalVisible} innerViewStyle={{ marginBottom: 110 }}>
       <TextInput
         value={name}
         placeholder="Name"
@@ -87,7 +89,7 @@ const WeekMealModal = ({ modalVisible, setModalVisible, onAdd, backgroundColor }
           <Text style={styles.cancelText}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity disabled={addDisabled} onPress={submit}>
-          <Text style={[styles.addText, { opacity: addDisabled ? 0.4 : 1 }]}>Add</Text>
+          <Text style={[styles.addText, { opacity: addDisabled ? 0.4 : 1 }]}>{selectedWeekMeal ? "Update" : "Add"}</Text>
         </TouchableOpacity>
       </View>
     </FadeModal>

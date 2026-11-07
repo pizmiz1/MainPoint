@@ -17,7 +17,6 @@ export default ClearAll;
 
 const styles = StyleSheet.create({
   clearBtn: {
-    flex: 1,
     alignItems: "center",
     marginTop: 10,
   },

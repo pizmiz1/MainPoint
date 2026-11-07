@@ -2,10 +2,11 @@
   "expo": {
     "name": "MainPoint",
     "slug": "MainPoint",
-    "version": "8.0",
+    "scheme": "mainpoint",
+    "version": "9.0",
     "orientation": "portrait",
     "icon": "./assets/Logo/MainLogo.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.Linedo.MainPoint",
@@ -19,6 +20,6 @@
         "projectId": "72452d11-5f02-4b09-af9f-255c5bbd0186"
       }
     },
-    "plugins": ["expo-font"]
+    "plugins": ["expo-font", "expo-router"]
   }
 }

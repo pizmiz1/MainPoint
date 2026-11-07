@@ -2,20 +2,19 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import colors from "../constants/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import asyncKeys from "../constants/asyncKeys";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/Navigation";
+import { useRouter } from "expo-router";
 
 // Custom Components
 import Button from "../components/Button";
 
-interface DisclaimerScreenProps extends NativeStackScreenProps<RootStackParamList, "Disclaimer"> {}
+const DisclaimerScreen = () => {
+  const router = useRouter();
 
-const DisclaimerScreen = (props: DisclaimerScreenProps) => {
   const continuePress = async () => {
     const firstUseJSON = JSON.stringify(false);
     await AsyncStorage.setItem(asyncKeys.firstUse, firstUseJSON);
 
-    props.navigation.navigate("Tabs");
+    router.replace("(tabs)");
   };
 
   return (

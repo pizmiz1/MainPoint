@@ -1,9 +1,9 @@
 const groceryCategories = {
-  grain: "Grain",
   produce: "Produce",
   fruit: "Fruit",
   fish: "Fish",
   meat: "Meat",
+  grain: "Grain",
   dairy: "Dairy",
   condiment: "Condiment",
   snack: "Snack",

@@ -1,27 +1,24 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { View, StyleSheet } from "react-native";
-import colors from "../constants/colors";
-import groceryCategories from "../constants/groceryCategories";
-import { Grocery } from "../types/grocery";
-
-// Custom Hooks
-import { useGroceryList } from "../hooks/useGroceryList";
-import { useAllGroceries } from "../hooks/useAllGroceries";
-import { useCrossedGroceryUUIDs } from "../hooks/useCrossedGroceryUUIDs";
+import colors from "../../constants/colors";
+import groceryCategories from "../../constants/groceryCategories";
+import { Grocery } from "../../types/grocery";
+import { useGlobalContext } from "../../store/GlobalContext";
 
 // Custom Components
-import PageContainer from "../components/PageContainer";
-import Category from "../components/Category";
-import GroceryModal from "../components/GroceryModal";
-import ClearAll from "../components/ClearAll";
+import PageContainer from "../../components/PageContainer";
+import Category from "../../components/Category";
+import GroceryModal from "../../components/GroceryModal";
+import ClearAll from "../../components/ClearAll";
 
 const GroceryListScreen = () => {
+  const { groceryList, updateGroceryList } = useGlobalContext();
+  const { crossedGroceryUUIDs, updateCrossedGroceryUUIDs } = useGlobalContext();
+
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedGrocery, setSelectedGrocery] = useState<Grocery | undefined>(undefined);
 
-  const { groceryList, updateGroceryList } = useGroceryList();
-  const { crossedGroceryUUIDs, updateCrossedGroceryUUIDs } = useCrossedGroceryUUIDs();
-  const { allGroceries, updateAllGroceries } = useAllGroceries();
+  const modalKey = useRef(0);
 
   const backgroundColor = (cat: string) => {
     switch (cat) {
@@ -69,26 +66,30 @@ const GroceryListScreen = () => {
   };
 
   const crossGrocery = (passedGrocery: Grocery) => {
-    if (!crossedGroceryUUIDs.includes(passedGrocery.id)) {
-      updateCrossedGroceryUUIDs([...crossedGroceryUUIDs, passedGrocery.id]);
-    } else {
-      updateCrossedGroceryUUIDs(crossedGroceryUUIDs.filter((currId) => passedGrocery.id !== currId));
-    }
+    updateCrossedGroceryUUIDs((prev) => {
+      if (!prev.includes(passedGrocery.id)) {
+        return [...prev, passedGrocery.id];
+      } else {
+        return prev.filter((currId) => passedGrocery.id !== currId);
+      }
+    });
   };
 
   const editGrocery = (passedGrocery: Grocery) => {
     setSelectedGrocery(passedGrocery);
+    modalKey.current = modalKey.current + 1;
     setModalVisible(true);
   };
 
   const removeGrocery = (passedGrocery: Grocery) => {
-    const newGroceryList = groceryList.filter((curr) => curr.id !== passedGrocery.id);
+    updateGroceryList((prev) => prev.filter((curr) => curr.id !== passedGrocery.id));
+    updateCrossedGroceryUUIDs((prev) => {
+      if (prev.includes(passedGrocery.id)) {
+        return prev.filter((currId) => passedGrocery.id !== currId);
+      }
 
-    updateGroceryList(newGroceryList);
-
-    if (crossedGroceryUUIDs.includes(passedGrocery.id)) {
-      updateCrossedGroceryUUIDs(crossedGroceryUUIDs.filter((currId) => passedGrocery.id !== currId));
-    }
+      return prev;
+    });
   };
 
   const clear = () => {
@@ -125,24 +126,22 @@ const GroceryListScreen = () => {
   return (
     <View style={styles.container}>
       <GroceryModal
-        key={selectedGrocery?.id || "new"}
+        key={modalKey.current}
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         selectedGrocery={selectedGrocery}
-        setSelectedGrocery={setSelectedGrocery}
-        groceryList={groceryList}
-        updateGroceryList={updateGroceryList}
-        allGroceries={allGroceries}
-        updateAllGroceries={updateAllGroceries}
         backgroundColor={backgroundColor}
       />
 
       <PageContainer
         headerText="List"
-        headerDescriptionText={`${groceryList.length} ${groceryList.length !== 1 ? "Items" : "Item"}`}
+        listLength={groceryList.length}
         headerActionPress={() => {
+          modalKey.current = modalKey.current + 1;
+          setSelectedGrocery(undefined);
           setModalVisible(true);
         }}
+        scrollDisabled={groceryList.length === 0}
       >
         <ClearAll onPress={clear} disabled={groceryList.length === 0} />
 
@@ -172,6 +171,5 @@ export default GroceryListScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 25,
   },
 });

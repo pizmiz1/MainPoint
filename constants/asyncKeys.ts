@@ -3,7 +3,7 @@ const asyncKeys = {
   firstUse: "FirstUse",
   crossedGroceryUuids: "CrossedGroceryUuids",
   groceryList: "GroceryList",
-  mealIdeas: "MealIdeas",
+  mealNotes: "MealNotes",
   weekMeals: "WeekMeals",
   crossedWeekMealUuids: "CrossedWeekMealUuids",
 };

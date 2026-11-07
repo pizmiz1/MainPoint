@@ -15,7 +15,7 @@ const Button = ({ style, label, onPress, color = colors.primaryBlue, size }: But
       style={[styles.btn, style, color && { backgroundColor: color }, size !== undefined && { width: size, height: size / 2.9 }]}
       onPress={onPress}
     >
-      <Text style={{ color: "white", fontWeight: "bold" }}>{label}</Text>
+      <Text style={styles.btnText}>{label}</Text>
     </TouchableOpacity>
   );
 };

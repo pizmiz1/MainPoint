@@ -1,9 +1,10 @@
 import { TextInput, TouchableOpacity, View, Text, LayoutAnimation, StyleSheet } from "react-native";
 import colors from "../constants/colors";
 import groceryCategories from "../constants/groceryCategories";
-import { RefObject, useState } from "react";
+import { useState } from "react";
 import uuid from "react-native-uuid";
 import { Grocery } from "../types/grocery";
+import { useGlobalContext } from "../store/GlobalContext";
 
 // Custom Components
 import CategorySelector from "./CategorySelector";
@@ -13,25 +14,12 @@ interface GroceryModalProps {
   modalVisible: boolean;
   setModalVisible: (newVisible: boolean) => void;
   selectedGrocery: Grocery | undefined;
-  setSelectedGrocery: (newGrocery: Grocery | undefined) => void;
-  groceryList: Grocery[];
-  updateGroceryList: (newGroceryList: Grocery[]) => void;
-  allGroceries: RefObject<Grocery[]>;
-  updateAllGroceries: (newAllGroceries: Grocery[]) => void;
   backgroundColor: (item: any) => string;
 }
 
-const GroceryModal = ({
-  modalVisible,
-  setModalVisible,
-  selectedGrocery,
-  setSelectedGrocery,
-  groceryList,
-  updateGroceryList,
-  allGroceries,
-  updateAllGroceries,
-  backgroundColor,
-}: GroceryModalProps) => {
+const GroceryModal = ({ modalVisible, setModalVisible, selectedGrocery, backgroundColor }: GroceryModalProps) => {
+  const { updateGroceryList, updateAllGroceries } = useGlobalContext();
+
   const [newGroceryName, setNewGroceryName] = useState(selectedGrocery ? selectedGrocery.name : "");
   const [addingNewGrocery, setAddingNewGrocery] = useState(selectedGrocery ? true : false);
   const [newCat, setNewCat] = useState(selectedGrocery ? selectedGrocery.category : null);
@@ -40,12 +28,7 @@ const GroceryModal = ({
   const cats = Object.values(groceryCategories);
 
   const resetState = () => {
-    setNewGroceryName("");
     setModalVisible(false);
-    setAddingNewGrocery(false);
-    setNewCat(null);
-    setCatInvalid(false);
-    setSelectedGrocery(undefined);
   };
 
   const addUpdateGrocery = () => {
@@ -57,72 +40,82 @@ const GroceryModal = ({
 
     // Updating
     if (selectedGrocery !== undefined) {
-      const existingGrocery = allGroceries.current.find((currGrocery) => currGrocery.name === newGroceryName && currGrocery.category === newCat);
-
-      // No Change
       if (newCat === selectedGrocery.category && newGroceryName === selectedGrocery.name) {
         resetState();
         return;
       }
 
-      // Existing Grocery
-      if (existingGrocery) {
-        if (groceryList.some((curr) => curr.id === selectedGrocery.id)) {
-          updateGroceryList(groceryList.filter((curr) => curr.id !== selectedGrocery.id));
+      const currentId = selectedGrocery.id;
+
+      updateAllGroceries((prevAll) => {
+        const existingGrocery = prevAll.find((currGrocery) => currGrocery.name === newGroceryName && currGrocery.category === newCat);
+
+        if (existingGrocery) {
+          updateGroceryList((prevList) => {
+            if (prevList.some((curr) => curr.id === currentId)) {
+              return prevList.filter((curr) => curr.id !== currentId);
+            } else {
+              return prevList.map((curr) => (curr.id === currentId ? existingGrocery : curr));
+            }
+          });
         } else {
-          updateGroceryList(groceryList.map((curr) => (curr.id === selectedGrocery.id ? existingGrocery : curr)));
-        }
-        resetState();
-        return;
-      }
-
-      // New Grocery
-      const id = selectedGrocery.id;
-
-      updateGroceryList(groceryList.map((curr) => (curr.id === id ? { ...curr, name: newGroceryName, category: newCat! } : curr)));
-      updateAllGroceries(allGroceries.current.map((curr) => (curr.id === id ? { ...curr, name: newGroceryName, category: newCat! } : curr)));
-    } // Adding
-    else {
-      const existingGrocery = allGroceries.current.find((currGrocery) => currGrocery.name === newGroceryName);
-
-      if (existingGrocery) {
-        const existingGroceryInList = groceryList.find((currGrocery) => currGrocery.name === newGroceryName);
-        if (existingGroceryInList) {
-          resetState();
-          return;
+          const updatedItem = { ...selectedGrocery, name: newGroceryName, category: newCat! };
+          updateGroceryList((prevList) => prevList.map((curr) => (curr.id === currentId ? updatedItem : curr)));
+          return prevAll.map((curr) => (curr.id === currentId ? updatedItem : curr));
         }
 
-        newGrocery.category = existingGrocery.category;
-        newGrocery.id = existingGrocery.id;
-      } else {
-        if (!addingNewGrocery) {
-          LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
-          setAddingNewGrocery(true);
-          return;
-        }
-        if (newCat === null) {
-          LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
-          setCatInvalid(true);
-          return;
-        }
+        return prevAll;
+      });
 
-        if (newGroceryName === "") {
-          return;
-        }
-
-        newGrocery.category = newCat;
-
-        updateAllGroceries(allGroceries.current.concat([newGrocery]));
-      }
-
-      updateGroceryList([...groceryList, newGrocery]);
+      resetState();
     }
+    // Adding
+    else {
+      updateAllGroceries((prevAll) => {
+        const existingGrocery = prevAll.find((currGrocery) => currGrocery.name === newGroceryName);
+        let groceryToProcess = { ...newGrocery };
 
-    resetState();
+        if (existingGrocery) {
+          updateGroceryList((prevList) => {
+            const existingGroceryInList = prevList.find((currGrocery) => currGrocery.name === newGroceryName);
+            if (existingGroceryInList) {
+              return prevList;
+            }
+            groceryToProcess.category = existingGrocery.category;
+            groceryToProcess.id = existingGrocery.id;
+            return [...prevList, groceryToProcess];
+          });
+
+          requestAnimationFrame(() => resetState());
+          return prevAll;
+        } else {
+          if (!addingNewGrocery) {
+            LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
+            setAddingNewGrocery(true);
+            return prevAll;
+          }
+          if (newCat === null) {
+            LayoutAnimation.configureNext(LayoutAnimation.create(200, LayoutAnimation.Types.linear, LayoutAnimation.Properties.opacity));
+            setCatInvalid(true);
+            return prevAll;
+          }
+          if (newGroceryName === "") {
+            return prevAll;
+          }
+
+          groceryToProcess.category = newCat;
+
+          updateGroceryList((prevList) => [...prevList, groceryToProcess]);
+
+          requestAnimationFrame(() => resetState());
+          return [...prevAll, groceryToProcess];
+        }
+      });
+    }
   };
 
   return (
-    <FadeModal modalVisible={modalVisible} innerViewStyle={{ marginBottom: addingNewGrocery ? 80 : 40 }}>
+    <FadeModal modalVisible={modalVisible} innerViewStyle={{ marginBottom: addingNewGrocery ? 110 : 70 }}>
       <TextInput
         value={newGroceryName}
         placeholder="Name"
