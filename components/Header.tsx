@@ -27,7 +27,7 @@ const Header = ({ headerText, descriptionText, scrollY, blur, actionPress }: Hea
         style={[
           StyleSheet.absoluteFill,
           {
-            backgroundColor: "rgba(255, 255, 255, 0.6)",
+            backgroundColor: "rgba(251, 250, 254, 0.7)",
             opacity: backgroundOpacity,
           },
         ]}
